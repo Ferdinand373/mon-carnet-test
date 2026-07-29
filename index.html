@@ -1201,7 +1201,12 @@
         recipes = await getAll('recipes');
         plans = await getAll('plans');
         const settingsRows = await getAll('settings');
-        settingsRows.forEach(row => settings[row.key] = row.value);
+        const hasInterruptedRestore = settingsRows.some(row => String(row.key || '').startsWith('__mc_restore_stage__:'));
+        settingsRows.forEach(row => {
+          if (String(row.key || '').startsWith('__mc_restore_stage__:')) return;
+          settings[row.key] = row.value;
+        });
+        if (hasInterruptedRestore) clearRestoreStage().catch(() => {});
         settings.pantryProducts = normalizePantryProducts(settings.pantryProducts);
         if (!Array.isArray(settings.savedMenus)) settings.savedMenus = [];
         const categoryUpdates = recipes.filter(recipe => !CATEGORY_VALUES.includes(String(recipe.category || '').trim()));
@@ -4106,44 +4111,236 @@
         showToast('Sauvegarde créée');
       }
 
-      function replaceBackupStoresAtomically(data, nextSettings) {
+      const RESTORE_STAGE_PREFIX = '__mc_restore_stage__:';
+      const RESTORE_RECIPE_PREFIX = `${RESTORE_STAGE_PREFIX}recipe:`;
+      const RESTORE_PLAN_PREFIX = `${RESTORE_STAGE_PREFIX}plan:`;
+      const RESTORE_CHUNK_SIZE = 1024 * 1024;
+
+      function setRestoreProgress(message, due = false) {
+        const status = $('#backupStatus');
+        if (!status) return;
+        status.textContent = message;
+        status.classList.toggle('due', due);
+      }
+
+      function clearRestoreStage() {
+        return new Promise((resolve, reject) => {
+          const transaction = db.transaction('settings', 'readwrite');
+          const store = transaction.objectStore('settings');
+          const request = store.openCursor();
+          transaction.oncomplete = () => resolve();
+          transaction.onerror = () => reject(transaction.error || new Error('Nettoyage temporaire impossible'));
+          transaction.onabort = () => reject(transaction.error || new Error('Nettoyage temporaire annulé'));
+          request.onsuccess = () => {
+            const cursor = request.result;
+            if (!cursor) return;
+            if (String(cursor.key || '').startsWith(RESTORE_STAGE_PREFIX)) cursor.delete();
+            cursor.continue();
+          };
+          request.onerror = () => reject(request.error || new Error('Nettoyage temporaire impossible'));
+        });
+      }
+
+      function stageRestoreValue(key, value) {
+        return new Promise((resolve, reject) => {
+          const transaction = db.transaction('settings', 'readwrite');
+          const request = transaction.objectStore('settings').put({ key, value });
+          transaction.oncomplete = () => resolve();
+          transaction.onerror = () => reject(transaction.error || request.error || new Error('Écriture temporaire impossible'));
+          transaction.onabort = () => reject(transaction.error || new Error('Écriture temporaire annulée'));
+        });
+      }
+
+      async function readBackupRecipesByChunks(file, onRecipe, onProgress) {
+        let offset = 0;
+        let prefix = '';
+        let tail = '';
+        let recipesStarted = false;
+        let recipesFinished = false;
+        let capturing = false;
+        let depth = 0;
+        let inString = false;
+        let carryBackslashes = 0;
+        let parts = [];
+        let recipeCount = 0;
+
+        const processRecipeText = async text => {
+          let i = 0;
+          let segmentStart = capturing ? 0 : -1;
+
+          while (i < text.length) {
+            if (!capturing) {
+              const ch = text[i];
+              if (/\s|,/.test(ch)) { i += 1; continue; }
+              if (ch === ']') {
+                recipesFinished = true;
+                return text.slice(i + 1);
+              }
+              if (ch !== '{') throw new Error('Format des recettes invalide');
+              capturing = true;
+              depth = 1;
+              inString = false;
+              carryBackslashes = 0;
+              parts = [];
+              segmentStart = i;
+              i += 1;
+              continue;
+            }
+
+            if (inString) {
+              const quote = text.indexOf('"', i);
+              if (quote === -1) {
+                let run = 0;
+                for (let j = text.length - 1; j >= i && text[j] === '\\'; j -= 1) run += 1;
+                carryBackslashes = run;
+                i = text.length;
+                break;
+              }
+              let run = 0;
+              for (let j = quote - 1; j >= i && text[j] === '\\'; j -= 1) run += 1;
+              if (quote - run === i && i === 0) run += carryBackslashes;
+              carryBackslashes = 0;
+              if (run % 2 === 0) inString = false;
+              i = quote + 1;
+              continue;
+            }
+
+            const ch = text[i];
+            if (ch === '"') {
+              inString = true;
+              carryBackslashes = 0;
+            } else if (ch === '{' || ch === '[') {
+              depth += 1;
+            } else if (ch === '}' || ch === ']') {
+              depth -= 1;
+              if (depth === 0) {
+                parts.push(text.slice(segmentStart, i + 1));
+                const rawRecipe = parts.join('');
+                let recipe;
+                try { recipe = JSON.parse(rawRecipe); }
+                catch (_) { throw new Error(`Recette ${recipeCount + 1} illisible`); }
+                recipeCount += 1;
+                await onRecipe(recipe, recipeCount);
+                if (onProgress) onProgress(recipeCount);
+                capturing = false;
+                parts = [];
+                segmentStart = -1;
+              }
+            }
+            i += 1;
+          }
+
+          if (capturing && segmentStart >= 0) parts.push(text.slice(segmentStart));
+          return '';
+        };
+
+        while (offset < file.size) {
+          const end = Math.min(file.size, offset + RESTORE_CHUNK_SIZE);
+          const chunk = await file.slice(offset, end).text();
+          offset = end;
+
+          if (!recipesStarted) {
+            prefix += chunk;
+            const match = /"recipes"\s*:\s*\[/.exec(prefix);
+            if (!match) {
+              if (prefix.length > 8 * RESTORE_CHUNK_SIZE) throw new Error('Section recettes introuvable');
+              continue;
+            }
+            recipesStarted = true;
+            const afterStart = prefix.slice(match.index + match[0].length);
+            prefix = '';
+            const remainder = await processRecipeText(afterStart);
+            if (recipesFinished) tail += remainder;
+          } else if (!recipesFinished) {
+            const remainder = await processRecipeText(chunk);
+            if (recipesFinished) tail += remainder;
+          } else {
+            tail += chunk;
+          }
+
+          if (tail.length > 32 * 1024 * 1024) throw new Error('Planning ou réglages anormalement volumineux');
+          await new Promise(resolve => setTimeout(resolve, 0));
+        }
+
+        if (!recipesStarted || !recipesFinished || capturing) throw new Error('Sauvegarde incomplète');
+        const trimmedTail = tail.replace(/^\s*,/, '');
+        let remaining;
+        try { remaining = JSON.parse(`{${trimmedTail}`); }
+        catch (_) { throw new Error('Planning ou réglages illisibles'); }
+        if (!Array.isArray(remaining.plans)) throw new Error('Planning absent ou invalide');
+        return { recipeCount, plans: remaining.plans, settings: remaining.settings || {} };
+      }
+
+      function finalizeStagedRestore(nextSettings) {
         return new Promise((resolve, reject) => {
           const transaction = db.transaction(['recipes', 'plans', 'settings'], 'readwrite');
           const recipesStore = transaction.objectStore('recipes');
           const plansStore = transaction.objectStore('plans');
           const settingsStore = transaction.objectStore('settings');
 
+          recipesStore.clear();
+          plansStore.clear();
+
+          const cursorRequest = settingsStore.openCursor();
+          cursorRequest.onsuccess = () => {
+            const cursor = cursorRequest.result;
+            if (!cursor) {
+              for (const [key, value] of Object.entries(nextSettings)) settingsStore.put({ key, value });
+              return;
+            }
+            const key = String(cursor.key || '');
+            if (key.startsWith(RESTORE_RECIPE_PREFIX)) recipesStore.put(cursor.value.value);
+            else if (key.startsWith(RESTORE_PLAN_PREFIX)) plansStore.put(cursor.value.value);
+            cursor.delete();
+            cursor.continue();
+          };
+          cursorRequest.onerror = () => reject(cursorRequest.error || new Error('Lecture temporaire impossible'));
           transaction.oncomplete = () => resolve();
           transaction.onerror = () => reject(transaction.error || new Error('Échec de la restauration'));
           transaction.onabort = () => reject(transaction.error || new Error('Restauration annulée'));
-
-          try {
-            recipesStore.clear();
-            plansStore.clear();
-            settingsStore.clear();
-            for (const recipe of data.recipes) recipesStore.put(recipe);
-            for (const plan of data.plans) plansStore.put(plan);
-            for (const [key, value] of Object.entries(nextSettings)) settingsStore.put({ key, value });
-          } catch (error) {
-            transaction.abort();
-            reject(error);
-          }
         });
       }
 
       async function importBackup(file) {
+        if (!file) return;
+        const sizeMb = Math.max(1, Math.round(file.size / 1048576));
+        if (!confirm(`Restaurer cette sauvegarde de ${sizeMb} Mo remplacera les données actuelles. Continuer ?`)) return;
+
         try {
-          const data = JSON.parse(await file.text());
-          if (!Array.isArray(data.recipes) || !Array.isArray(data.plans)) throw new Error('Format invalide');
-          if (!confirm('Restaurer cette sauvegarde remplacera les données actuelles. Continuer ?')) return;
-          const restoredSettings = { pantryProducts: [...DEFAULT_PANTRY_PRODUCTS], seeded: true, ...(data.settings || {}), clairUrl: DEFAULT_CLAIR_URL };
-          if (!restoredSettings.clairUrl) restoredSettings.clairUrl = DEFAULT_CLAIR_URL;
+          setRestoreProgress('Préparation de la restauration…');
+          await clearRestoreStage();
+
+          const parsed = await readBackupRecipesByChunks(
+            file,
+            async (recipe, index) => stageRestoreValue(`${RESTORE_RECIPE_PREFIX}${String(index).padStart(6, '0')}`, recipe),
+            count => setRestoreProgress(`Restauration en préparation… ${count} recette${count > 1 ? 's' : ''} lue${count > 1 ? 's' : ''}.`)
+          );
+
+          for (let index = 0; index < parsed.plans.length; index += 1) {
+            await stageRestoreValue(`${RESTORE_PLAN_PREFIX}${String(index + 1).padStart(6, '0')}`, parsed.plans[index]);
+          }
+
+          const restoredSettings = {
+            pantryProducts: [...DEFAULT_PANTRY_PRODUCTS],
+            seeded: true,
+            ...(parsed.settings || {}),
+            clairUrl: DEFAULT_CLAIR_URL
+          };
           restoredSettings.pantryProducts = normalizePantryProducts(restoredSettings.pantryProducts);
           if (!Array.isArray(restoredSettings.savedMenus)) restoredSettings.savedMenus = [];
-          await replaceBackupStoresAtomically(data, restoredSettings);
+
+          setRestoreProgress('Vérification et remplacement sécurisé des données…');
+          await finalizeStagedRestore(restoredSettings);
           settings = restoredSettings;
-          await loadData(); renderAll(); navigate('home'); showToast('Sauvegarde restaurée');
-        } catch (err) { alert(`Impossible de restaurer ce fichier : ${err.message}`); }
+          await loadData();
+          renderAll();
+          navigate('home');
+          showToast(`Sauvegarde restaurée · ${parsed.recipeCount} recettes`);
+        } catch (err) {
+          try { await clearRestoreStage(); } catch (_) {}
+          renderSettings();
+          alert(`Impossible de restaurer ce fichier : ${err.message}`);
+        }
       }
 
       async function eraseAll() {
