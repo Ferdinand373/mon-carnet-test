@@ -10,7 +10,7 @@
   <link rel="apple-touch-icon" sizes="180x180" href="./mon-carnet-v17.png">
   <link rel="icon" type="image/png" sizes="180x180" href="./mon-carnet-v17.png">
   <link rel="icon" type="image/png" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAALQAAAC0CAIAAACyr5FlAAAEzElEQVR42u3dMW8TZxwH4BcwAxJRqwgaEIqUIUMXhg5sjFH7EVgqFZj7HSK+Q2dgYMlHALF27pCFgSESsqygKKIKUtcOjizn7Duf7y6+e9/3+S0kTpzId8/9/u85Z3Pj/tMnQVpnd39v+sGXzyfJPKib9qvAcb2ZFcasQuAQzSFwiMBh2QGHwCFwCByWHXAIHAKHwCFwiMAhcDibhUPgEDgEDhluRr381uN3r6cf3B7dqnmXre0Hw9yCH189W7jt2+W/Oz/W+Ql//P0NjissxFghAw4y4CADDjLEqewwMv7wPlMcaiNeH5qDDzj4gCP2fJ98hUOW59/jf4bjAw4+4DBf4OADjvQnyxB8wCFwGC5wpDdZevQBh8AhcFh5wCFwCBwyzMkCh5RmlNWjffTrb4VbBnv9Jhy9mVj8EiU5jpUKGQ2+DY7sZPCRHY4GO5uPLHA03s18JI6j5Q7mI5cFqcDR8XGvPDSH5ISjwyNeeWgOgUPgEDgEDoFD4BA4ek2H1+y4/EdzSE44Ojni1YbmkPxwtDzu1UbizdF4B5ORxVhpsJvJyGjNsdbOJiO7BWnNXU7GYrJ4xdt0x1dcvBOLjO2de2t9//npGRxSF9NaXODIl8tKKHDElHXHRPUYmn217MfCkRempVzKlMCRL5dFKAUlcIBSqgQOKVXir7LXm4PDo7iUzM8dOK5dRlw+ZkTOT8/g2ERnHBweRUdEc2x0mkTnA47uWVQgiMuHs5X18vOL5wu33Qkh/LX3X819f3B49PHVMzjSNnElf57cCSGEF88/vXlbc+gMn4ixsprFShnNvn/4IwaOVoXR8o4D9wFH9zKS8QFHZzIuxpNuecGRgoyL8WRRRgI+Rrv7eyGEL59PmGhfFRfjydajh8k8wMvm2N3fmyqROsd6RVWkVB5XnueY+VAkNatiPil1xiWOqYNCbZg19VmkZ6LYHBVEclaSW1VUjZWlRAq3ZAIlz6qowlHY/UuXqGlDqX5L62Ys6vy1JRocNZWU3R6pmAoW+VTFGjiW7u+VZ7wxnhKXyWjPIt7aCA3+ZL8WlEgzfV11++cnopYRWl7PsXSCRC1m/uX2n968beMjdhnhOi72iXHNUfYWDI19JCAjuBKs5m6uTyQNFnA0aYIyJSmZgCPflUT9uJ5D4BA4BA6BQ+AQp7KbSOE1hjG+8YHm2ISMEMPrUeHoRwYfcKwWwIexInAIHJ2n7KIN/9MKHJIrjurnM2ZfHX94P98ThU+lkHSeBCt7I7ZFN0DkOFYWHXiGVHPQoDlyyg+Pf4FDNIfAIcnMFDgEDoEj7Zly9+FPcJChOcRYkU5qY/MzBQ4DpVccj39/acfHKENzxCGjl5myIRzKI0YZm2sOPpayGOY06WGs8NFgkdFjbYQQbtx/+mSTv+/43ev5T2+PbtW849b2g9wWnv3K6AFHgUgmOBqMj95l9IZjab5Pvho3w5ExrFPZgWwR22GW0QC3S7YVMrTD46Zt5FHH0RyLWyr5FhnykTCKZdslpiSKdhzltjW3d+5NPzg/PbP4jW/NIXD0k1lhzCpE4BA4BA6BQ+AQOJywwCFwCBwCh2WHwCFwCBwmCxwCh8BhssAhcKQR5QFH6WQROAQOy1I4BA7lAYfTFjictsSS/wFuG8ZlYwQrCAAAAABJRU5ErkJggg==">
-  <title>Mon carnet de cuisine — V2.1.6 TEST</title>
+  <title>Mon carnet de cuisine — TEST V2.3</title>
   <style>
     :root {
       --ink: #17211e;
@@ -65,28 +65,6 @@
       color: var(--forest); display: grid; place-items: center; box-shadow: var(--shadow-soft); cursor: pointer;
       font-size: 25px;
     }
-    .topbar-actions { display: flex; align-items: center; gap: 8px; flex: 0 0 auto; }
-    .topbar-actions .icon-btn { width: 44px; height: 44px; font-size: 22px; }
-    .meal-ideas-panel {
-      margin-top: 18px; padding: 18px; border: 1px solid rgba(21,60,53,.14); border-radius: 22px;
-      background: rgba(255,255,255,.72); box-shadow: var(--shadow-soft);
-    }
-    .meal-ideas-head { display: flex; align-items: end; justify-content: space-between; gap: 12px; margin-bottom: 13px; }
-    .meal-ideas-head h3 { margin: 0; font-family: Georgia, "Times New Roman", serif; font-size: 23px; font-weight: 500; }
-    .meal-ideas-head p { margin: 5px 0 0; color: var(--muted); font-size: 13px; }
-    .meal-ideas-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 11px; }
-    .meal-idea-card {
-      display: grid; grid-template-columns: 92px minmax(0,1fr); min-height: 112px; overflow: hidden;
-      border: 1px solid var(--line); border-radius: 18px; background: var(--card-solid); cursor: pointer;
-    }
-    .meal-idea-visual { min-height: 112px; background: linear-gradient(145deg, #d9c5ae, #a9b7a9); overflow: hidden; }
-    .meal-idea-visual img { width: 100%; height: 100%; object-fit: cover; display: block; }
-    .meal-idea-visual .recipe-placeholder { min-height: 112px; font-size: 36px; }
-    .meal-idea-copy { min-width: 0; padding: 12px; }
-    .meal-idea-copy small { display: block; margin-bottom: 5px; color: var(--copper); font-weight: 850; letter-spacing: .08em; text-transform: uppercase; }
-    .meal-idea-copy h4 { margin: 0 0 7px; font-family: Georgia, "Times New Roman", serif; font-size: 18px; line-height: 1.15; font-weight: 500; }
-    .meal-idea-copy p { margin: 0; color: var(--muted); font-size: 12px; line-height: 1.35; }
-    .duration-preview { color: var(--forest) !important; font-weight: 750; }
     .view { display: none; animation: rise .28s ease; }
     .view.active { display: block; }
     @keyframes rise { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
@@ -372,30 +350,39 @@
     .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
     .subtle { color: var(--muted); font-size: 13px; }
     .hidden { display: none !important; }
-    .chat-quick-actions { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; margin: 4px 0 15px; }
-    .chat-quick-actions .btn { min-width: 0; padding-left: 10px; padding-right: 10px; }
-    .chat-quick-actions .btn.active { background: var(--forest); color: #fff; }
-    .chat-context-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; margin-bottom: 12px; }
-    .chat-context-grid .field { margin: 0; }
-    .chat-note { min-height: 84px !important; }
-    .chat-prompt { min-height: 210px !important; }
-    .chat-help { margin: 9px 0 0; color: var(--muted); font-size: 12px; line-height: 1.45; }
-    .menus-panel { padding: 20px; border-radius: 24px; background: var(--card-solid); border: 1px solid var(--line); box-shadow: var(--shadow-soft); }
-    .menu-builder { display: grid; grid-template-columns: 1.2fr repeat(4, 1fr); gap: 10px; align-items: end; }
-    .menu-builder .field { margin: 0; }
-    .saved-menu-list { display: grid; gap: 12px; margin-top: 18px; }
-    .saved-menu-card { padding: 16px; border: 1px solid var(--line); border-radius: 18px; background: #fffdf8; }
-    .saved-menu-head { display: flex; justify-content: space-between; gap: 10px; align-items: start; }
-    .saved-menu-head h4 { margin: 0; font-family: Georgia, "Times New Roman", serif; font-size: 20px; font-weight: 500; }
-    .saved-menu-items { display: grid; gap: 5px; margin: 12px 0; color: var(--muted); font-size: 13px; }
-    .saved-menu-actions { display: flex; gap: 8px; flex-wrap: wrap; }
-    .menu-help { margin: 12px 0 0; color: var(--muted); font-size: 13px; }
-    .audit-list { display: grid; gap: 10px; max-height: 48dvh; overflow: auto; margin: 12px 0; }
-    .audit-item { display: grid; grid-template-columns: 28px minmax(0,1fr); gap: 10px; padding: 12px; border: 1px solid var(--line); border-radius: 15px; background: #fffdf8; }
-    .audit-item input { width: 22px; height: 22px; margin-top: 2px; accent-color: var(--forest); }
-    .audit-item strong, .audit-item span { display: block; }
-    .audit-item span { margin-top: 4px; color: var(--muted); font-size: 12px; line-height: 1.4; }
     .cooking-marinade { margin: 14px 0 0; padding: 12px 14px; border-radius: 15px; background: rgba(182,119,69,.14); color: #6f4328; font-weight: 700; line-height: 1.35; }
+    .meal-ideas-panel {
+      margin-top: 18px;
+      padding: 20px;
+      border-radius: 25px;
+      background: linear-gradient(135deg, rgba(255,253,248,.96), rgba(237,228,213,.94));
+      border: 1px solid rgba(23,33,30,.11);
+      box-shadow: var(--shadow-soft);
+    }
+    .meal-ideas-head { display: flex; align-items: center; justify-content: space-between; gap: 14px; margin-bottom: 14px; }
+    .meal-ideas-head h3 { margin: 2px 0 5px; font-family: Georgia, "Times New Roman", serif; font-size: 27px; font-weight: 500; }
+    .meal-ideas-head p { margin: 0; color: var(--muted); font-size: 13px; }
+    .meal-ideas-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+    .meal-idea-card {
+      min-width: 0;
+      padding: 17px;
+      border-radius: 19px;
+      cursor: pointer;
+      background: var(--card-solid);
+      border: 1px solid var(--line);
+      box-shadow: 0 6px 18px rgba(35,42,39,.07);
+      transition: transform .16s ease, box-shadow .16s ease;
+    }
+    .meal-idea-card:active { transform: scale(.985); }
+    .meal-idea-label { color: var(--copper); text-transform: uppercase; letter-spacing: .11em; font-size: 10px; font-weight: 850; }
+    .meal-idea-card h4 { margin: 10px 0 7px; font-family: Georgia, "Times New Roman", serif; font-size: 21px; line-height: 1.12; font-weight: 500; }
+    .meal-idea-meta { color: var(--muted); font-size: 12px; line-height: 1.4; }
+    .meal-idea-open { display: inline-block; margin-top: 10px; color: var(--forest); font-size: 12px; font-weight: 800; }
+    @media (max-width: 650px) {
+      .meal-ideas-head { align-items: stretch; flex-direction: column; }
+      .meal-ideas-head .btn { width: 100%; }
+      .meal-ideas-grid { grid-template-columns: 1fr; }
+    }
     @media (min-width: 760px) {
       .app { padding-left: 28px; padding-right: 28px; }
       .recipe-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
@@ -462,9 +449,6 @@
       .metrics { gap: 8px; }
       .metric { padding: 13px 10px; }
       .metric strong { font-size: 24px; }
-      .meal-ideas-grid { grid-template-columns: 1fr; }
-      .meal-ideas-head { align-items: stretch; flex-direction: column; }
-      .meal-ideas-head .btn { width: 100%; }
       .meal-grid, .recipe-grid, .form-grid, .plan-meals, .settings-grid, .content-grid { grid-template-columns: 1fr; }
       .recipe-grid { grid-template-columns: repeat(2, minmax(0,1fr)); gap: 10px; }
       .recipe-image { height: 132px; }
@@ -473,8 +457,6 @@
       .recipe-meta { display: none; }
       .planner-controls { grid-template-columns: 1fr; }
       .planner-controls .btn { width: 100%; }
-      .chat-quick-actions, .chat-context-grid, .menu-builder { grid-template-columns: 1fr; }
-      .chat-quick-actions .btn { width: 100%; }
       .photo-picker { grid-template-columns: 82px 1fr; }
       .photo-preview { width: 82px; height: 82px; }
       .detail-sheet h2 { font-size: 29px; }
@@ -521,13 +503,10 @@
         <div class="brand-mark">♨</div>
         <div>
           <h1>Mon carnet de cuisine</h1>
-          <small>VERSION DE TEST · V2.1.6</small>
+          <small>VERSION TEST · V2.3</small>
         </div>
       </div>
-      <div class="topbar-actions">
-        <button class="icon-btn" id="helpBtn" type="button" aria-label="Aide">?</button>
-        <button class="icon-btn" id="quickAddBtn" type="button" aria-label="Ajouter une recette">＋</button>
-      </div>
+      <button class="icon-btn" id="quickAddBtn" type="button" aria-label="Ajouter une recette">＋</button>
     </header>
 
     <section class="view active" id="view-home" data-view="home">
@@ -538,9 +517,6 @@
         <div class="hero-actions">
           <button class="btn btn-primary" type="button" data-go="add">Ajouter une recette</button>
           <button class="btn btn-secondary" type="button" data-open-search>Trouver une recette</button>
-          <button class="btn btn-secondary" type="button" id="openFavoritesBtn">Mes favoris</button>
-          <button class="btn btn-secondary" type="button" data-go="menus">Mes menus</button>
-          <button class="btn btn-copper" id="askChatBtn" type="button">✦ Demander à Chat</button>
         </div>
       </div>
 
@@ -553,8 +529,9 @@
       <section class="meal-ideas-panel" aria-labelledby="mealIdeasTitle">
         <div class="meal-ideas-head">
           <div>
+            <p class="eyebrow" style="color:var(--copper);opacity:1">Une réponse simple, prise dans votre carnet</p>
             <h3 id="mealIdeasTitle">Que mange-t-on&nbsp;?</h3>
-            <p>Une proposition pour le midi et une autre, adaptée au soir.</p>
+            <p>Une idée pour ce midi et une autre, plus adaptée au soir.</p>
           </div>
           <button class="btn btn-light" id="refreshMealIdeasBtn" type="button">Une autre idée</button>
         </div>
@@ -569,7 +546,7 @@
       </div>
       <div class="meal-grid" id="homeMeals"></div>
       <div class="home-course-action">
-        <button class="btn btn-copper" id="sendHomeMealsBtn" type="button">Envoyer les repas prévus à Clair Courses</button>
+        <button class="btn btn-copper" id="sendHomeMealsBtn" type="button">Préparer la liste pour Clair Courses</button>
       </div>
 
       <div class="section-head">
@@ -623,6 +600,13 @@
             <button class="chip" type="button" data-season-filter="Été">Été</button>
             <button class="chip" type="button" data-season-filter="Automne">Automne</button>
             <button class="chip" type="button" data-season-filter="Hiver">Hiver</button>
+          </div>
+        </div>
+        <div class="filter-group">
+          <div class="filter-label">Moment</div>
+          <div class="filter-row" id="momentFilterRow" role="group" aria-label="Filtrer selon le moment du repas">
+            <button class="chip active" type="button" data-moment-filter="all">Tous les repas</button>
+            <button class="chip" type="button" data-moment-filter="evening">Repas du soir</button>
           </div>
         </div>
         <div class="filter-favorite-row">
@@ -682,12 +666,10 @@
           <div class="field">
             <label for="recipePrepDuration">Préparation</label>
             <input id="recipePrepDuration" type="number" min="0" max="1440" placeholder="minutes">
-            <small class="duration-preview" id="recipePrepDurationPreview">Affichage : —</small>
           </div>
           <div class="field">
             <label for="recipeCookDuration">Cuisson</label>
             <input id="recipeCookDuration" type="number" min="0" max="1440" placeholder="minutes">
-            <small class="duration-preview" id="recipeCookDurationPreview">Affichage : —</small>
           </div>
           <div class="field full" id="recipeMarinadeToggle">
             <button class="btn btn-light" id="addMarinadeBtn" type="button">＋ Ajouter un temps de marinade</button>
@@ -703,7 +685,6 @@
           <div class="field">
             <label for="recipeDuration">Temps en cuisine</label>
             <input id="recipeDuration" type="number" min="0" max="43200" placeholder="calculé en minutes">
-            <small class="duration-preview" id="recipeDurationPreview">Affichage : —</small>
             <small>Préparation + cuisson. Une marinade de moins d’une heure reste incluse ; à partir d’une heure, elle est affichée séparément.</small>
           </div>
           <div class="field">
@@ -716,7 +697,7 @@
           </div>
           <div class="field">
             <label for="recipeType">Type de recette</label>
-            <select id="recipeType"><option>Plat principal</option><option>Entrée</option><option>Salade</option><option>Poisson</option><option>Viande</option><option>Volaille</option><option>Végétarien</option><option>Mijoté</option><option>Accompagnement</option><option>Dessert</option><option>Autre</option></select>
+            <select id="recipeType"><option>Plat principal</option><option>Entrée</option><option>Salade</option><option>Poisson</option><option>Viande</option><option>Volaille</option><option>Végétarien</option><option>Mijoté</option><option>Accompagnement</option><option>Dessert</option><option>Repas du soir</option><option>Autre</option></select>
           </div>
           <div class="field">
             <label for="recipeDevice">Cuisson / appareil</label>
@@ -743,25 +724,6 @@
       </form>
     </section>
 
-    <section class="view" id="view-menus" data-view="menus">
-      <div class="section-head">
-        <div><h2>Créer un menu</h2><p>Regroupez plusieurs recettes sans modifier le planning</p></div>
-        <button class="btn btn-light" type="button" data-go="home">Retour</button>
-      </div>
-      <section class="menus-panel">
-        <div class="menu-builder">
-          <div class="field"><label for="menuName">Nom du menu</label><input id="menuName" placeholder="Ex. Menu d’été"></div>
-          <div class="field"><label for="menuStarter">Entrée</label><select id="menuStarter"></select></div>
-          <div class="field"><label for="menuMain">Plat</label><select id="menuMain"></select></div>
-          <div class="field"><label for="menuDessert">Dessert</label><select id="menuDessert"></select></div>
-          <div class="field"><label for="menuPersons">Personnes</label><input id="menuPersons" type="number" min="1" max="20" value="2"></div>
-        </div>
-        <div class="form-actions"><button class="btn btn-primary" id="saveMenuBtn" type="button">Enregistrer ce menu</button></div>
-        <p class="menu-help">Les choix sont facultatifs : un menu peut contenir seulement un plat, ou plusieurs recettes. Le nombre de personnes sera utilisé uniquement pour les quantités envoyées à Clair Courses.</p>
-        <div class="saved-menu-list" id="savedMenuList"></div>
-      </section>
-    </section>
-
     <section class="view" id="view-planner" data-view="planner">
       <div class="section-head">
         <div><h2>Planning des repas</h2><p>Deux jours ou une semaine, selon votre rythme</p></div>
@@ -777,7 +739,7 @@
       <div class="plan-list" id="planList"></div>
       <div class="sticky-actions">
         <button class="btn btn-light" type="button" id="printPlanBtn">Imprimer</button>
-        <button class="btn btn-copper" type="button" id="prepareClairBtn">Envoyer les repas affichés à Clair Courses</button>
+        <button class="btn btn-copper" type="button" id="prepareClairBtn">Préparer la liste pour Clair Courses</button>
       </div>
     </section>
 
@@ -788,7 +750,7 @@
       <div class="settings-grid">
         <div class="setting-card">
           <h3>Clair Courses</h3>
-          <p>L’adresse est déjà enregistrée. Le bouton « Envoyer à Clair Courses » transmet directement les ingrédients à l’application, sans utiliser le presse-papiers. Modifiez cette adresse seulement si votre lien change.</p>
+          <p>Le transfert automatique est désactivé. Préparez la liste, copiez-la, puis ouvrez Clair Courses pour la coller.</p>
           <div class="field">
             <label for="clairUrl">Adresse de Clair Courses</label>
             <input id="clairUrl" type="url" placeholder="https://ferdinand373.github.io/clair-courses/">
@@ -805,18 +767,13 @@
         </div>
         <div class="setting-card">
           <h3>Sauvegarde complète</h3>
-          <p>Exportez régulièrement toutes les recettes, les photos, les favoris, le planning, les menus et les réglages dans un fichier unique.</p>
+          <p>Exportez régulièrement toutes les recettes, les photos, les favoris et le planning dans un fichier unique.</p>
           <p class="backup-status" id="backupStatus" aria-live="polite">Aucune sauvegarde enregistrée pour le moment.</p>
           <div class="form-actions">
             <button class="btn btn-light" id="exportBtn" type="button">Exporter</button>
             <label class="btn btn-light" for="importInput">Restaurer</label>
             <input class="hidden" id="importInput" type="file" accept="application/json,.json">
           </div>
-        </div>
-        <div class="setting-card">
-          <h3>Vérifier les ingrédients</h3>
-          <p>Repérez les anciennes durées ou consignes accidentellement rangées parmi les ingrédients. Rien n’est corrigé sans votre confirmation.</p>
-          <button class="btn btn-light" id="auditIngredientsBtn" type="button">Lancer la vérification</button>
         </div>
         <div class="setting-card">
           <h3>Impression</h3>
@@ -930,81 +887,23 @@
     </div>
   </div>
 
-  <div class="modal-wrap" id="chatModal" role="dialog" aria-modal="true" aria-labelledby="chatTitle">
-    <div class="modal">
-      <div class="modal-head">
-        <div><h3 id="chatTitle">Demander à Chat</h3><p>Choisissez une demande, ajustez le texte, puis ouvrez ChatGPT.</p></div>
-        <button class="icon-btn" type="button" data-close-chat aria-label="Fermer">×</button>
-      </div>
-      <div class="chat-quick-actions" role="group" aria-label="Demandes rapides">
-        <button class="btn btn-light active" type="button" data-chat-mode="meals">Midi et soir</button>
-        <button class="btn btn-light" type="button" data-chat-mode="new-recipe">Nouvelle recette</button>
-        <button class="btn btn-light" type="button" data-chat-mode="free">Question libre</button>
-        <button class="btn btn-light hidden" id="chatRecipeModeBtn" type="button" data-chat-mode="recipe">Cette recette</button>
-      </div>
-      <div id="chatMealContext">
-        <div class="chat-context-grid">
-          <div class="field"><label for="chatLunchPersons">Midi — personnes</label><input id="chatLunchPersons" type="number" min="1" max="20" value="3"></div>
-          <div class="field"><label for="chatDinnerPersons">Soir — personnes</label><input id="chatDinnerPersons" type="number" min="1" max="20" value="2"></div>
-          <div class="field">
-            <label for="chatDevice">Appareil souhaité</label>
-            <select id="chatDevice"><option>Peu importe</option><option>Air fryer</option><option>Plancha</option><option>Barbecue</option><option>Plaques / poêle</option><option>Four</option></select>
-          </div>
-        </div>
-        <div class="field"><label for="chatNote">Précision facultative</label><textarea class="chat-note" id="chatNote" placeholder="Ex. Très chaud, repas léger, utiliser les courgettes…"></textarea></div>
-      </div>
-      <div class="hidden" id="chatNewRecipeContext">
-        <div class="chat-context-grid">
-          <div class="field"><label for="chatRecipePersons">Nombre de personnes</label><input id="chatRecipePersons" type="number" min="1" max="20" value="2"></div>
-          <div class="field">
-            <label for="chatRecipeDevice">Appareil de cuisson</label>
-            <select id="chatRecipeDevice"><option>Peu importe</option><option>Air fryer</option><option>Plancha</option><option>Barbecue</option><option>Plaques / poêle</option><option>Four</option></select>
-          </div>
-        </div>
-        <div class="field"><label for="chatRecipeRequest">La recette souhaitée</label><textarea class="chat-note" id="chatRecipeRequest" placeholder="Ex. Poulet rôti, léger et estival…"></textarea></div>
-      </div>
-      <div class="field"><label for="chatPrompt">Demande préparée</label><textarea class="chat-prompt" id="chatPrompt" placeholder="Votre demande apparaîtra ici."></textarea></div>
-      <p class="chat-help">Le bouton copie la demande avant d’ouvrir ChatGPT. Aucune clé ni donnée de compte n’est intégrée à l’application.</p>
-      <div class="modal-actions">
-        <button class="btn btn-primary" id="copyOpenChatBtn" type="button">Copier + ouvrir ChatGPT</button>
-        <button class="btn btn-light" id="copyChatBtn" type="button">Copier seulement</button>
-        <button class="btn btn-light" type="button" data-close-chat>Fermer</button>
-      </div>
-    </div>
-  </div>
-
-  <div class="modal-wrap" id="ingredientAuditModal" role="dialog" aria-modal="true" aria-labelledby="ingredientAuditTitle">
-    <div class="modal">
-      <div class="modal-head">
-        <div><h3 id="ingredientAuditTitle">Vérifier les ingrédients</h3><p>Un aperçu avant toute correction.</p></div>
-        <button class="icon-btn" type="button" data-close-audit aria-label="Fermer">×</button>
-      </div>
-      <div class="clair-review-summary" id="ingredientAuditSummary" role="status" aria-live="polite"></div>
-      <div class="audit-list" id="ingredientAuditList"></div>
-      <div class="modal-actions">
-        <button class="btn btn-primary" id="applyIngredientAuditBtn" type="button">Appliquer les corrections cochées</button>
-        <button class="btn btn-light" type="button" data-close-audit>Ignorer</button>
-      </div>
-    </div>
-  </div>
-
   <div class="modal-wrap" id="clairModal" role="dialog" aria-modal="true" aria-labelledby="clairTitle">
     <div class="modal">
       <div class="modal-head">
-        <div><h3 id="clairTitle">Liste pour Clair Courses</h3><p>Un article par ligne, prêt à être transmis directement.</p></div>
+        <div><h3 id="clairTitle">Liste pour Clair Courses</h3><p>Vérifiez les articles, puis envoyez-les directement dans Clair Courses.</p></div>
         <button class="icon-btn" type="button" data-close-modal aria-label="Fermer">×</button>
       </div>
-      <div class="clair-review-summary" id="clairReviewSummary" role="status" aria-live="polite" aria-atomic="true">Vérifiez les articles avant l’envoi.</div>
+      <div class="clair-review-summary" id="clairReviewSummary" role="status" aria-live="polite" aria-atomic="true">Vérifiez les articles avant de copier la liste.</div>
       <div class="clair-review-tools">
         <button class="btn btn-light" id="clairEssentialsBtn" type="button">Courses utiles</button>
         <button class="btn btn-light" id="clairSelectAllBtn" type="button">Tout cocher</button>
       </div>
-      <div class="clair-review-list" id="clairReviewList" aria-label="Ingrédients à envoyer"></div>
+      <div class="clair-review-list" id="clairReviewList" aria-label="Ingrédients à copier"></div>
       <textarea id="clairText" aria-hidden="true" tabindex="-1"></textarea>
       <p class="subtle" id="scalingNote">Les produits indiqués comme réserves dans Réglages et ceux déjà enregistrés dans « Mes produits » sont décochés par défaut. Recochez-les seulement lorsqu’il vous en manque.</p>
       <div class="modal-actions">
-        <button class="btn btn-primary" id="copyClairBtn" type="button">Copier la liste</button>
-        <button class="btn btn-copper" id="openClairBtn" type="button">Envoyer à Clair Courses</button>
+        <button class="btn btn-primary" id="sendDirectClairBtn" type="button">Envoyer à Clair Courses</button>
+        <button class="btn btn-light" id="copyClairBtn" type="button">Copier en secours</button>
         <button class="btn btn-light" type="button" data-close-modal>Fermer</button>
       </div>
     </div>
@@ -1048,7 +947,6 @@
 
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
-  <script src="./mon-carnet-core.js"></script>
   <script>
     (() => {
       'use strict';
@@ -1058,33 +956,30 @@
       let db;
       let recipes = [];
       let plans = [];
-      const DEFAULT_CLAIR_URL = 'https://ferdinand373.github.io/clair-courses-test/';
+      const DEFAULT_CLAIR_URL = 'https://ferdinand373.github.io/clair-courses/';
       const DEFAULT_PANTRY_PRODUCTS = [
         'sel', 'poivre', 'eau', 'huile', 'vinaigre', 'paprika',
         'sauce soja', 'mirin', 'cannelle', 'anis étoilé', 'badiane',
-        'cassonade', 'sucre', 'sucre roux', 'farine', 'cumin', 'curry', 'muscade',
+        'cassonade', 'sucre roux', 'cumin', 'curry', 'muscade',
         'piment', 'curcuma', 'gingembre en poudre', 'épices'
       ];
       let settings = {
         clairUrl: DEFAULT_CLAIR_URL,
         pantryProducts: [...DEFAULT_PANTRY_PRODUCTS],
-        savedMenus: [],
         seeded: false
       };
       let currentView = 'home';
       let previousView = 'recipes';
-      let chatMode = 'meals';
-      let chatRecipeId = null;
-      let chatModalReturnFocus = null;
       let activeCategoryFilter = 'all';
       let activeDeviceFilter = 'all';
       let activeSeasonFilter = 'all';
       let favoriteOnly = false;
+      let activeMomentFilter = 'all';
       let plannerDays = 2;
       let currentPhoto = '';
       let suggestionId = null;
-      let mealIdeaLunchId = null;
-      let mealIdeaDinnerId = null;
+      let lunchIdeaId = null;
+      let dinnerIdeaId = null;
       let quickPlanTarget = null;
       let scheduleChoiceRecipeId = null;
       let scheduleChoicePersons = 0;
@@ -1109,11 +1004,9 @@
       let clairReviewItems = [];
       let latestClairReviewRows = [];
       let latestClairReviewText = '';
-      let latestClairSourceContext = null;
       let clairModalReturnFocus = null;
       let clairPantryCacheRaw = null;
       let clairPantryCache = [];
-      let ingredientAuditFindings = [];
 
       const $ = (sel, root = document) => root.querySelector(sel);
       const $$ = (sel, root = document) => [...root.querySelectorAll(sel)];
@@ -1201,14 +1094,8 @@
         recipes = await getAll('recipes');
         plans = await getAll('plans');
         const settingsRows = await getAll('settings');
-        const hasInterruptedRestore = settingsRows.some(row => String(row.key || '').startsWith('__mc_restore_stage__:'));
-        settingsRows.forEach(row => {
-          if (String(row.key || '').startsWith('__mc_restore_stage__:')) return;
-          settings[row.key] = row.value;
-        });
-        if (hasInterruptedRestore) clearRestoreStage().catch(() => {});
+        settingsRows.forEach(row => settings[row.key] = row.value);
         settings.pantryProducts = normalizePantryProducts(settings.pantryProducts);
-        if (!Array.isArray(settings.savedMenus)) settings.savedMenus = [];
         const categoryUpdates = recipes.filter(recipe => !CATEGORY_VALUES.includes(String(recipe.category || '').trim()));
         for (const recipe of categoryUpdates) {
           recipe.category = recipeCategory(recipe);
@@ -1551,112 +1438,65 @@
         if (options.days) setPlannerDays(Number(options.days));
         if (view === 'home') renderHome();
         if (view === 'recipes') renderRecipes();
-        if (view === 'menus') renderMenus();
         if (view === 'planner') renderPlanner();
         if (view === 'settings') renderSettings();
         if (view === 'add' && !options.keepForm) resetForm();
         window.scrollTo({ top: 0, behavior: 'smooth' });
       }
 
-      function menuRecipeOptions(category) {
-        const list = recipes
-          .filter(recipe => recipeCategory(recipe) === category)
-          .sort((a, b) => a.title.localeCompare(b.title, 'fr'));
-        return `<option value="">Aucune</option>${list.map(recipe => `<option value="${recipe.id}">${esc(recipe.title)}</option>`).join('')}`;
+      function isDinnerRecipe(recipe = {}) {
+        const text = foldText(`${recipe.title || ''} ${recipe.type || ''} ${recipe.category || ''} ${recipe.device || ''}`);
+        if (/repas du soir/.test(text)) return true;
+        const lightEvening = /salade|soupe|veloute|potage|tartine|bruschetta|croque|omelette|oeuf|oeufs|quiche|flan sale|galette|wrap|poisson|cabillaud|saumon|bar|thon|sardine|maquereau|moule|crevette|legumes|vegetar|halloumi/.test(text);
+        const veryHeavy = /bourguignon|cassoulet|choucroute|jarret|epaule|souris d agneau|ragout|cote de boeuf/.test(text);
+        return lightEvening && !veryHeavy;
       }
 
-      function renderMenus() {
-        const starter = $('#menuStarter');
-        const main = $('#menuMain');
-        const dessert = $('#menuDessert');
-        const host = $('#savedMenuList');
-        if (!starter || !main || !dessert || !host) return;
-        starter.innerHTML = menuRecipeOptions('Entrée');
-        main.innerHTML = menuRecipeOptions('Plat');
-        dessert.innerHTML = menuRecipeOptions('Dessert');
-        const menus = Array.isArray(settings.savedMenus) ? settings.savedMenus : [];
-        host.innerHTML = menus.length ? menus.map(menu => {
-          const starterRecipe = recipes.find(recipe => recipe.id === menu.starterId);
-          const mainRecipe = recipes.find(recipe => recipe.id === menu.mainId);
-          const dessertRecipe = recipes.find(recipe => recipe.id === menu.dessertId);
-          const persons = clampPersons(menu.persons || 2, 2);
-          return `<article class="saved-menu-card">
-            <div class="saved-menu-head"><h4>${esc(menu.name)}</h4><button class="icon-btn" type="button" data-delete-menu="${menu.id}" aria-label="Supprimer">×</button></div>
-            <div class="saved-menu-items">
-              ${starterRecipe ? `<span>Entrée · ${esc(starterRecipe.title)}</span>` : ''}
-              ${mainRecipe ? `<span>Plat · ${esc(mainRecipe.title)}</span>` : ''}
-              ${dessertRecipe ? `<span>Dessert · ${esc(dessertRecipe.title)}</span>` : ''}
-              <span>${persons} personne${persons > 1 ? 's' : ''}</span>
-            </div>
-            <div class="saved-menu-actions">
-              <button class="btn btn-light" type="button" data-menu-minus="${menu.id}" aria-label="Une personne de moins">−</button>
-              <button class="btn btn-light" type="button" data-menu-plus="${menu.id}" aria-label="Une personne de plus">＋</button>
-              <button class="btn btn-copper" type="button" data-menu-clair="${menu.id}">Envoyer à Clair Courses</button>
-            </div>
-          </article>`;
-        }).join('') : '<div class="empty-state"><strong>Aucun menu enregistré</strong><p>Créez votre premier menu avec les listes ci-dessus.</p></div>';
-        $$('[data-delete-menu]', host).forEach(button => button.addEventListener('click', () => deleteSavedMenu(button.dataset.deleteMenu)));
-        $$('[data-menu-minus]', host).forEach(button => button.addEventListener('click', () => changeSavedMenuPersons(button.dataset.menuMinus, -1)));
-        $$('[data-menu-plus]', host).forEach(button => button.addEventListener('click', () => changeSavedMenuPersons(button.dataset.menuPlus, 1)));
-        $$('[data-menu-clair]', host).forEach(button => button.addEventListener('click', () => sendMenuToClair(button.dataset.menuClair)));
+      function chooseMealIdea(pool, previousId = '', excludedId = '') {
+        if (!pool.length) return null;
+        let candidates = pool.filter(recipe => recipe.id !== previousId && recipe.id !== excludedId);
+        if (!candidates.length) candidates = pool.filter(recipe => recipe.id !== excludedId);
+        if (!candidates.length) candidates = pool;
+        return candidates[Math.floor(Math.random() * candidates.length)] || null;
       }
 
-      async function saveMenu() {
-        const name = $('#menuName').value.trim();
-        const starterId = $('#menuStarter').value;
-        const mainId = $('#menuMain').value;
-        const dessertId = $('#menuDessert').value;
-        const persons = clampPersons($('#menuPersons').value || 2, 2);
-        if (!name) { showToast('Donnez un nom au menu'); $('#menuName').focus(); return; }
-        if (!starterId && !mainId && !dessertId) { showToast('Choisissez au moins une recette'); return; }
-        settings.savedMenus = [...(settings.savedMenus || []), {
-          id: uid(), name, starterId, mainId, dessertId, persons, createdAt: new Date().toISOString()
-        }];
-        await put('settings', { key: 'savedMenus', value: settings.savedMenus });
-        $('#menuName').value = '';
-        renderMenus();
-        showToast('Menu enregistré');
+      function mealIdeaCard(recipe, label) {
+        if (!recipe) return `<article class="meal-idea-card"><span class="meal-idea-label">${esc(label)}</span><h4>Aucune recette disponible</h4><div class="meal-idea-meta">Ajoutez quelques recettes pour obtenir une proposition.</div></article>`;
+        const meta = [recipe.type, recipe.device, durationCardLabel(recipe)].filter(Boolean).map(esc).join(' · ');
+        return `<article class="meal-idea-card" data-recipe-id="${recipe.id}">
+          <span class="meal-idea-label">${esc(label)}</span>
+          <h4>${esc(recipe.title)}</h4>
+          <div class="meal-idea-meta">${meta}</div>
+          <span class="meal-idea-open">Ouvrir la recette →</span>
+        </article>`;
       }
 
-      async function deleteSavedMenu(id) {
-        if (!confirm('Supprimer ce menu ? Les recettes resteront dans le carnet.')) return;
-        settings.savedMenus = (settings.savedMenus || []).filter(menu => menu.id !== id);
-        await put('settings', { key: 'savedMenus', value: settings.savedMenus });
-        renderMenus();
-        showToast('Menu supprimé');
-      }
+      function renderMealIdeas(forceNew = false) {
+        const target = $('#mealIdeasGrid');
+        if (!target) return;
+        const mealRecipes = recipes.filter(recipe => !['Dessert', 'Apéritif', 'Accompagnement'].includes(recipeCategory(recipe)));
+        if (!mealRecipes.length) {
+          lunchIdeaId = null;
+          dinnerIdeaId = null;
+          target.innerHTML = mealIdeaCard(null, 'Ce midi') + mealIdeaCard(null, 'Ce soir');
+          return;
+        }
 
-      async function changeSavedMenuPersons(id, delta) {
-        const menu = (settings.savedMenus || []).find(item => item.id === id);
-        if (!menu) return;
-        menu.persons = clampPersons((Number(menu.persons) || 2) + delta, 2);
-        await put('settings', { key: 'savedMenus', value: settings.savedMenus });
-        renderMenus();
-      }
+        const lunchPool = mealRecipes.filter(recipe => recipeCategory(recipe) === 'Plat' || recipeCategory(recipe) === 'Entrée');
+        const dinnerPool = mealRecipes.filter(isDinnerRecipe);
+        const effectiveLunchPool = lunchPool.length ? lunchPool : mealRecipes;
+        const effectiveDinnerPool = dinnerPool.length ? dinnerPool : mealRecipes;
 
-      function sendMenuToClair(id) {
-        const menu = (settings.savedMenus || []).find(item => item.id === id);
-        if (!menu) return;
-        const persons = clampPersons(menu.persons || 2, 2);
-        const chosenRecipes = [menu.starterId, menu.mainId, menu.dessertId]
-          .map(recipeId => recipes.find(recipe => recipe.id === recipeId))
-          .filter(Boolean);
-        const menuPlans = chosenRecipes.map((recipe, index) => ({
-          id: `menu-${menu.id}-${index}`,
-          date: todayISO(),
-          meal: 'menu',
-          recipeId: recipe.id,
-          persons
-        }));
-        const text = buildClairListFromPlans(menuPlans);
-        if (!text) { showToast('Aucun ingrédient à envoyer'); return; }
-        latestClairSourceContext = {
-          sourceType: 'menu',
-          sourceKey: `menu:${menu.id}:${persons}`,
-          sourceLabel: `${menu.name} · ${persons} personne${persons > 1 ? 's' : ''}`,
-          plans: menuPlans
-        };
-        openClairModal(text);
+        if (forceNew || !recipes.some(recipe => recipe.id === lunchIdeaId)) {
+          lunchIdeaId = chooseMealIdea(effectiveLunchPool, lunchIdeaId)?.id || null;
+        }
+        if (forceNew || !recipes.some(recipe => recipe.id === dinnerIdeaId) || dinnerIdeaId === lunchIdeaId) {
+          dinnerIdeaId = chooseMealIdea(effectiveDinnerPool, dinnerIdeaId, lunchIdeaId)?.id || null;
+        }
+
+        const lunch = recipes.find(recipe => recipe.id === lunchIdeaId) || null;
+        const dinner = recipes.find(recipe => recipe.id === dinnerIdeaId) || null;
+        target.innerHTML = mealIdeaCard(lunch, 'Ce midi') + mealIdeaCard(dinner, 'Ce soir');
       }
 
       function renderHome() {
@@ -1711,69 +1551,6 @@
         </article>`;
       }
 
-
-      function mealIdeaBasePool() {
-        const excluded = /dessert|aperitif|accompagnement|boisson/;
-        const preferred = recipes.filter(recipe => {
-          const text = foldText(`${recipeCategory(recipe)} ${recipe.type || ''} ${recipe.title || ''}`);
-          return !excluded.test(text);
-        });
-        return preferred.length ? preferred : recipes;
-      }
-
-      function eveningFriendlyRecipe(recipe = {}) {
-        const text = foldText(`${recipe.title || ''} ${recipe.type || ''} ${recipeCategory(recipe)} ${recipe.device || ''}`);
-        const light = /salade|soupe|veloute|poisson|saumon|cabillaud|bar\b|lieu\b|crevette|gambas|saint-jacques|legume|vegetar|oeuf|omelette|tartare|carpaccio|courgette|tomate|avocat|burrata|moules|palourdes/;
-        const heavy = /choucroute|cassoulet|lasagne|rago[uû]t|jarret|souris d.agneau|cote de boeuf|confit|kig ar farz|schweinshaxe/;
-        const duration = recipeTotalDuration(recipe);
-        return !heavy.test(text) && (light.test(text) || !duration || duration <= 45);
-      }
-
-      function pickMealIdea(pool = [], excludedId = '', previousId = '') {
-        const available = pool.filter(recipe => recipe.id !== excludedId && (pool.length < 2 || recipe.id !== previousId));
-        const withoutExcluded = pool.filter(recipe => recipe.id !== excludedId);
-        const source = available.length ? available : (withoutExcluded.length ? withoutExcluded : pool);
-        if (!source.length) return null;
-        return source[Math.floor(Math.random() * source.length)];
-      }
-
-      function mealIdeaCard(recipe, moment) {
-        if (!recipe) return `<div class="empty-state"><strong>Aucune recette disponible</strong>Ajoutez une recette pour obtenir une proposition.</div>`;
-        const people = Math.max(1, Number(recipe.persons) || 1);
-        return `<article class="meal-idea-card" data-recipe-id="${recipe.id}">
-          <div class="meal-idea-visual">${recipe.photo ? `<img src="${recipe.photo}" alt="${esc(recipe.title)}">` : `<div class="recipe-placeholder">${iconFor(recipe)}</div>`}</div>
-          <div class="meal-idea-copy">
-            <small>${moment}</small>
-            <h4>${esc(recipe.title)}</h4>
-            <p>${durationCardLabel(recipe)} · ${people} personne${people > 1 ? 's' : ''} · ${esc(recipe.device || 'Sans cuisson')}${recipe.favorite ? ' · ♥' : ''}</p>
-          </div>
-        </article>`;
-      }
-
-      function renderMealIdeas(forceNew = false) {
-        const target = $('#mealIdeasGrid');
-        if (!target) return;
-        if (!recipes.length) {
-          target.innerHTML = `<div class="empty-state"><strong>Le carnet est encore vide</strong>Ajoutez votre première recette pour obtenir des idées.</div>`;
-          return;
-        }
-        const base = mealIdeaBasePool();
-        const dinners = base.filter(eveningFriendlyRecipe);
-        if (forceNew || !recipes.some(recipe => recipe.id === mealIdeaLunchId)) {
-          mealIdeaLunchId = pickMealIdea(base, '', mealIdeaLunchId)?.id || null;
-        }
-        if (forceNew || !recipes.some(recipe => recipe.id === mealIdeaDinnerId) || mealIdeaDinnerId === mealIdeaLunchId) {
-          mealIdeaDinnerId = pickMealIdea(dinners.length ? dinners : base, mealIdeaLunchId, mealIdeaDinnerId)?.id || null;
-        }
-        const lunch = recipes.find(recipe => recipe.id === mealIdeaLunchId) || null;
-        const dinner = recipes.find(recipe => recipe.id === mealIdeaDinnerId) || null;
-        target.innerHTML = `${mealIdeaCard(lunch, 'Ce midi')}${mealIdeaCard(dinner, 'Ce soir')}`;
-      }
-
-      function openHelp() {
-        alert(`Mon carnet de cuisine — V2.1.6\n\n• Favoris : accès direct depuis l’accueil et cœur dans chaque recette.\n\n• Menus : regroupez plusieurs recettes indépendamment du planning.\n\n• Demander à Chat : prépare une demande et l’ouvre dans ChatGPT, sans clé API.\n\n• Clair Courses : chaque envoi est identifié et doit être confirmé dans Clair Courses.\n\n• Sécurité : faites régulièrement Réglages → Exporter.\n\nBase locale conservée : mon-carnet-cuisine-v1.`);
-      }
-
       function canonicalDevice(value = '') {
         const normalized = foldText(value);
         if (/air\s*fryer|airfryer/.test(normalized)) return 'Airfryer';
@@ -1797,7 +1574,8 @@
           const deviceMatch = activeDeviceFilter === 'all' || canonicalDevice(r.device) === activeDeviceFilter;
           const seasonMatch = activeSeasonFilter === 'all' || r.season === activeSeasonFilter;
           const favoriteMatch = !favoriteOnly || !!r.favorite;
-          return textMatch && categoryMatch && deviceMatch && seasonMatch && favoriteMatch;
+          const momentMatch = activeMomentFilter === 'all' || isDinnerRecipe(r);
+          return textMatch && categoryMatch && deviceMatch && seasonMatch && favoriteMatch && momentMatch;
         });
         const grid = $('#recipeGrid');
         if (!list.length) {
@@ -1813,7 +1591,7 @@
       function renderDetail(id) {
         const r = recipes.find(x => x.id === id);
         if (!r) return navigate('recipes');
-        const allowedReturnViews = new Set(['home', 'recipes', 'menus', 'planner', 'settings']);
+        const allowedReturnViews = new Set(['home', 'recipes', 'planner', 'settings']);
         if (currentView !== 'detail') {
           if (currentView === 'add') {
             if (!allowedReturnViews.has(previousView)) previousView = 'recipes';
@@ -1859,8 +1637,7 @@
             <div class="detail-actions">
               <button class="btn btn-primary" type="button" id="detailCookModeBtn">👨‍🍳 Je cuisine</button>
               <button class="btn btn-light" type="button" id="detailPlanBtn">Prévoir ce repas</button>
-              <button class="btn btn-copper" type="button" id="detailClairBtn">Envoyer à Clair Courses</button>
-              <button class="btn btn-light" type="button" id="detailChatBtn">✦ Demander à Chat</button>
+              <button class="btn btn-copper" type="button" id="detailClairBtn">Préparer la liste pour Clair Courses</button>
               <button class="btn btn-light" type="button" id="detailWakeBtn" aria-pressed="false">☀️ Garder l’écran allumé</button>
               <button class="btn btn-light" type="button" id="detailPrintBtn">Imprimer</button>
               <button class="btn btn-light" type="button" id="detailPhotoBtn">${r.photo ? '📷 Changer la photo' : '📷 Ajouter une photo'}</button>
@@ -1878,7 +1655,7 @@
             </div>
           </article>`;
         $('#detailBackBtn').addEventListener('click', () => {
-          const target = ['home', 'recipes', 'menus', 'planner', 'settings'].includes(previousView) ? previousView : 'recipes';
+          const target = ['home', 'recipes', 'planner', 'settings'].includes(previousView) ? previousView : 'recipes';
           navigate(target);
         });
         $('#detailFavBtn').addEventListener('click', async () => { r.favorite = !r.favorite; r.updatedAt = new Date().toISOString(); await put('recipes', r); sortRecipes(); renderDetail(r.id); showToast(r.favorite ? 'Ajoutée aux favorites' : 'Retirée des favorites'); });
@@ -1891,7 +1668,6 @@
         $('#detailCookModeBtn').addEventListener('click', () => openCookingMode(r, selectedPersonsFor(r)));
         $('#detailPlanBtn').addEventListener('click', () => openScheduleChoice(r, selectedPersonsFor(r)));
         $('#detailClairBtn').addEventListener('click', () => sendRecipeToClairCourses(r, selectedPersonsFor(r)));
-        $('#detailChatBtn').addEventListener('click', () => openChatModal(r));
         $('#detailWakeBtn').addEventListener('click', toggleKeepAwake);
         updateKeepAwakeButton();
         $('#detailPrintBtn').addEventListener('click', () => printRecipe(r, selectedPersonsFor(r)));
@@ -2000,7 +1776,7 @@
 
       function ingredientQuantityKind(rest = '', originalValue = 0) {
         const normalized = foldText(rest).replace(/^de\s+|^d\s+/, '');
-        const unitMatch = normalized.match(/^(kg|g|mg|l|cl|ml|c\.?\s*a\s*s\.?|c\.?\s*a\s*c\.?|c\.?\s*a\s*soupe|c\.?\s*a\s*cafe|cuilleres?\s+a\s+soupe|cuilleres?\s+a\s+cafe)\b/);
+        const unitMatch = normalized.match(/^(kg|g|mg|l|cl|ml|c\.?\s*a\s*soupe|c\.?\s*a\s*cafe|cuilleres?\s+a\s+soupe|cuilleres?\s+a\s+cafe)\b/);
         if (unitMatch) return { kind: 'measure', unit: unitMatch[1].replace(/\s+/g,' ') };
         if (!Number.isInteger(originalValue)) return { kind: 'measure', unit: '' };
         if (originalValue === 1 && /^(bouquet garni|bouquet|branche|feuille de laurier|pincee)\b/.test(normalized)) return { kind: 'fixed', unit: '' };
@@ -2036,15 +1812,6 @@
 
       function ingredientMergeKey(rest = '') {
         return foldText(adjustCountLabel(rest, 1)).replace(/[^a-z0-9]+/g, ' ').trim();
-      }
-
-      function normalizeKitchenUnitsText(value = '') {
-        if (window.MonCarnetCore?.normalizeKitchenUnits) {
-          return window.MonCarnetCore.normalizeKitchenUnits(String(value || ''));
-        }
-        return String(value || '')
-          .replace(/\b(?:cac|c\s*[.·]?\s*[àa]\s*[.·]?\s*c\s*[.]?|c\s*[.·]?\s*[àa]\s+caf[ée]|cuill[èe]res?\s+[àa]\s+caf[ée])\b/gi, 'c. à c.')
-          .replace(/\b(?:cas|c\s*[.·]?\s*[àa]\s*[.·]?\s*s\s*[.]?|c\s*[.·]?\s*[àa]\s+soupe|cuill[èe]res?\s+[àa]\s+soupe)\b/gi, 'c. à s.');
       }
 
       function isIngredientHeading(line = '') {
@@ -2172,7 +1939,7 @@
         const base = clampPersons(recipe.persons, 1);
         const chosen = clampPersons(persons, base);
         const factor = chosen / base;
-        return lines(recipe.ingredients).map(line => normalizeKitchenUnitsText(scaleIngredientLine(line, factor)));
+        return lines(recipe.ingredients).map(line => scaleIngredientLine(line, factor));
       }
 
       function cleanShoppingPurchaseLine(line = '') {
@@ -2190,8 +1957,6 @@
         // Retire uniquement une consigne située à la fin de la ligne.
         // Le texte enregistré dans la recette reste strictement inchangé.
         const trailingPreparations = [
-          /\s*,?\s*(?:finement\s+)?(?:egoutte|egouttee|egouttes|egouttees|égoutté|égouttée|égouttés|égouttées|rince|rincee|rinces|rincees|rincé|rincée|rincés|rincées)\s*$/i,
-          /\s*,?\s*pour\s+servir\s*$/i,
           /\s*,?\s*(?:finement|grossierement|grossièrement)\s+(?:rape|rapee|rapes|rapees|râpé|râpée|râpés|râpées|hache|hachee|haches|hachees|haché|hachée|hachés|hachées|cisele|ciselee|ciseles|ciselees|ciselé|ciselée|ciselés|ciselées|emince|emincee|eminces|emincees|émincé|émincée|émincés|émincées)\s*$/i,
           /\s*,?\s*(?:coupe|coupee|coupes|coupees|coupé|coupée|coupés|coupées|taille|taillee|tailles|taillees|taillé|taillée|taillés|taillées|detaille|detaillee|detailles|detaillees|détaillé|détaillée|détaillés|détaillées)\s+(?:en|dans)\s+(?:des?\s+)?(?:petits?\s+|fines?\s+|gros(?:ses)?\s+)?(?:des|dés|rondelles?|lamelles?|tranches?|morceaux|quartiers?|fleurettes?|batonnets?|bâtonnets?|julienne)\s*$/i,
           /\s*,?\s*(?:hache|hachee|haches|hachees|haché|hachée|hachés|hachées|cisele|ciselee|ciseles|ciselees|ciselé|ciselée|ciselés|ciselées|emince|emincee|eminces|emincees|émincé|émincée|émincés|émincées|rape|rapee|rapes|rapees|râpé|râpée|râpés|râpées|presse|pressee|presses|pressees|pressé|pressée|pressés|pressées|concasse|concassee|concasses|concassees|concassé|concassée|concassés|concassées|ecrase|ecrasee|ecrases|ecrasees|écrasé|écrasée|écrasés|écrasées|pele|pelee|peles|pelees|pelé|pelée|pelés|pelées|epluche|epluchee|epluches|epluchees|épluché|épluchée|épluchés|épluchées|denoyaute|denoyautee|denoyautes|denoyautees|dénoyauté|dénoyautée|dénoyautés|dénoyautées|epépine|epépinee|epépines|epépinees|épépiné|épépinée|épépinés|épépinées)\s*$/i
@@ -2217,7 +1982,7 @@
         for (const line of shoppingBlockLines(recipe.ingredients)) {
           if (isShoppingSectionStopHeading(line)) break;
           if (!isLikelyShoppingIngredient(line)) continue;
-          const scaled = normalizeKitchenUnitsText(scaleIngredientLine(line, factor));
+          const scaled = scaleIngredientLine(line, factor);
           const purchaseLine = cleanShoppingPurchaseLine(scaled);
           if (purchaseLine) result.push(purchaseLine);
         }
@@ -2331,24 +2096,11 @@
         return minutes;
       }
 
-      function updateDurationPreviews() {
-        const prep = Math.max(0, Number($('#recipePrepDuration')?.value) || 0);
-        const cook = Math.max(0, Number($('#recipeCookDuration')?.value) || 0);
-        const total = Math.max(0, Number($('#recipeDuration')?.value) || 0);
-        const prepPreview = $('#recipePrepDurationPreview');
-        const cookPreview = $('#recipeCookDurationPreview');
-        const totalPreview = $('#recipeDurationPreview');
-        if (prepPreview) prepPreview.textContent = `Affichage : ${prep ? formatDuration(prep) : '—'}`;
-        if (cookPreview) cookPreview.textContent = `Affichage : ${cook ? formatDuration(cook) : '—'}`;
-        if (totalPreview) totalPreview.textContent = `Affichage : ${total ? formatDuration(total) : '—'}`;
-      }
-
       function syncTotalDuration() {
         const prep = Math.max(0, Number($('#recipePrepDuration')?.value) || 0);
         const marinade = Math.max(0, parseDurationMinutes($('#recipeMarinadeDuration')?.value || '') || 0);
         const cook = Math.max(0, Number($('#recipeCookDuration')?.value) || 0);
         if (prep || marinade || cook) $('#recipeDuration').value = calculatedKitchenDuration(prep, marinade, cook);
-        updateDurationPreviews();
       }
 
       function resetForm(options = {}) {
@@ -2368,7 +2120,6 @@
         if ($('#quickRecipeText')) $('#quickRecipeText').value = quickText;
         currentPhoto = '';
         updatePhotoPreview();
-        updateDurationPreviews();
       }
 
       function foldText(value = '') {
@@ -2430,17 +2181,6 @@
 
       function parseMetaLine(value, parsed) {
         const line = cleanListPrefix(value);
-        const durationMeta = window.MonCarnetCore?.parseDurationMetadataLine?.(line);
-        if (durationMeta) {
-          const field = durationMeta.key || durationMeta.field || durationMeta.kind || durationMeta.type || '';
-          const minutes = Math.max(0, Number(durationMeta.minutes ?? durationMeta.value) || 0);
-          if (minutes && /prep|preparation/.test(field)) { parsed.prepDuration = minutes; return true; }
-          if (minutes && /cook|cuisson/.test(field)) { parsed.cookDuration = minutes; return true; }
-          if (minutes && /marin/.test(field)) { parsed.marinadeDuration = minutes; return true; }
-          if (minutes && /total|duration/.test(field)) { parsed.duration = minutes; return true; }
-        }
-        const durationSection = window.MonCarnetCore?.parseDurationMetadata?.(line);
-        if (durationSection?.sectionTitleLines?.length) return true;
         const match = line.match(/^([^:：]{2,45})\s*[:：]\s*(.+)$/);
         const key = foldText(match ? match[1] : line);
         const val = (match ? match[2] : line).trim();
@@ -2599,7 +2339,7 @@
           category: CATEGORY_VALUES.includes(parsed.category) ? parsed.category : recipeCategory(parsed),
           type: parsed.type || 'Plat principal',
           device: parsed.device || 'Sans cuisson',
-          ingredients: normalizeKitchenUnitsText(parsed.ingredients.join('\n').trim()),
+          ingredients: parsed.ingredients.join('\n').trim(),
           steps: parsed.steps.join('\n').trim(),
           notes: parsed.notes.join('\n').trim()
         };
@@ -2622,7 +2362,6 @@
         $('#recipeIngredients').value = parsed.ingredients || '';
         $('#recipeSteps').value = parsed.steps || '';
         $('#recipeNotes').value = parsed.notes || '';
-        updateDurationPreviews();
       }
 
       function importQuickRecipe(saveNow = false) {
@@ -2670,7 +2409,6 @@
         updatePhotoPreview();
         $('#formTitle').textContent = 'Modifier la recette';
         $('#cancelEditBtn').classList.remove('hidden');
-        updateDurationPreviews();
       }
 
       async function saveRecipe(event) {
@@ -2697,7 +2435,7 @@
           category: $('#recipeCategory').value,
           type: $('#recipeType').value,
           device: $('#recipeDevice').value,
-          ingredients: normalizeKitchenUnitsText($('#recipeIngredients').value.trim()),
+          ingredients: $('#recipeIngredients').value.trim(),
           steps: $('#recipeSteps').value.trim(),
           notes: $('#recipeNotes').value.trim(),
           photo: currentPhoto,
@@ -2957,7 +2695,7 @@
 
       function splitShoppingIngredientRest(rest = '') {
         const source = String(rest || '').trim();
-        const measure = source.match(/^(kg|g|mg|l|cl|ml|c\.?\s*[àa]\s*s\.?|c\.?\s*[àa]\s*c\.?|c\.?\s*[àa]\s*soupe|c\.?\s*[àa]\s*caf[ée]|cuill[èe]res?\s+[àa]\s+soupe|cuill[èe]res?\s+[àa]\s+caf[ée])\b\s*(?:(?:de)\s+|d[’']\s*)?(.+)$/i);
+        const measure = source.match(/^(kg|g|mg|l|cl|ml|c\.?\s*[àa]\s*soupe|c\.?\s*[àa]\s*caf[ée]|cuill[èe]res?\s+[àa]\s+soupe|cuill[èe]res?\s+[àa]\s+caf[ée])\b\s*(?:(?:de)\s+|d[’']\s*)?(.+)$/i);
         if (measure) return { name: measure[2].trim(), packageUnit: '', measureUnit: measure[1].trim() };
         const packageMatch = source.match(/^(gousses?|t[êe]tes?|b[âa]tons?|bo[iî]tes?|paquets?|bouteilles?|pots?|tranches?|pi[èe]ces?|barquettes?|sachets?|[ée]pis?|bouquets?|bottes?|bocaux|bocal)\s+(?:(?:de)\s+|d[’']\s*)(.+)$/i);
         if (packageMatch) return { name: packageMatch[2].trim(), packageUnit: packageMatch[1].trim(), measureUnit: '' };
@@ -2973,9 +2711,6 @@
           .replace(/[’']/g, ' ')
           .replace(/[^a-z0-9]+/g, ' ')
           .replace(/^(?:un peu de|quelques?|du|de la|des|le|la|les|l)\s+/, '')
-          .replace(/\b(?:finement\s+)?(?:egoutte(?:e|es|s)?|rince(?:e|es|s)?|hache(?:e|es|s)?|emince(?:e|es|s)?|coupe(?:e|es|s)?|pele(?:e|es|s)?|denoyaute(?:e|es|s)?|rape(?:e|es|s)?)\b/g, ' ')
-          .replace(/\bpour\s+servir\b/g, ' ')
-          .replace(/\s+/g, ' ')
           .trim();
         if (/^(?:chapelure\s+(?:panko|japonaise)|panko)$/.test(normalized)) return { key: 'chapelure', specificity: 3, preferredName: 'chapelure panko' };
         if (normalized === 'chapelure') return { key: 'chapelure', specificity: 1, preferredName: '' };
@@ -2988,7 +2723,7 @@
         if (/^citrons?\s+jaunes?$/.test(normalized)) return { key: 'citron', specificity: 2, preferredName: '' };
         if (/^citrons?$/.test(normalized)) return { key: 'citron', specificity: 1, preferredName: '' };
         if (/^cornichons?$/.test(normalized)) return { key: 'cornichon', specificity: 1, preferredName: 'cornichons' };
-        if (/^(?:petites?\s+)?capres?(?:\s+au\s+vinaigre)?$/.test(normalized)) return { key: 'capre', specificity: 2, preferredName: 'câpres' };
+        if (/^capres?$/.test(normalized)) return { key: 'capre', specificity: 1, preferredName: 'câpres' };
         if (/^yaourts?\s+grecs?$/.test(normalized)) return { key: 'yaourt grec', specificity: 1, preferredName: '' };
         if (/^radis$/.test(normalized)) return { key: 'radis', specificity: 1, preferredName: '' };
         if (/^salades?$/.test(normalized)) return { key: 'salade', specificity: 1, preferredName: '' };
@@ -3016,8 +2751,8 @@
         if (normalized === 'l') return { value: value * 1000, unit: 'ml' };
         if (normalized === 'cl') return { value: value * 10, unit: 'ml' };
         if (normalized === 'ml' || normalized === 'g') return { value, unit: normalized };
-        if (/soupe|^c\.?\s*a\s*s\.?$/.test(normalized)) return { value, unit: 'c. à s.' };
-        if (/cafe|^c\.?\s*a\s*c\.?$/.test(normalized)) return { value, unit: 'c. à c.' };
+        if (/soupe/.test(normalized)) return { value, unit: 'c. à soupe' };
+        if (/cafe/.test(normalized)) return { value, unit: 'c. à café' };
         return { value, unit: normalized };
       }
 
@@ -3054,7 +2789,7 @@
           const display = formatScaledQuantity(variant.value, 'measure', variant.unit);
           const rest = variant.rest
             .replace(variant.name, productName)
-            .replace(/^(kg|g|mg|l|cl|ml|c\.?\s*[àa]\s*s\.?|c\.?\s*[àa]\s*c\.?|c\.?\s*[àa]\s*soupe|c\.?\s*[àa]\s*caf[ée]|cuill[èe]res?\s+[àa]\s+soupe|cuill[èe]res?\s+[àa]\s+caf[ée])\b/i, variant.unit || '$1');
+            .replace(/^(kg|g|mg|l|cl|ml|c\.?\s*[àa]\s*soupe|c\.?\s*[àa]\s*caf[ée]|cuill[èe]res?\s+[àa]\s+soupe|cuill[èe]res?\s+[àa]\s+caf[ée])\b/i, variant.unit || '$1');
           return `${display} ${rest}`.trim();
         }
         const display = formatScaledQuantity(variant.value, 'count', '');
@@ -3137,31 +2872,12 @@
 
       function formatShoppingGroup(group) {
         const practical = practicalShoppingLine(group);
-        const variants = [...group.variants.values()];
-        const exactNeeds = variants.map(variant => ({
-          quantity: variant.value,
-          unit: variant.kind === 'measure' ? variant.unit : (variant.packageUnit || 'unité')
-        }));
-        const single = variants.length === 1 ? variants[0] : null;
-        const base = {
-          productKey: group.key,
-          displayName: group.name,
-          exactQuantity: single ? single.value : null,
-          exactUnit: single ? (single.kind === 'measure' ? single.unit : (single.packageUnit || 'unité')) : '',
-          exactNeeds,
-          aisle: defaultAisleForProduct(group.name),
-          sources: Array.isArray(group.sources) ? group.sources : []
-        };
-        if (practical) return { ...base, text: practical, purchaseLabel: practical, anomalies: [] };
+        if (practical) return { text: practical, anomalies: [] };
         if (group.variants.size === 1) {
-          const text = formatShoppingVariant(single, group.name);
-          return { ...base, text, purchaseLabel: text, anomalies: [] };
+          return { text: formatShoppingVariant([...group.variants.values()][0], group.name), anomalies: [] };
         }
-        const text = mixedShoppingLine(group);
         return {
-          ...base,
-          text,
-          purchaseLabel: text,
+          text: mixedShoppingLine(group),
           anomalies: ['Quantités incompatibles à vérifier']
         };
       }
@@ -3207,7 +2923,7 @@
         if (parsed.skip) return { text: cleanShoppingCandidateLine(line), anomalies: ['Produit non reconnu'] };
         if (!parsed.numeric) return { text: parsed.text, anomalies: [] };
         const key = shoppingIngredientIdentity(parsed.rest);
-        const group = { key, name: '', specificity: -1, variants: new Map(), sources: [] };
+        const group = { key, name: '', specificity: -1, variants: new Map() };
         const profile = applyPreciseShoppingName(group, parsed.name);
         group.variants.set(`${parsed.kind}:${parsed.unit || parsed.packageUnit || 'unité'}`, {
           ...parsed,
@@ -3241,7 +2957,61 @@
         };
       }
 
-      function buildLegacyClairReviewRowsFromPlans(chosen) {
+
+      function shoppingPurchaseUnitLine(value) {
+        const original = String(value || '').trim();
+        const folded = foldText(original);
+        if (!original) return original;
+
+        if (/\bzestes?\b.*\bcitrons? verts?\b|\bcitrons? verts?\b.*\bzestes?\b/.test(folded)) return '1 citron vert';
+        if (/\bzestes?\b.*\bcitrons?\b|\bcitrons?\b.*\bzestes?\b/.test(folded)) return '1 citron';
+        if (/\bketchup\b/.test(folded)) return '1 flacon de ketchup';
+        if (/\bcapres?\b/.test(folded)) return '1 pot de câpres';
+        if (/\bmoutarde\b/.test(folded)) return '1 pot de moutarde';
+        if (/\bmayonnaise\b|\bmayo\b/.test(folded)) return '1 pot de mayonnaise';
+        if (/\bconcentre de tomates?\b/.test(folded)) return '1 tube de concentré de tomates';
+        if (/\bpesto\b/.test(folded)) return '1 pot de pesto';
+        if (/\bcornichons?\b/.test(folded)) return '1 bocal de cornichons';
+        if (/\bolives?\b/.test(folded)) return '1 bocal d’olives';
+        if (/\bjus de veau\b/.test(folded)) return '1 pot de jus de veau';
+        if (/\bcreme fraiche\b/.test(folded)) return '1 pot de crème fraîche';
+        if (/\bcreme liquide\b|\bcreme entiere\b/.test(folded)) return '1 brique de crème liquide';
+
+        const countables = [
+          [/\bcitrons? verts?\b/, 'citron vert', 'citrons verts'],
+          [/\bcitrons?\b/, 'citron', 'citrons'],
+          [/\bechalotes?\b/, 'échalote', 'échalotes'],
+          [/\boignons? rouges?\b/, 'oignon rouge', 'oignons rouges'],
+          [/\boignons?\b/, 'oignon', 'oignons'],
+          [/\bpoivrons?\b/, 'poivron', 'poivrons'],
+          [/\bconcombres?\b/, 'concombre', 'concombres'],
+          [/\bcourgettes?\b/, 'courgette', 'courgettes'],
+          [/\baubergines?\b/, 'aubergine', 'aubergines'],
+          [/\bavocats?\b/, 'avocat', 'avocats']
+        ];
+
+        const normalized = original
+          .replace(/½/g, '1/2').replace(/¼/g, '1/4').replace(/¾/g, '3/4')
+          .replace(/⅓/g, '1/3').replace(/⅔/g, '2/3');
+        const normalizedFolded = foldText(normalized);
+
+        for (const [pattern, singular, plural] of countables) {
+          if (!pattern.test(normalizedFolded)) continue;
+          const match = normalizedFolded.match(/(?:^|\s)(\d+\s*\/\s*\d+|\d+(?:[.,]\d+)?)\s+/);
+          if (!match) return original;
+          const token = match[1].replace(/\s/g, '').replace(',', '.');
+          let amount = token.includes('/')
+            ? (() => { const [a,b] = token.split('/').map(Number); return b ? a / b : 0; })()
+            : Number(token);
+          if (!Number.isFinite(amount) || amount <= 0) return original;
+          const quantity = Math.max(1, Math.ceil(amount));
+          return `${quantity} ${quantity > 1 ? plural : singular}`;
+        }
+
+        return original;
+      }
+
+      function buildClairReviewRowsFromPlans(chosen) {
         const groups = new Map();
         const plain = new Map();
         const choices = [];
@@ -3252,13 +3022,8 @@
           for (const line of shoppingIngredientLines(recipe, chosenPersons)) {
             const options = shoppingChoiceOptions(line);
             if (options.length > 1) {
-              const source = { recipeId: recipe.id, recipeTitle: recipe.title, rawText: line };
-              const optionRows = options.map(option => {
-                const row = shoppingRowForSingleLine(option);
-                return { ...row, sources: [source] };
-              });
-              const formattedOptions = optionRows.map(row => row.text);
-              choices.push({ ...optionRows[0], text: formattedOptions[0], choices: formattedOptions, choiceDetails: optionRows, anomalies: [] });
+              const formattedOptions = options.map(option => shoppingRowForSingleLine(option).text);
+              choices.push({ text: formattedOptions[0], choices: formattedOptions, anomalies: [] });
               continue;
             }
             const parsed = parseIngredientLine(line, 1);
@@ -3266,7 +3031,7 @@
             if (parsed.numeric) {
               const key = shoppingIngredientIdentity(parsed.rest);
               if (!key) continue;
-              const group = groups.get(key) || { key, name: '', specificity: -1, variants: new Map(), sources: [] };
+              const group = groups.get(key) || { key, name: '', specificity: -1, variants: new Map() };
               const profile = applyPreciseShoppingName(group, parsed.name);
               const signature = `${parsed.kind}:${parsed.unit || parsed.packageUnit || 'unité'}`;
               const previous = group.variants.get(signature) || { ...parsed, value: 0, specificity: -1 };
@@ -3278,7 +3043,6 @@
               }
               previous.value += parsed.value;
               group.variants.set(signature, previous);
-              group.sources.push({ recipeId: recipe.id, recipeTitle: recipe.title, rawText: line });
               groups.set(key, group);
             } else {
               const key = plainShoppingIngredientIdentity(parsed.text);
@@ -3286,16 +3050,7 @@
               const profile = shoppingProductProfile(parsed.text);
               const previous = plain.get(key);
               if (!previous || profile.specificity > previous.specificity) {
-                plain.set(key, {
-                  text: profile.preferredName || parsed.text,
-                  specificity: profile.specificity,
-                  sources: [
-                    ...(previous?.sources || []),
-                    { recipeId: recipe.id, recipeTitle: recipe.title, rawText: line }
-                  ]
-                });
-              } else {
-                previous.sources.push({ recipeId: recipe.id, recipeTitle: recipe.title, rawText: line });
+                plain.set(key, { text: profile.preferredName || parsed.text, specificity: profile.specificity });
               }
             }
           }
@@ -3313,100 +3068,21 @@
         }
         rows.push(...choices);
         for (const [key, item] of plain) {
-          if (!groups.has(key)) rows.push({
-            text: item.text,
-            purchaseLabel: item.text,
-            productKey: key,
-            displayName: item.text,
-            exactQuantity: null,
-            exactUnit: '',
-            aisle: defaultAisleForProduct(item.text),
-            sources: item.sources || [],
-            anomalies: []
-          });
+          if (!groups.has(key)) rows.push({ text: item.text, anomalies: [] });
         }
-        return rows;
-      }
-
-      function buildClairReviewRowsFromPlans(chosen) {
-        const core = window.MonCarnetCore;
-        if (!core?.consolidateIngredientSet || !core?.applyPackaging) {
-          return buildLegacyClairReviewRowsFromPlans(chosen);
-        }
-
-        const entries = [];
-        for (const plan of chosen) {
-          const recipe = recipes.find(item => item.id === plan.recipeId);
-          if (!recipe) continue;
-          const chosenPersons = clampPersons(plan.persons || recipe.persons || 1, recipe.persons || 1);
-          for (const line of scaledIngredientLines(recipe, chosenPersons)) {
-            entries.push({ line, recipeId: recipe.id, recipeTitle: recipe.title });
-          }
-        }
-
-        const result = core.consolidateIngredientSet(entries, {
-          reserveProducts: configuredPantryProducts()
-        });
-        return result.items.map(item => {
-          const anomalyLabels = (item.anomalies || []).map(anomaly =>
-            typeof anomaly === 'string' ? anomaly : (anomaly?.message || anomaly?.code || 'Quantité à vérifier')
-          );
-          const exactNeeds = item.exactQuantity == null ? [] : [{
-            quantity: item.exactQuantity,
-            unit: item.exactUnit || 'unité'
-          }];
-          const choiceDetails = (item.choices || []).map(choice => {
-            const choiceItem = core.applyPackaging({
-              ...item,
-              productKey: choice.productKey,
-              displayName: choice.displayName,
-              choices: []
-            });
-            return {
-              ...choiceItem,
-              text: choiceItem.purchaseLabel,
-              exactNeeds,
-              anomalies: anomalyLabels
-            };
-          });
-          const choices = choiceDetails.length > 1
-            ? choiceDetails.map(choice => choice.text)
-            : [];
-          return {
-            ...item,
-            text: item.purchaseLabel,
-            exactNeeds,
-            choices,
-            choiceDetails,
-            anomalies: anomalyLabels
-          };
-        });
+        return rows.map(row => {
+          const convertedText = shoppingPurchaseUnitLine(row.text);
+          const convertedChoices = Array.isArray(row.choices)
+            ? row.choices.map(shoppingPurchaseUnitLine)
+            : row.choices;
+          return { ...row, text: convertedText, choices: convertedChoices };
+        }).filter(row => !isDirectShoppingNoise(row.text));
       }
 
       function buildClairListFromPlans(chosen) {
         latestClairReviewRows = buildClairReviewRowsFromPlans(chosen);
         latestClairReviewText = latestClairReviewRows.map(row => row.text).join('\n');
         return latestClairReviewText;
-      }
-
-      function deterministicHash(value = '') {
-        const text = String(value || '');
-        let hash = 0x811c9dc5;
-        for (let index = 0; index < text.length; index++) {
-          hash ^= text.charCodeAt(index);
-          hash = Math.imul(hash, 0x01000193);
-        }
-        return `fnv1a:${(hash >>> 0).toString(16).padStart(8, '0')}`;
-      }
-
-      function planningFingerprint(chosen = []) {
-        const normalized = (chosen || []).map(plan => ({
-          date: plan.date || '',
-          meal: plan.meal || '',
-          recipeId: plan.recipeId || '',
-          persons: Number(plan.persons) || 0
-        })).sort((a, b) => `${a.date}|${a.meal}|${a.recipeId}`.localeCompare(`${b.date}|${b.meal}|${b.recipeId}`));
-        return deterministicHash(JSON.stringify(normalized)).replace('fnv1a:', '');
       }
 
       function buildClairList() {
@@ -3596,7 +3272,6 @@
           const itemText = row.text || choices[0] || '';
           const decision = shoppingRecommendation(itemText, row.anomalies);
           return {
-            ...row,
             text: itemText,
             choices,
             recommended: decision.recommended,
@@ -3613,228 +3288,127 @@
         window.setTimeout(() => $('#clairModal [data-close-modal]')?.focus(), 0);
       }
 
-      function chatMealRecipes() {
-        return recipes
-          .filter(recipe => !['Dessert', 'Apéritif'].includes(recipeCategory(recipe)))
-          .sort((a, b) => Number(Boolean(b.favorite)) - Number(Boolean(a.favorite))
-            || String(b.updatedAt || '').localeCompare(String(a.updatedAt || '')));
+      function isDirectShoppingNoise(value = '') {
+        const text = String(value || '').trim();
+        const folded = foldText(text).replace(/\s+/g, ' ');
+        if (!folded) return true;
+        if (/^(?:temps|duree|préparation|preparation|cuisson|repos|total)\b/.test(folded)) return true;
+        if (/^\d+(?:[.,]\d+)?\s*(?:min|mn|minutes?|h|heures?)\b/.test(folded)) return true;
+        if (/\b\d+(?:[.,]\d+)?\s*(?:min|mn|minutes?|h|heures?)\b.*\b(?:cuisson|preparation|repos|four)\b/.test(folded)) return true;
+        if (/\b(?:cuire|enfourner|prechauffer|laisser cuire|faire cuire)\b/.test(folded)) return true;
+        return isManifestShoppingProcedure(text);
       }
 
-      function chatRecipeCatalogue(device = 'Peu importe') {
-        const normalizedDevice = foldText(device);
-        let list = chatMealRecipes();
-        if (normalizedDevice && normalizedDevice !== 'peu importe') {
-          const filtered = list.filter(recipe => {
-            const haystack = foldText(`${recipe.device || ''} ${recipe.type || ''} ${recipe.title || ''}`);
-            if (normalizedDevice.includes('plaques')) return /plaque|poele|mijote/.test(haystack);
-            return haystack.includes(normalizedDevice);
-          });
-          if (filtered.length >= 2) list = filtered;
+      function normalizeDirectShoppingLine(value = '') {
+        const converted = shoppingPurchaseUnitLine(String(value || '').trim());
+        return isDirectShoppingNoise(converted) ? '' : converted;
+      }
+
+      function directShoppingItemFromLine(value = '', index = 0) {
+        const text = normalizeDirectShoppingLine(value);
+        if (!text) return null;
+        const clean = part => String(part || '').replace(/\s+/g, ' ').trim();
+        const title = part => {
+          const result = clean(part).replace(/^[\-–—•]+\s*/, '');
+          return result ? result.charAt(0).toUpperCase() + result.slice(1) : '';
+        };
+        let name = '';
+        let quantity = '';
+
+        const dash = text.match(/^(.+?)\s+[—–-]\s+(.+)$/);
+        if (dash) {
+          name = title(dash[1]);
+          quantity = clean(dash[2]);
         }
-        if (!list.length) return 'Le carnet ne contient pas encore de plat utilisable.';
-        return list.map((recipe, index) => {
-          const details = [recipe.type, recipe.device, durationCardLabel(recipe)].filter(Boolean).join(' · ');
-          return `${index + 1}. ${recipe.title}${details ? ` — ${details}` : ''}${recipe.favorite ? ' — favori' : ''}`;
-        }).join('\n');
+
+        if (!name) {
+          const packageLine = text.match(/^((?:\d+(?:[.,]\d+)?|[½⅓⅔¼¾⅛⅜⅝⅞]|\d+\s*\/\s*\d+))\s+(flacons?|pots?|bocaux?|briques?|tubes?|barquettes?|sachets?|paquets?|bo[iî]tes?|bouteilles?|t[eê]tes?|bottes?)\s+(?:de|d[’'])\s+(.+)$/i);
+          if (packageLine) {
+            quantity = `${clean(packageLine[1])} ${clean(packageLine[2])}`;
+            name = title(packageLine[3]);
+          }
+        }
+
+        if (!name) {
+          const measured = text.match(/^((?:\d+(?:[.,]\d+)?|[½⅓⅔¼¾⅛⅜⅝⅞]|\d+\s*\/\s*\d+)\s*(?:mg|g|kg|ml|cl|l))\s+(?:de|d[’'])\s+(.+)$/i);
+          if (measured) {
+            quantity = clean(measured[1]);
+            name = title(measured[2]);
+          }
+        }
+
+        if (!name) {
+          const simpleCount = text.match(/^((?:\d+(?:[.,]\d+)?|[½⅓⅔¼¾⅛⅜⅝⅞]|\d+\s*\/\s*\d+))\s+(.+)$/);
+          if (simpleCount) {
+            quantity = clean(simpleCount[1]);
+            name = title(simpleCount[2]);
+          }
+        }
+
+        if (!name) name = title(text);
+        if (!name || isDirectShoppingNoise(name)) return null;
+        return {
+          id: `item-mc-${Date.now().toString(36)}-${index}-${Math.random().toString(36).slice(2,7)}`,
+          name,
+          quantity,
+          checked: false,
+          createdAt: Date.now() + index
+        };
       }
 
-      function buildMealsChatPrompt() {
-        const lunchPersons = clampPersons($('#chatLunchPersons')?.value || 3, 3);
-        const dinnerPersons = clampPersons($('#chatDinnerPersons')?.value || 2, 2);
-        const device = $('#chatDevice')?.value || 'Peu importe';
-        const note = $('#chatNote')?.value.trim() || '';
-        return `Chat,\n\nAide-moi à choisir ce que nous allons manger aujourd’hui à partir de Mon Carnet.\n\n- Ce midi : ${lunchPersons} personne${lunchPersons > 1 ? 's' : ''}\n- Ce soir : ${dinnerPersons} personne${dinnerPersons > 1 ? 's' : ''}\n- Appareil souhaité : ${device}${note ? `\n- Ma précision : ${note}` : ''}\n\nChoisis deux recettes différentes dans la liste ci-dessous, une pour le midi et une plus adaptée au soir. Évite les répétitions et explique brièvement ton choix.\n\nRECETTES DE MON CARNET\n${chatRecipeCatalogue(device)}`;
+      function writeDirectItemsToClair(items = []) {
+        const rawText = localStorage.getItem('clairCourses.state') || '{}';
+        let raw = {};
+        try { raw = JSON.parse(rawText) || {}; } catch (_) { raw = {}; }
+        const wrapped = raw && raw.state && typeof raw.state === 'object';
+        const source = wrapped ? { ...raw.state } : { ...raw };
+        source.items = Array.isArray(source.items) ? [...source.items, ...items] : [...items];
+        source.updatedAt = Date.now();
+        const output = wrapped ? { ...raw, state: source } : source;
+        localStorage.setItem('clairCourses.state', JSON.stringify(output));
       }
 
-      function buildNewRecipeChatPrompt() {
-        const persons = clampPersons($('#chatRecipePersons')?.value || 2, 2);
-        const device = $('#chatRecipeDevice')?.value || 'Peu importe';
-        const request = $('#chatRecipeRequest')?.value.trim() || '';
-        return `Chat,\n\nCrée-moi une nouvelle recette complète, claire et facile à copier dans Mon Carnet.\n\n- Pour ${persons} personne${persons > 1 ? 's' : ''}\n- Appareil de cuisson : ${device}${request ? `\n- Ma demande : ${request}` : ''}\n\nPrésente-la avec : titre, temps de préparation, temps de cuisson, temps total, nombre de personnes, ingrédients puis étapes numérotées. Utilise les unités « c. à c. » et « c. à s. ».`;
-      }
+      async function sendDirectlyToClairCourses() {
+        const selectedLines = clairReviewItems
+          .filter(item => item.included)
+          .map(item => normalizeDirectShoppingLine(item.text))
+          .filter(Boolean);
+        const items = selectedLines.map(directShoppingItemFromLine).filter(Boolean);
+        if (!items.length) { showToast('Aucun article à envoyer'); return; }
 
-      function buildRecipeChatPrompt(recipe) {
-        if (!recipe) return 'Chat, aide-moi avec cette recette.';
-        const persons = selectedPersonsFor(recipe);
-        const ingredients = scaledIngredientLines(recipe, persons).map(line => `- ${line}`).join('\n');
-        const preparation = lines(recipe.steps).map((line, index) => `${index + 1}. ${line}`).join('\n');
-        return `Chat,\n\nVoici une recette de Mon Carnet : « ${recipe.title} », adaptée pour ${persons} personne${persons > 1 ? 's' : ''}.\n\nAide-moi à remplacer un ingrédient, adapter la cuisson ou améliorer cette recette. Commence par me demander ce que je souhaite modifier.\n\nINGRÉDIENTS\n${ingredients || '- Aucun ingrédient enregistré'}\n\nPRÉPARATION\n${preparation || 'Aucune étape enregistrée'}`;
-      }
+        const configured = (settings.clairUrl || DEFAULT_CLAIR_URL).trim();
+        let target;
+        try { target = new URL(configured, window.location.href); }
+        catch (_) { showToast('Adresse de Clair Courses invalide'); return; }
 
-      function setChatMode(mode, rebuild = true) {
-        chatMode = mode;
-        $$('[data-chat-mode]').forEach(button => button.classList.toggle('active', button.dataset.chatMode === mode));
-        $('#chatMealContext')?.classList.toggle('hidden', mode !== 'meals');
-        $('#chatNewRecipeContext')?.classList.toggle('hidden', mode !== 'new-recipe');
-        if (!rebuild) return;
-        if (mode === 'meals') $('#chatPrompt').value = buildMealsChatPrompt();
-        if (mode === 'new-recipe') $('#chatPrompt').value = buildNewRecipeChatPrompt();
-        if (mode === 'recipe') $('#chatPrompt').value = buildRecipeChatPrompt(recipes.find(item => item.id === chatRecipeId));
-        if (mode === 'free') {
-          $('#chatPrompt').value = 'Chat,\n\n';
-          window.setTimeout(() => $('#chatPrompt')?.focus(), 0);
+        if (target.origin !== window.location.origin) {
+          const ok = await copyText(selectedLines.join('\n'));
+          showToast(ok ? 'Applications sur deux adresses différentes : liste copiée' : 'Copiez la liste manuellement');
+          return;
+        }
+
+        try {
+          writeDirectItemsToClair(items);
+          showToast(`${items.length} article${items.length > 1 ? 's envoyés' : ' envoyé'} à Clair Courses`);
+          window.setTimeout(() => window.location.assign(target.href.replace(/[?#].*$/, '')), 350);
+        } catch (_) {
+          const ok = await copyText(selectedLines.join('\n'));
+          showToast(ok ? 'Envoi direct impossible : liste copiée' : 'Envoi impossible');
         }
       }
 
-      function openChatModal(recipe = null) {
-        chatRecipeId = recipe?.id || null;
-        chatModalReturnFocus = document.activeElement;
-        $('#chatRecipeModeBtn')?.classList.toggle('hidden', !chatRecipeId);
-        $('#chatModal').classList.add('open');
-        setChatMode(chatRecipeId ? 'recipe' : 'meals');
-        window.setTimeout(() => $('#chatModal [data-close-chat]')?.focus(), 0);
-      }
-
-      function closeChatModal() {
-        $('#chatModal').classList.remove('open');
-        chatRecipeId = null;
-        if (chatModalReturnFocus?.isConnected) chatModalReturnFocus.focus();
-        chatModalReturnFocus = null;
-      }
-
-      function refreshChatPromptFromContext() {
-        if (chatMode === 'meals') $('#chatPrompt').value = buildMealsChatPrompt();
-        if (chatMode === 'new-recipe') $('#chatPrompt').value = buildNewRecipeChatPrompt();
-      }
-
-      async function copyChatPrompt(openAfter = false) {
-        const text = $('#chatPrompt').value.trim();
-        if (!text) { showToast('Écrivez une demande avant de continuer'); return; }
-        const ok = await copyText(text);
-        if (!ok) { showToast('Sélectionnez puis copiez la demande'); return; }
-        showToast(openAfter ? 'Demande copiée · ouverture de ChatGPT' : 'Demande copiée');
-        if (openAfter) window.setTimeout(() => window.location.assign('https://chatgpt.com/'), 180);
-      }
-
-      function defaultAisleForProduct(name = '') {
-        const value = foldText(name);
-        if (/\bboite\b/.test(value) && /\btomates?\b/.test(value)) return 'Conserves';
-        if (/\b(?:viande|poulet|boeuf|porc|veau|agneau|canard|steak)\b/.test(value)) return 'Boucherie';
-        if (/\b(?:oeuf|oeufs)\b/.test(value)) return 'Crèmerie';
-        if (/tomate|ail|radis|salade|pomme de terre|courgette|citron|oignon|carotte|aubergine|poivron/.test(value)) return 'Fruits et légumes';
-        if (/yaourt|creme|beurre|lait|fromage/.test(value)) return 'Crèmerie';
-        if (/poisson|saumon|cabillaud|crevette|thon frais/.test(value)) return 'Poissonnerie';
-        if (/capre|cornichon|huile|vinaigre|epice|farine|sucre|panko|chapelure|riz|pates/.test(value)) return 'Épicerie';
-        return 'Divers';
-      }
-
-      function transferItemsFromReview() {
-        return clairReviewItems.map(item => {
-          const parsed = parseIngredientLine(item.sourceText || item.rawText || item.text, 1);
-          const displayName = item.displayName || (!parsed.skip && parsed.name) || item.text;
-          const hasExactQuantity = item.exactQuantity !== null
-            && item.exactQuantity !== undefined
-            && item.exactQuantity !== '';
-          const exactQuantity = hasExactQuantity && Number.isFinite(Number(item.exactQuantity))
-            ? Number(item.exactQuantity)
-            : (!parsed.skip && parsed.numeric ? parsed.value : null);
-          const exactUnit = item.exactUnit
-            || (!parsed.skip && parsed.numeric ? (parsed.unit || parsed.packageUnit || 'unité') : '');
-          const productKey = item.productKey
-            || canonicalShoppingProductName(displayName)
-            || foldText(displayName).replace(/[^a-z0-9]+/g, ' ').trim();
-          return {
-            productKey,
-            displayName,
-            exactQuantity,
-            exactUnit,
-            exactNeeds: Array.isArray(item.exactNeeds) ? item.exactNeeds : [],
-            purchaseLabel: item.text,
-            aisle: item.aisle || defaultAisleForProduct(displayName),
-            sources: Array.isArray(item.sources) ? item.sources : [],
-            selected: !!item.included,
-            isReserve: item.reason === 'reserve',
-            anomalies: Array.isArray(item.anomalies) ? item.anomalies : []
-          };
-        });
-      }
-
-      function buildClairTransferContract() {
-        const context = latestClairSourceContext || {
-          sourceType: 'planner',
-          sourceKey: `planner:unspecified:${planningFingerprint([])}`,
-          sourceLabel: 'Liste de Mon Carnet'
-        };
-        const contract = {
-          schemaVersion: 1,
-          importId: uid(),
-          sourceType: context.sourceType || 'planner',
-          sourceKey: context.sourceKey || `planner:unspecified:${planningFingerprint([])}`,
-          sourceLabel: context.sourceLabel || 'Liste de Mon Carnet',
-          sentAt: new Date().toISOString(),
-          items: transferItemsFromReview()
-        };
-        const fingerprintSource = {
-          sourceType: contract.sourceType,
-          sourceKey: contract.sourceKey,
-          items: contract.items.map(item => ({
-            productKey: item.productKey,
-            exactQuantity: item.exactQuantity,
-            exactUnit: item.exactUnit,
-            purchaseLabel: item.purchaseLabel,
-            selected: item.selected
-          })).sort((a, b) => `${a.productKey}|${a.exactUnit}|${a.purchaseLabel}`.localeCompare(`${b.productKey}|${b.exactUnit}|${b.purchaseLabel}`))
-        };
-        contract.contentFingerprint = window.MonCarnetCore?.fingerprintContractContent?.(contract)
-          || deterministicHash(JSON.stringify(fingerprintSource));
-        return contract;
-      }
-
-      function clairBridgeUrl(text, contract = buildClairTransferContract()) {
+      function clairBridgeUrl(text) {
         const configured = (settings.clairUrl || DEFAULT_CLAIR_URL).trim();
         const cleanBase = configured
           .replace(/[?#].*$/, '')
           .replace(/(?:index\.html|import\.html)$/i, '')
           .replace(/\/?$/, '/');
-        const target = new URL(`${cleanBase}import.html`, window.location.href);
-        const json = JSON.stringify(contract);
-
-        if (target.origin === window.location.origin) {
-          const token = String(contract.importId || uid()).replace(/[^a-zA-Z0-9._-]/g, '');
-          try {
-            const prefix = 'monCarnet.clairCourses.transfer.v1:';
-            const now = Date.now();
-            for (let index = localStorage.length - 1; index >= 0; index -= 1) {
-              const key = localStorage.key(index);
-              if (!key || !key.startsWith(prefix)) continue;
-              try {
-                const stored = JSON.parse(localStorage.getItem(key) || 'null');
-                const expiresAt = Number(stored?.expiresAt) || 0;
-                const sentAt = Date.parse(stored?.payload?.sentAt || stored?.sentAt || '') || 0;
-                const isWrapped = !!(stored && typeof stored === 'object' && stored.payload);
-                const isRawContract = !!(stored && typeof stored === 'object' && stored.schemaVersion && stored.importId);
-                const expired = (expiresAt && expiresAt < now) || (sentAt && now - sentAt > 30 * 60 * 1000);
-                if (expired || (!isWrapped && !isRawContract)) localStorage.removeItem(key);
-              } catch (_) {
-                localStorage.removeItem(key);
-              }
-            }
-            localStorage.setItem(`${prefix}${token}`, JSON.stringify({
-              createdAt: now,
-              expiresAt: now + 30 * 60 * 1000,
-              payload: contract
-            }));
-            target.searchParams.set('transfer', token);
-            target.hash = `mcjson=${encodeURIComponent(json)}`;
-            if (target.toString().length <= 28000) return target.toString();
-            target.hash = `mc=${encodeURIComponent(text)}`;
-            if (target.toString().length <= 28000) return target.toString();
-            target.hash = '';
-            return target.toString();
-          } catch (_) {
-            // Le repli JSON reste disponible si le stockage temporaire est saturé.
-          }
-        }
-
-        target.hash = `mcjson=${encodeURIComponent(json)}`;
-        if (target.toString().length <= 28000) return target.toString();
-        target.hash = `mc=${encodeURIComponent(text)}`;
-        return target.toString();
+        return `${cleanBase}import.html#mc=${encodeURIComponent(text)}`;
       }
 
-      async function copyAndOpenClair(text, emptyMessage = 'Aucun repas prévu', contract = buildClairTransferContract()) {
+      async function copyAndOpenClair(text, emptyMessage = 'Aucun repas prévu') {
         if (!text) { showToast(emptyMessage); return; }
-        const target = clairBridgeUrl(text, contract);
+        const target = clairBridgeUrl(text);
         if (target.length > 28000) {
           const ok = await copyText(text);
           openClairModal(text);
@@ -3846,46 +3420,20 @@
       }
 
       async function sendToClairCourses() {
-        const start = $('#plannerStart').value || todayISO();
-        const dates = Array.from({ length: plannerDays }, (_, index) => addDays(start, index));
-        const chosenPlans = plans.filter(plan => dates.includes(plan.date) && plan.recipeId);
-        const text = buildClairListFromPlans(chosenPlans);
+        const text = buildClairList();
         if (!text) { showToast('Aucun repas n’est planifié dans la période'); return; }
-        const end = dates[dates.length - 1] || start;
-        latestClairSourceContext = {
-          sourceType: 'planner',
-          sourceKey: `planner:${start}:${end}:${planningFingerprint(chosenPlans)}`,
-          sourceLabel: plannerDays === 1 ? `Repas du ${formatDay(start)}` : `Planning du ${formatDay(start)} au ${formatDay(end)}`,
-          plans: chosenPlans
-        };
         openClairModal(text);
       }
 
       async function sendHomeMealsToClairCourses() {
-        const chosenPlans = homeMealPlans();
-        const text = buildClairListFromPlans(chosenPlans);
+        const text = buildClairListFromPlans(homeMealPlans());
         if (!text) { showToast('Aucun repas n’est prévu ce soir ou demain'); return; }
-        const dates = chosenPlans.map(plan => plan.date).filter(Boolean).sort();
-        latestClairSourceContext = {
-          sourceType: 'planner',
-          sourceKey: `planner:${dates[0] || todayISO()}:${dates[dates.length - 1] || todayISO()}:${planningFingerprint(chosenPlans)}`,
-          sourceLabel: 'Repas prévus ce soir et les prochains jours',
-          plans: chosenPlans
-        };
         openClairModal(text);
       }
 
       async function sendRecipeToClairCourses(recipe, persons = selectedPersonsFor(recipe)) {
-        const chosenPersons = clampPersons(persons, recipe?.persons || 1);
-        const recipePlans = [{ recipeId: recipe.id, persons: chosenPersons }];
-        const text = buildClairListFromPlans(recipePlans);
+        const text = recipeClairText(recipe, persons);
         if (!text) { showToast('Cette recette ne contient aucun ingrédient'); return; }
-        latestClairSourceContext = {
-          sourceType: 'recipe',
-          sourceKey: `recipe:${recipe.id}:${chosenPersons}`,
-          sourceLabel: `${recipe.title} · ${chosenPersons} personne${chosenPersons > 1 ? 's' : ''}`,
-          plans: recipePlans
-        };
         openClairModal(text);
       }
 
@@ -3901,11 +3449,11 @@
         const text = $('#clairText').value.trim();
         if (!text) { showToast('Cochez au moins un article'); return; }
         if (openAfter) {
-          await copyAndOpenClair(text, 'La liste est vide', buildClairTransferContract());
+          await copyAndOpenClair(text, 'La liste est vide');
           return;
         }
         const ok = await copyText(text);
-        showToast(ok ? 'Liste copiée' : 'Sélectionnez puis copiez la liste');
+        showToast(ok ? 'Liste copiée · ouvrez Clair Courses puis collez-la' : 'Sélectionnez puis copiez la liste');
       }
 
       function printWindow(title, body) {
@@ -3913,13 +3461,14 @@
         if (!w) { showToast('Autorisez les fenêtres pour imprimer'); return; }
         w.document.write(`<!doctype html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width"><title>${esc(title)}</title><style>
           body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:#17211e;margin:38px;line-height:1.5}h1,h2,h3{font-family:Georgia,serif;font-weight:500}h1{font-size:36px;margin-bottom:6px}.meta{color:#68736f;margin-bottom:24px}.grid{display:grid;grid-template-columns:.8fr 1.2fr;gap:32px}li{margin-bottom:8px}.day{break-inside:avoid;border-top:1px solid #ddd;padding:12px 0}.meal{display:grid;grid-template-columns:80px 1fr;gap:12px;margin:8px 0}.note{padding:12px;background:#f3ece1;border-left:4px solid #b67745}@media(max-width:650px){body{margin:20px}.grid{grid-template-columns:1fr}}@media print{body{margin:16mm}}
-        </style></head><body>${body}<script>window.onload=()=>setTimeout(()=>window.print(),250)<\/script></body></html>`);
+        </style></head><body>${body}</body></html>`);
         w.document.close();
+        setTimeout(() => { try { w.focus(); w.print(); } catch (_) {} }, 250);
       }
 
       function printRecipe(r, persons = selectedPersonsFor(r)) {
         const chosen = clampPersons(persons, r.persons || 1);
-        printWindow(r.title, `<h1>${esc(r.title)}</h1><div class="meta">${esc(r.source)} · ${esc(r.season)} · ${esc(r.device)} · ${chosen} personne${chosen > 1 ? 's' : ''}${chosen !== r.persons ? ` · adaptée depuis ${r.persons}` : ''}${durationPrintText(r) ? ` · ${durationPrintText(r)}` : ''}</div><div class="grid"><section><h2>Ingrédients</h2><ul>${scaledIngredientLines(r, chosen).map(x=>`<li>${esc(x)}</li>`).join('')}</ul></section><section><h2>Préparation</h2><ol>${lines(r.steps).map(x=>`<li>${esc(x)}</li>`).join('')}</ol>${r.notes ? `<div class="note"><strong>Notes</strong><br>${esc(r.notes).replace(/\n/g,'<br>')}</div>` : ''}</section></div><p style="margin-top:35px;color:#777;font-size:12px">Mon carnet de cuisine — V2.1.6</p>`);
+        printWindow(r.title, `<h1>${esc(r.title)}</h1><div class="meta">${esc(r.source)} · ${esc(r.season)} · ${esc(r.device)} · ${chosen} personne${chosen > 1 ? 's' : ''}${chosen !== r.persons ? ` · adaptée depuis ${r.persons}` : ''}${durationPrintText(r) ? ` · ${durationPrintText(r)}` : ''}</div><div class="grid"><section><h2>Ingrédients</h2><ul>${scaledIngredientLines(r, chosen).map(x=>`<li>${esc(x)}</li>`).join('')}</ul></section><section><h2>Préparation</h2><ol>${lines(r.steps).map(x=>`<li>${esc(x)}</li>`).join('')}</ol>${r.notes ? `<div class="note"><strong>Notes</strong><br>${esc(r.notes).replace(/\n/g,'<br>')}</div>` : ''}</section></div><p style="margin-top:35px;color:#777;font-size:12px">Mon carnet de cuisine — TEST V2.3</p>`);
       }
 
       function printPlan() {
@@ -3932,141 +3481,14 @@
           }).join('');
           return `<section class="day"><h2>${esc(formatDay(date))}</h2>${rows}</section>`;
         }).join('');
-        printWindow('Planning des repas', `<h1>Planning des repas</h1><div class="meta">Du ${esc(formatDay(start))} — ${plannerDays} jours</div>${days}<p style="margin-top:35px;color:#777;font-size:12px">Mon carnet de cuisine — V2.1.6</p>`);
-      }
-
-      function durationFindingFromLine(line = '') {
-        const meta = window.MonCarnetCore?.parseDurationMetadataLine?.(cleanShoppingCandidateLine(line));
-        if (!meta) return null;
-        const field = meta.key || meta.field || meta.kind || meta.type || '';
-        const minutes = Math.max(0, Number(meta.minutes ?? meta.value) || 0);
-        if (!minutes) return null;
-        if (/prep|preparation/.test(field)) return { kind: 'duration', field: 'prepDuration', minutes, destination: `Préparation · ${formatDuration(minutes)}` };
-        if (/cook|cuisson/.test(field)) return { kind: 'duration', field: 'cookDuration', minutes, destination: `Cuisson · ${formatDuration(minutes)}` };
-        if (/marin/.test(field)) return { kind: 'duration', field: 'marinadeDuration', minutes, destination: `Marinade · ${formatDuration(minutes)}` };
-        if (/total|duration/.test(field)) return { kind: 'duration', field: 'duration', minutes, destination: `Durée totale · ${formatDuration(minutes)}` };
-        return null;
-      }
-
-      function collectIngredientAuditFindings() {
-        const findings = [];
-        for (const recipe of recipes) {
-          const ingredientLines = String(recipe.ingredients || '').split(/\r?\n/);
-          let afterStopHeading = false;
-          ingredientLines.forEach((rawLine, lineIndex) => {
-            const line = cleanShoppingCandidateLine(rawLine);
-            if (!line) return;
-            if (isIngredientHeading(line)) {
-              afterStopHeading = false;
-              return;
-            }
-            const durationFinding = durationFindingFromLine(line);
-            if (durationFinding) {
-              findings.push({ recipeId: recipe.id, recipeTitle: recipe.title, lineIndex, line: rawLine, ...durationFinding });
-              return;
-            }
-            if (isShoppingSectionStopHeading(line)) {
-              afterStopHeading = true;
-              findings.push({
-                recipeId: recipe.id,
-                recipeTitle: recipe.title,
-                lineIndex,
-                line: rawLine,
-                kind: 'heading',
-                destination: 'Retirer ce titre du champ Ingrédients'
-              });
-              return;
-            }
-            if (afterStopHeading || isManifestShoppingProcedure(line)) {
-              findings.push({
-                recipeId: recipe.id,
-                recipeTitle: recipe.title,
-                lineIndex,
-                line: rawLine,
-                kind: 'step',
-                destination: 'Déplacer vers Préparation'
-              });
-            }
-          });
-        }
-        return findings;
-      }
-
-      function openIngredientAudit() {
-        ingredientAuditFindings = collectIngredientAuditFindings();
-        const host = $('#ingredientAuditList');
-        const summary = $('#ingredientAuditSummary');
-        if (!ingredientAuditFindings.length) {
-          summary.textContent = 'Aucune ligne suspecte détectée. Aucune donnée ne sera modifiée.';
-          host.innerHTML = '<div class="empty-state"><strong>Tout paraît en ordre</strong><p>Les durées et les consignes sont bien séparées des ingrédients.</p></div>';
-          $('#applyIngredientAuditBtn').classList.add('hidden');
-        } else {
-          summary.textContent = `${ingredientAuditFindings.length} ligne${ingredientAuditFindings.length > 1 ? 's suspectes' : ' suspecte'} trouvée${ingredientAuditFindings.length > 1 ? 's' : ''}. Vérifiez les propositions avant d’appliquer.`;
-          host.innerHTML = ingredientAuditFindings.map((finding, index) => `
-            <label class="audit-item">
-              <input type="checkbox" data-audit-index="${index}" checked>
-              <span>
-                <strong>${esc(finding.recipeTitle)}</strong>
-                <span>« ${esc(finding.line)} »</span>
-                <span>Proposition : ${esc(finding.destination)}</span>
-              </span>
-            </label>
-          `).join('');
-          $('#applyIngredientAuditBtn').classList.remove('hidden');
-        }
-        $('#ingredientAuditModal').classList.add('open');
-        window.setTimeout(() => $('#ingredientAuditModal [data-close-audit]')?.focus(), 0);
-      }
-
-      function closeIngredientAudit() {
-        $('#ingredientAuditModal').classList.remove('open');
-        ingredientAuditFindings = [];
-      }
-
-      async function applyIngredientAudit() {
-        const selectedIndexes = $$('[data-audit-index]:checked', $('#ingredientAuditList'))
-          .map(input => Number(input.dataset.auditIndex))
-          .filter(Number.isInteger);
-        if (!selectedIndexes.length) { showToast('Aucune correction cochée'); return; }
-        if (!confirm(`Appliquer ${selectedIndexes.length} correction${selectedIndexes.length > 1 ? 's' : ''} ?`)) return;
-
-        const selected = selectedIndexes.map(index => ingredientAuditFindings[index]).filter(Boolean);
-        const recipeIds = [...new Set(selected.map(finding => finding.recipeId))];
-        let updatedCount = 0;
-        for (const recipeId of recipeIds) {
-          const recipe = recipes.find(item => item.id === recipeId);
-          if (!recipe) continue;
-          const recipeFindings = selected.filter(finding => finding.recipeId === recipeId);
-          const removedIndexes = new Set(recipeFindings.map(finding => finding.lineIndex));
-          const originalLines = String(recipe.ingredients || '').split(/\r?\n/);
-          recipe.ingredients = originalLines.filter((line, index) => !removedIndexes.has(index)).join('\n').trim();
-          const newSteps = recipeFindings
-            .filter(finding => finding.kind === 'step')
-            .map(finding => cleanShoppingCandidateLine(finding.line))
-            .filter(step => step && !lines(recipe.steps).includes(step));
-          if (newSteps.length) recipe.steps = [...lines(recipe.steps), ...newSteps].join('\n');
-          for (const finding of recipeFindings.filter(item => item.kind === 'duration')) {
-            if (!Number(recipe[finding.field])) recipe[finding.field] = finding.minutes;
-          }
-          if (recipe.prepDuration || recipe.marinadeDuration || recipe.cookDuration) {
-            recipe.duration = calculatedKitchenDuration(recipe.prepDuration, recipe.marinadeDuration, recipe.cookDuration);
-          }
-          recipe.updatedAt = new Date().toISOString();
-          await put('recipes', recipe);
-          updatedCount++;
-        }
-        sortRecipes();
-        closeIngredientAudit();
-        renderAll();
-        showToast(`${updatedCount} recette${updatedCount > 1 ? 's vérifiées' : ' vérifiée'}`);
+        printWindow('Planning des repas', `<h1>Planning des repas</h1><div class="meta">Du ${esc(formatDay(start))} — ${plannerDays} jours</div>${days}<p style="margin-top:35px;color:#777;font-size:12px">Mon carnet de cuisine — TEST V2.3</p>`);
       }
 
       function renderSettings() {
         $('#clairUrl').value = settings.clairUrl || '';
         $('#pantryProducts').value = normalizePantryProducts(settings.pantryProducts).join('\n');
         const photoCount = recipes.filter(r => r.photo).length;
-        const menuCount = Array.isArray(settings.savedMenus) ? settings.savedMenus.length : 0;
-        $('#storageSummary').textContent = `${recipes.length} recette${recipes.length > 1 ? 's' : ''}, ${photoCount} photo${photoCount > 1 ? 's' : ''}, ${plans.filter(p=>p.recipeId).length} repas planifié${plans.filter(p=>p.recipeId).length > 1 ? 's' : ''} et ${menuCount} menu${menuCount > 1 ? 's' : ''}.`;
+        $('#storageSummary').textContent = `${recipes.length} recette${recipes.length > 1 ? 's' : ''}, ${photoCount} photo${photoCount > 1 ? 's' : ''} et ${plans.filter(p=>p.recipeId).length} repas planifié${plans.filter(p=>p.recipeId).length > 1 ? 's' : ''}.`;
 
         const status = $('#backupStatus');
         const lastBackup = settings.lastBackupAt ? new Date(settings.lastBackupAt) : null;
@@ -4111,248 +3533,32 @@
         showToast('Sauvegarde créée');
       }
 
-      const RESTORE_STAGE_PREFIX = '__mc_restore_stage__:';
-      const RESTORE_RECIPE_PREFIX = `${RESTORE_STAGE_PREFIX}recipe:`;
-      const RESTORE_PLAN_PREFIX = `${RESTORE_STAGE_PREFIX}plan:`;
-      const RESTORE_CHUNK_SIZE = 1024 * 1024;
-
-      function setRestoreProgress(message, due = false) {
-        const status = $('#backupStatus');
-        if (!status) return;
-        status.textContent = message;
-        status.classList.toggle('due', due);
-      }
-
-      function clearRestoreStage() {
-        return new Promise((resolve, reject) => {
-          const transaction = db.transaction('settings', 'readwrite');
-          const store = transaction.objectStore('settings');
-          const request = store.openCursor();
-          transaction.oncomplete = () => resolve();
-          transaction.onerror = () => reject(transaction.error || new Error('Nettoyage temporaire impossible'));
-          transaction.onabort = () => reject(transaction.error || new Error('Nettoyage temporaire annulé'));
-          request.onsuccess = () => {
-            const cursor = request.result;
-            if (!cursor) return;
-            if (String(cursor.key || '').startsWith(RESTORE_STAGE_PREFIX)) cursor.delete();
-            cursor.continue();
-          };
-          request.onerror = () => reject(request.error || new Error('Nettoyage temporaire impossible'));
-        });
-      }
-
-      function stageRestoreValue(key, value) {
-        return new Promise((resolve, reject) => {
-          const transaction = db.transaction('settings', 'readwrite');
-          const request = transaction.objectStore('settings').put({ key, value });
-          transaction.oncomplete = () => resolve();
-          transaction.onerror = () => reject(transaction.error || request.error || new Error('Écriture temporaire impossible'));
-          transaction.onabort = () => reject(transaction.error || new Error('Écriture temporaire annulée'));
-        });
-      }
-
-      async function readBackupRecipesByChunks(file, onRecipe, onProgress) {
-        let offset = 0;
-        let prefix = '';
-        let tail = '';
-        let recipesStarted = false;
-        let recipesFinished = false;
-        let capturing = false;
-        let depth = 0;
-        let inString = false;
-        let carryBackslashes = 0;
-        let parts = [];
-        let recipeCount = 0;
-
-        const processRecipeText = async text => {
-          let i = 0;
-          let segmentStart = capturing ? 0 : -1;
-
-          while (i < text.length) {
-            if (!capturing) {
-              const ch = text[i];
-              if (/\s|,/.test(ch)) { i += 1; continue; }
-              if (ch === ']') {
-                recipesFinished = true;
-                return text.slice(i + 1);
-              }
-              if (ch !== '{') throw new Error('Format des recettes invalide');
-              capturing = true;
-              depth = 1;
-              inString = false;
-              carryBackslashes = 0;
-              parts = [];
-              segmentStart = i;
-              i += 1;
-              continue;
-            }
-
-            if (inString) {
-              const quote = text.indexOf('"', i);
-              if (quote === -1) {
-                let run = 0;
-                for (let j = text.length - 1; j >= i && text[j] === '\\'; j -= 1) run += 1;
-                carryBackslashes = run;
-                i = text.length;
-                break;
-              }
-              let run = 0;
-              for (let j = quote - 1; j >= i && text[j] === '\\'; j -= 1) run += 1;
-              if (quote - run === i && i === 0) run += carryBackslashes;
-              carryBackslashes = 0;
-              if (run % 2 === 0) inString = false;
-              i = quote + 1;
-              continue;
-            }
-
-            const ch = text[i];
-            if (ch === '"') {
-              inString = true;
-              carryBackslashes = 0;
-            } else if (ch === '{' || ch === '[') {
-              depth += 1;
-            } else if (ch === '}' || ch === ']') {
-              depth -= 1;
-              if (depth === 0) {
-                parts.push(text.slice(segmentStart, i + 1));
-                const rawRecipe = parts.join('');
-                let recipe;
-                try { recipe = JSON.parse(rawRecipe); }
-                catch (_) { throw new Error(`Recette ${recipeCount + 1} illisible`); }
-                recipeCount += 1;
-                await onRecipe(recipe, recipeCount);
-                if (onProgress) onProgress(recipeCount);
-                capturing = false;
-                parts = [];
-                segmentStart = -1;
-              }
-            }
-            i += 1;
-          }
-
-          if (capturing && segmentStart >= 0) parts.push(text.slice(segmentStart));
-          return '';
-        };
-
-        while (offset < file.size) {
-          const end = Math.min(file.size, offset + RESTORE_CHUNK_SIZE);
-          const chunk = await file.slice(offset, end).text();
-          offset = end;
-
-          if (!recipesStarted) {
-            prefix += chunk;
-            const match = /"recipes"\s*:\s*\[/.exec(prefix);
-            if (!match) {
-              if (prefix.length > 8 * RESTORE_CHUNK_SIZE) throw new Error('Section recettes introuvable');
-              continue;
-            }
-            recipesStarted = true;
-            const afterStart = prefix.slice(match.index + match[0].length);
-            prefix = '';
-            const remainder = await processRecipeText(afterStart);
-            if (recipesFinished) tail += remainder;
-          } else if (!recipesFinished) {
-            const remainder = await processRecipeText(chunk);
-            if (recipesFinished) tail += remainder;
-          } else {
-            tail += chunk;
-          }
-
-          if (tail.length > 32 * 1024 * 1024) throw new Error('Planning ou réglages anormalement volumineux');
-          await new Promise(resolve => setTimeout(resolve, 0));
-        }
-
-        if (!recipesStarted || !recipesFinished || capturing) throw new Error('Sauvegarde incomplète');
-        const trimmedTail = tail.replace(/^\s*,/, '');
-        let remaining;
-        try { remaining = JSON.parse(`{${trimmedTail}`); }
-        catch (_) { throw new Error('Planning ou réglages illisibles'); }
-        if (!Array.isArray(remaining.plans)) throw new Error('Planning absent ou invalide');
-        return { recipeCount, plans: remaining.plans, settings: remaining.settings || {} };
-      }
-
-      function finalizeStagedRestore(nextSettings) {
-        return new Promise((resolve, reject) => {
-          const transaction = db.transaction(['recipes', 'plans', 'settings'], 'readwrite');
-          const recipesStore = transaction.objectStore('recipes');
-          const plansStore = transaction.objectStore('plans');
-          const settingsStore = transaction.objectStore('settings');
-
-          recipesStore.clear();
-          plansStore.clear();
-
-          const cursorRequest = settingsStore.openCursor();
-          cursorRequest.onsuccess = () => {
-            const cursor = cursorRequest.result;
-            if (!cursor) {
-              for (const [key, value] of Object.entries(nextSettings)) settingsStore.put({ key, value });
-              return;
-            }
-            const key = String(cursor.key || '');
-            if (key.startsWith(RESTORE_RECIPE_PREFIX)) recipesStore.put(cursor.value.value);
-            else if (key.startsWith(RESTORE_PLAN_PREFIX)) plansStore.put(cursor.value.value);
-            cursor.delete();
-            cursor.continue();
-          };
-          cursorRequest.onerror = () => reject(cursorRequest.error || new Error('Lecture temporaire impossible'));
-          transaction.oncomplete = () => resolve();
-          transaction.onerror = () => reject(transaction.error || new Error('Échec de la restauration'));
-          transaction.onabort = () => reject(transaction.error || new Error('Restauration annulée'));
-        });
-      }
-
       async function importBackup(file) {
-        if (!file) return;
-        const sizeMb = Math.max(1, Math.round(file.size / 1048576));
-        if (!confirm(`Restaurer cette sauvegarde de ${sizeMb} Mo remplacera les données actuelles. Continuer ?`)) return;
-
         try {
-          setRestoreProgress('Préparation de la restauration…');
-          await clearRestoreStage();
-
-          const parsed = await readBackupRecipesByChunks(
-            file,
-            async (recipe, index) => stageRestoreValue(`${RESTORE_RECIPE_PREFIX}${String(index).padStart(6, '0')}`, recipe),
-            count => setRestoreProgress(`Restauration en préparation… ${count} recette${count > 1 ? 's' : ''} lue${count > 1 ? 's' : ''}.`)
-          );
-
-          for (let index = 0; index < parsed.plans.length; index += 1) {
-            await stageRestoreValue(`${RESTORE_PLAN_PREFIX}${String(index + 1).padStart(6, '0')}`, parsed.plans[index]);
-          }
-
-          const restoredSettings = {
-            pantryProducts: [...DEFAULT_PANTRY_PRODUCTS],
-            seeded: true,
-            ...(parsed.settings || {}),
-            clairUrl: DEFAULT_CLAIR_URL
-          };
-          restoredSettings.pantryProducts = normalizePantryProducts(restoredSettings.pantryProducts);
-          if (!Array.isArray(restoredSettings.savedMenus)) restoredSettings.savedMenus = [];
-
-          setRestoreProgress('Vérification et remplacement sécurisé des données…');
-          await finalizeStagedRestore(restoredSettings);
-          settings = restoredSettings;
-          await loadData();
-          renderAll();
-          navigate('home');
-          showToast(`Sauvegarde restaurée · ${parsed.recipeCount} recettes`);
-        } catch (err) {
-          try { await clearRestoreStage(); } catch (_) {}
-          renderSettings();
-          alert(`Impossible de restaurer ce fichier : ${err.message}`);
-        }
+          const data = JSON.parse(await file.text());
+          if (!Array.isArray(data.recipes) || !Array.isArray(data.plans)) throw new Error('Format invalide');
+          if (!confirm('Restaurer cette sauvegarde remplacera les données actuelles. Continuer ?')) return;
+          await clearStore('recipes'); await clearStore('plans'); await clearStore('settings');
+          for (const r of data.recipes) await put('recipes', r);
+          for (const p of data.plans) await put('plans', p);
+          settings = { clairUrl: DEFAULT_CLAIR_URL, pantryProducts: [...DEFAULT_PANTRY_PRODUCTS], seeded: true, ...(data.settings || {}) };
+          if (!settings.clairUrl) settings.clairUrl = DEFAULT_CLAIR_URL;
+          settings.pantryProducts = normalizePantryProducts(settings.pantryProducts);
+          for (const [key,value] of Object.entries(settings)) await put('settings', { key, value });
+          await loadData(); renderAll(); navigate('home'); showToast('Sauvegarde restaurée');
+        } catch (err) { alert(`Impossible de restaurer ce fichier : ${err.message}`); }
       }
 
       async function eraseAll() {
         if (!confirm('Effacer définitivement toutes les recettes, photos et le planning ?')) return;
         if (!confirm('Cette action est irréversible sans sauvegarde. Confirmer ?')) return;
         await clearStore('recipes'); await clearStore('plans'); await clearStore('settings');
-        recipes = []; plans = []; settings = { clairUrl: DEFAULT_CLAIR_URL, pantryProducts: [...DEFAULT_PANTRY_PRODUCTS], savedMenus: [], seeded: true };
+        recipes = []; plans = []; settings = { clairUrl: DEFAULT_CLAIR_URL, pantryProducts: [...DEFAULT_PANTRY_PRODUCTS], seeded: true };
         await put('settings', { key: 'seeded', value: true });
         renderAll(); navigate('home'); showToast('Carnet effacé');
       }
 
-      function renderAll() { renderHome(); renderRecipes(); renderMenus(); renderPlanner(); renderSettings(); }
+      function renderAll() { renderHome(); renderRecipes(); renderPlanner(); renderSettings(); }
 
       function bindEvents() {
         document.addEventListener('click', event => {
@@ -4369,10 +3575,6 @@
             return;
           }
           if (event.target.closest('[data-close-quick-plan]') || event.target === $('#quickPlanModal')) { closeQuickPlan(); return; }
-          if (event.target.closest('[data-close-chat]') || event.target === $('#chatModal')) { closeChatModal(); return; }
-          const chatModeButton = event.target.closest('[data-chat-mode]');
-          if (chatModeButton) { setChatMode(chatModeButton.dataset.chatMode); return; }
-          if (event.target.closest('[data-close-audit]') || event.target === $('#ingredientAuditModal')) { closeIngredientAudit(); return; }
           if (event.target.closest('[data-close-modal]') || event.target === $('#clairModal')) { closeClairModal(); return; }
           if (event.target.closest('[data-close-schedule-choice]') || event.target === $('#scheduleChoiceModal')) { closeScheduleChoice(); return; }
           if (event.target.closest('[data-close-cooked]') || event.target === $('#cookedModal')) { closeCookedModal(); return; }
@@ -4382,35 +3584,16 @@
           if (scheduleSlot) { scheduleRecipeInSlot(scheduleSlot.dataset.scheduleSlot); return; }
         });
         document.addEventListener('keydown', event => {
-          if (event.key !== 'Escape') return;
-          if ($('#chatModal').classList.contains('open')) closeChatModal();
-          else if ($('#ingredientAuditModal').classList.contains('open')) closeIngredientAudit();
-          else if ($('#clairModal').classList.contains('open')) closeClairModal();
+          if (event.key === 'Escape' && $('#clairModal').classList.contains('open')) closeClairModal();
         });
-        $('#helpBtn').addEventListener('click', openHelp);
         $('#quickAddBtn').addEventListener('click', () => navigate('add'));
-        $('#openFavoritesBtn').addEventListener('click', () => {
-          favoriteOnly = true;
-          $('#favoriteFilterBtn').classList.add('active');
-          $('#favoriteFilterBtn').setAttribute('aria-pressed', 'true');
-          $('#favoriteFilterBtn').textContent = '♥ Favorites seulement';
-          navigate('recipes');
-        });
-        $('#askChatBtn').addEventListener('click', () => openChatModal());
-        $('#copyOpenChatBtn').addEventListener('click', () => copyChatPrompt(true));
-        $('#copyChatBtn').addEventListener('click', () => copyChatPrompt(false));
-        ['chatLunchPersons', 'chatDinnerPersons', 'chatDevice', 'chatRecipePersons', 'chatRecipeDevice'].forEach(id => {
-          $('#' + id).addEventListener('change', refreshChatPromptFromContext);
-        });
-        $('#chatNote').addEventListener('input', refreshChatPromptFromContext);
-        $('#chatRecipeRequest').addEventListener('input', refreshChatPromptFromContext);
-        $('#refreshMealIdeasBtn').addEventListener('click', () => renderMealIdeas(true));
         $('#cookingCloseBtn').addEventListener('click', () => closeCookingMode());
         $('#cookingPrevBtn').addEventListener('click', previousCookingStep);
         $('#cookingNextBtn').addEventListener('click', nextCookingStep);
         $('#cookingTimerToggle').addEventListener('click', toggleCookingTimer);
         $('#cookingTimerReset').addEventListener('click', () => resetCookingTimer());
         $('#cookingTimerTest').addEventListener('click', testCookingTimerAlarm);
+        $('#refreshMealIdeasBtn').addEventListener('click', () => renderMealIdeas(true));
         $('#refreshSuggestion').addEventListener('click', () => renderSuggestion(true));
         $('#quickPlanRecipe').addEventListener('change', () => updateQuickPlanSummary(true));
         $('#saveQuickPlanBtn').addEventListener('click', saveQuickPlan);
@@ -4458,6 +3641,12 @@
           $$('[data-season-filter]', $('#seasonFilterRow')).forEach(x => x.classList.toggle('active', x === chip));
           renderRecipes();
         });
+        $('#momentFilterRow').addEventListener('click', event => {
+          const chip = event.target.closest('[data-moment-filter]'); if (!chip) return;
+          activeMomentFilter = chip.dataset.momentFilter;
+          $$('[data-moment-filter]', $('#momentFilterRow')).forEach(x => x.classList.toggle('active', x === chip));
+          renderRecipes();
+        });
         $('#favoriteFilterBtn').addEventListener('click', event => {
           favoriteOnly = !favoriteOnly;
           event.currentTarget.classList.toggle('active', favoriteOnly);
@@ -4469,22 +3658,24 @@
           activeCategoryFilter = 'all';
           activeDeviceFilter = 'all';
           activeSeasonFilter = 'all';
+          activeMomentFilter = 'all';
           favoriteOnly = false;
           $('#recipeSearch').value = '';
           $$('[data-category-filter]', $('#categoryFilterRow')).forEach(x => x.classList.toggle('active', x.dataset.categoryFilter === 'all'));
           $$('[data-device-filter]', $('#deviceFilterRow')).forEach(x => x.classList.toggle('active', x.dataset.deviceFilter === 'all'));
           $$('[data-season-filter]', $('#seasonFilterRow')).forEach(x => x.classList.toggle('active', x.dataset.seasonFilter === 'all'));
+          $$('[data-moment-filter]', $('#momentFilterRow')).forEach(x => x.classList.toggle('active', x.dataset.momentFilter === 'all'));
           $('#favoriteFilterBtn').classList.remove('active');
           $('#favoriteFilterBtn').setAttribute('aria-pressed', 'false');
           $('#favoriteFilterBtn').textContent = '♡ Favorites seulement';
           $('#categoryFilterRow').scrollLeft = 0;
           $('#deviceFilterRow').scrollLeft = 0;
           $('#seasonFilterRow').scrollLeft = 0;
+          $('#momentFilterRow').scrollLeft = 0;
           renderRecipes();
         });
         $('#recipeForm').addEventListener('submit', saveRecipe);
         $('#recipePrepDuration').addEventListener('input', syncTotalDuration);
-        $('#recipeDuration').addEventListener('input', updateDurationPreviews);
         $('#recipeMarinadeDuration').addEventListener('input', syncTotalDuration);
         $('#recipeMarinadeDuration').addEventListener('blur', () => { normalizeMarinadeDurationField(); syncTotalDuration(); });
         $('#recipeCookDuration').addEventListener('input', syncTotalDuration);
@@ -4517,11 +3708,6 @@
             const item = clairReviewItems[index];
             if (!item) return;
             item.text = choice.value;
-            const selectedDetail = (item.choiceDetails || []).find(detail => detail.text === choice.value);
-            if (selectedDetail) {
-              ['productKey', 'displayName', 'exactQuantity', 'exactUnit', 'exactNeeds', 'purchaseLabel', 'aisle', 'sources']
-                .forEach(key => { item[key] = selectedDetail[key]; });
-            }
             const decision = shoppingRecommendation(item.text, item.sourceAnomalies);
             item.recommended = decision.recommended;
             item.reason = decision.reason;
@@ -4542,12 +3728,9 @@
         });
         $('#clairEssentialsBtn').addEventListener('click', () => setClairReviewMode('essential'));
         $('#clairSelectAllBtn').addEventListener('click', () => setClairReviewMode('all'));
+        $('#sendDirectClairBtn').addEventListener('click', sendDirectlyToClairCourses);
         $('#copyClairBtn').addEventListener('click', () => copyClair(false));
-        $('#openClairBtn').addEventListener('click', () => copyClair(true));
         $('#saveSettingsBtn').addEventListener('click', saveSettings);
-        $('#saveMenuBtn').addEventListener('click', saveMenu);
-        $('#auditIngredientsBtn').addEventListener('click', openIngredientAudit);
-        $('#applyIngredientAuditBtn').addEventListener('click', applyIngredientAudit);
         $('#exportBtn').addEventListener('click', exportBackup);
         $('#importInput').addEventListener('change', event => { const file = event.target.files?.[0]; if (file) importBackup(file); event.target.value=''; });
         $('#eraseBtn').addEventListener('click', eraseAll);
@@ -4559,7 +3742,7 @@
           $('#plannerStart').value = todayISO();
           bindEvents(); renderAll();
           if ('serviceWorker' in navigator && location.protocol !== 'file:') {
-            navigator.serviceWorker.register('./sw.js').catch(() => {});
+            navigator.serviceWorker.register('./sw.js?v=2.3-direct-test-1').then(registration => registration.update()).catch(() => {});
           }
         } catch (err) {
           console.error(err);
