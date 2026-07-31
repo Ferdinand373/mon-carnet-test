@@ -1,4 +1,5 @@
-const CACHE_NAME = 'mon-carnet-cuisine-search-iphone-v2';
+const CACHE_NAME = 'mon-carnet-test-search-iphone-v3';
+const TEST_CACHE_PREFIX = 'mon-carnet-test-';
 const APP_SHELL = ['./', './index.html', './mon-carnet-v17.png', './search-enhancement.js'];
 const SEARCH_SCRIPT = '<script src="./search-enhancement.js?v=1.0.2-iphone"></script>';
 
@@ -66,7 +67,7 @@ self.addEventListener('activate', event => {
     const names = await caches.keys();
     await Promise.all(
       names
-        .filter(name => name.startsWith('mon-carnet-cuisine-') && name !== CACHE_NAME)
+        .filter(name => name.startsWith(TEST_CACHE_PREFIX) && name !== CACHE_NAME)
         .map(name => caches.delete(name))
     );
     await self.clients.claim();
