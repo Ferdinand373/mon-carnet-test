@@ -948,7 +948,7 @@
 
       #view-recipes .recipe-body h4 {
         margin: 0 0 7px !important;
-        font-size: 18.5px !important;
+        font-size: 20px !important;
         line-height: 1.16 !important;
         letter-spacing: -.015em !important;
         display: -webkit-box !important;
@@ -980,7 +980,7 @@
         border-radius: 999px !important;
         font-size: 11px !important;
         line-height: 1.05 !important;
-        font-weight: 650 !important;
+        font-weight: 600 !important;
         background: rgba(241,235,224,.62) !important;
       }
 
@@ -1007,7 +1007,7 @@
         }
 
         #view-recipes .recipe-body h4 {
-          font-size: 20px !important;
+          font-size: 18.5px !important;
           line-height: 1.18 !important;
           margin-bottom: 6px !important;
         }
@@ -1031,7 +1031,7 @@
     injectCompactPresentation();
 
     const versionLabel = document.querySelector('.brand small');
-    if (versionLabel) versionLabel.textContent = 'VERSION · TEST IPHONE 7 PRÉSENTATION FINE';
+    if (versionLabel) versionLabel.textContent = 'VERSION · TEST IPHONE 7.1 PRÉSENTATION FINE';
     document.title = 'Mon carnet de cuisine — Test présentation affinée';
 
     const search = $('#recipeSearch');
@@ -1057,7 +1057,7 @@
         recipeIndexPromise = null;
         prewarmSearchIndex();
       },
-      version: '1.0.7-iphone-fine-presentation'
+      version: '1.0.7.1-iphone-fine-presentation'
     };
   }
 

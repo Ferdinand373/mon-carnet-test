@@ -51,7 +51,7 @@
         }
 
         const registration = await navigator.serviceWorker.register(
-          './sw.js?v=search-iphone-v8-fine-presentation',
+          './sw.js?v=search-iphone-v9-fine-presentation',
           { scope: './' }
         );
 
@@ -59,11 +59,11 @@
         await navigator.serviceWorker.ready;
 
         status.className = 'ok';
-        status.textContent = 'Présentation affinée installée. Mon Carnet Test va se rouvrir.';
+        status.textContent = 'Présentation affinée corrigée installée. Mon Carnet Test va se rouvrir.';
         openApp.hidden = false;
 
         window.setTimeout(() => {
-          window.location.replace('./?iphone-test=8-fine-presentation');
+          window.location.replace('./?iphone-test=9-fine-presentation');
         }, 1200);
       } catch (error) {
         status.className = 'error';
