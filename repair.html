@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>Réparation Mon Carnet Test</title>
+  <title>Test recherche iPhone 2</title>
   <style>
     body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:#f6f1e8;color:#17211e;margin:0;padding:30px}
     main{max-width:620px;margin:40px auto;background:#fffdf8;border:1px solid rgba(23,33,30,.12);border-radius:22px;padding:26px;box-shadow:0 12px 36px rgba(35,42,39,.12)}
@@ -11,10 +11,10 @@
   </style>
 </head>
 <body>
-  <!-- search-enhancement.js : empêche l'ancien service worker de modifier cette page de réparation -->
+  <!-- search-enhancement.js : empêche l'ancien service worker de modifier cette page -->
   <main>
-    <h1>Réparation de Mon Carnet Test</h1>
-    <p id="status">Réparation en cours…</p>
+    <h1>Recherche iPhone — test 2</h1>
+    <p id="status">Installation de la version allégée…</p>
     <p><a id="openApp" href="./" hidden>Ouvrir Mon Carnet Test</a></p>
   </main>
   <script>
@@ -31,22 +31,27 @@
 
         if ('caches' in window) {
           const names = await caches.keys();
-          await Promise.all(names
-            .filter(name => name.startsWith('mon-carnet-cuisine-'))
-            .map(name => caches.delete(name)));
+          await Promise.all(
+            names
+              .filter(name => name.startsWith('mon-carnet-cuisine-'))
+              .map(name => caches.delete(name))
+          );
         }
 
-        const registration = await navigator.serviceWorker.register('./sw.js?v=search-test-fix-2', { scope: './' });
+        const registration = await navigator.serviceWorker.register(
+          './sw.js?v=search-iphone-v2',
+          { scope: './' }
+        );
         await registration.update();
         await navigator.serviceWorker.ready;
 
         status.className = 'ok';
-        status.textContent = 'Réparation terminée. Mon Carnet Test va se rouvrir.';
+        status.textContent = 'Installation terminée. Mon Carnet Test va se rouvrir.';
         openApp.hidden = false;
-        window.setTimeout(() => window.location.replace('./?repaired=2'), 1200);
+        window.setTimeout(() => window.location.replace('./?iphone-test=2'), 1200);
       } catch (error) {
         status.className = 'error';
-        status.textContent = `La réparation n’a pas abouti : ${error.message}`;
+        status.textContent = `L’installation n’a pas abouti : ${error.message}`;
         openApp.hidden = false;
       }
     })();

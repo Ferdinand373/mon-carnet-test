@@ -3,15 +3,13 @@
 
   const DB_NAME = 'mon-carnet-cuisine-v1';
   const DB_VERSION = 1;
-  const state = {
-    category: 'all',
-    device: 'all',
-    season: 'all',
-    moment: 'all',
-    favoriteOnly: false,
-    query: ''
-  };
+  const MAX_RESULTS = 50;
+  const MIN_QUERY_LENGTH = 2;
+  const INPUT_DELAY_MS = 320;
+
+  let recipeIndexPromise = null;
   let renderTicket = 0;
+  let inputTimer = 0;
 
   const $ = (selector, root = document) => root.querySelector(selector);
   const $$ = (selector, root = document) => [...root.querySelectorAll(selector)];
@@ -81,18 +79,17 @@
     if (queryToken === candidateToken) return true;
     if (singularToken(queryToken) === singularToken(candidateToken)) return true;
     if (queryToken.length >= 3 && candidateToken.startsWith(queryToken)) return true;
-    if (candidateToken.length >= 3 && queryToken.startsWith(candidateToken) && candidateToken.length >= queryToken.length - 1) return true;
-    if (queryToken.length >= 5 && candidateToken.length >= 5 && editDistanceAtMostOne(queryToken, candidateToken)) return true;
+    if (
+      candidateToken.length >= 3 &&
+      queryToken.startsWith(candidateToken) &&
+      candidateToken.length >= queryToken.length - 1
+    ) return true;
+    if (
+      queryToken.length >= 5 &&
+      candidateToken.length >= 5 &&
+      editDistanceAtMostOne(queryToken, candidateToken)
+    ) return true;
     return false;
-  }
-
-  function fieldMatch(queryToken, text) {
-    const normalized = searchableText(text);
-    const words = normalized.split(' ').filter(Boolean);
-    const compact = normalized.replace(/\s+/g, '');
-    const queryCompact = queryToken.replace(/\s+/g, '');
-    if (queryCompact.length >= 3 && compact.includes(queryCompact)) return true;
-    return words.some(word => tokenMatches(queryToken, word));
   }
 
   function categoryFor(recipe = {}) {
@@ -120,65 +117,13 @@
   }
 
   function isDinnerRecipe(recipe = {}) {
-    const text = searchableText(`${recipe.title || ''} ${recipe.type || ''} ${recipe.category || ''} ${recipe.device || ''}`);
+    const text = searchableText(
+      `${recipe.title || ''} ${recipe.type || ''} ${recipe.category || ''} ${recipe.device || ''}`
+    );
     if (/repas du soir/.test(text)) return true;
     const light = /salade|soupe|veloute|potage|tartine|bruschetta|croque|omelette|oeuf|quiche|flan sale|galette|wrap|poisson|cabillaud|saumon|bar|thon|sardine|maquereau|moule|crevette|legume|vegetar|halloumi/.test(text);
     const heavy = /bourguignon|cassoulet|choucroute|jarret|epaule|souris d agneau|ragout|cote de boeuf/.test(text);
     return light && !heavy;
-  }
-
-  function recipeScore(recipe, query) {
-    const queryTokens = tokenize(query);
-    if (!queryTokens.length) return { matched: true, score: 0 };
-
-    const fields = [
-      { name: 'title', value: recipe.title, weight: 52 },
-      { name: 'ingredients', value: recipe.ingredients, weight: 26 },
-      { name: 'device', value: recipe.device, weight: 24 },
-      { name: 'type', value: recipe.type, weight: 22 },
-      { name: 'category', value: categoryFor(recipe), weight: 20 },
-      { name: 'source', value: recipe.source, weight: 12 },
-      { name: 'season', value: recipe.season, weight: 12 },
-      { name: 'notes', value: recipe.notes, weight: 8 },
-      { name: 'steps', value: recipe.steps, weight: 4 }
-    ];
-
-    let score = 0;
-    for (const token of queryTokens) {
-      let best = 0;
-      for (const field of fields) {
-        if (!fieldMatch(token, field.value || '')) continue;
-        const normalized = searchableText(field.value || '');
-        let bonus = 0;
-        if (normalized === token) bonus += 18;
-        else if (normalized.startsWith(`${token} `) || normalized.startsWith(token)) bonus += 10;
-        if (field.name === 'title' && normalized.includes(token)) bonus += 10;
-        best = Math.max(best, field.weight + bonus);
-      }
-      if (!best) return { matched: false, score: 0 };
-      score += best;
-    }
-
-    const normalizedQuery = searchableText(query);
-    const title = searchableText(recipe.title || '');
-    const ingredients = searchableText(recipe.ingredients || '');
-    if (title === normalizedQuery) score += 180;
-    else if (title.startsWith(normalizedQuery)) score += 110;
-    else if (title.includes(normalizedQuery)) score += 75;
-    if (ingredients.includes(normalizedQuery)) score += 28;
-    if (recipe.favorite) score += 2;
-    return { matched: true, score };
-  }
-
-  function iconFor(recipe = {}) {
-    const text = searchableText(`${recipe.type || ''} ${recipe.device || ''}`);
-    if (text.includes('poisson')) return '🐟';
-    if (text.includes('dessert')) return '🍰';
-    if (text.includes('salade') || text.includes('vegetarien')) return '🥗';
-    if (text.includes('mijot')) return '🍲';
-    if (text.includes('airfryer') || text.includes('air fryer')) return '♨';
-    if (text.includes('plancha') || text.includes('barbecue')) return '🔥';
-    return '🍽️';
   }
 
   function formatDuration(minutes = 0) {
@@ -198,12 +143,62 @@
     return Math.max(0, Number(recipe.duration) || 0);
   }
 
-  function readRecipes() {
-    return new Promise((resolve, reject) => {
+  function iconFor(recipe = {}) {
+    const text = searchableText(`${recipe.type || ''} ${recipe.device || ''}`);
+    if (text.includes('poisson')) return '🐟';
+    if (text.includes('dessert')) return '🍰';
+    if (text.includes('salade') || text.includes('vegetarien')) return '🥗';
+    if (text.includes('mijot')) return '🍲';
+    if (text.includes('airfryer') || text.includes('air fryer')) return '♨';
+    if (text.includes('plancha') || text.includes('barbecue')) return '🔥';
+    return '🍽️';
+  }
+
+  function buildIndex(recipe = {}) {
+    const category = categoryFor(recipe);
+    const fields = [
+      { name: 'title', text: searchableText(recipe.title), weight: 52 },
+      { name: 'ingredients', text: searchableText(recipe.ingredients), weight: 26 },
+      { name: 'device', text: searchableText(recipe.device), weight: 24 },
+      { name: 'type', text: searchableText(recipe.type), weight: 22 },
+      { name: 'category', text: searchableText(category), weight: 20 },
+      { name: 'source', text: searchableText(recipe.source), weight: 12 },
+      { name: 'season', text: searchableText(recipe.season), weight: 12 },
+      { name: 'notes', text: searchableText(recipe.notes), weight: 8 },
+      { name: 'steps', text: searchableText(recipe.steps), weight: 4 }
+    ].map(field => ({
+      ...field,
+      words: field.text.split(' ').filter(Boolean),
+      compact: field.text.replace(/\s+/g, '')
+    }));
+
+    return {
+      id: recipe.id,
+      title: String(recipe.title || ''),
+      category,
+      season: String(recipe.season || ''),
+      device: String(recipe.device || ''),
+      canonicalDevice: canonicalDevice(recipe.device),
+      type: String(recipe.type || ''),
+      persons: Math.max(1, Number(recipe.persons) || 1),
+      favorite: !!recipe.favorite,
+      duration: recipeDuration(recipe),
+      updatedAt: String(recipe.updatedAt || ''),
+      dinner: isDinnerRecipe(recipe),
+      icon: iconFor(recipe),
+      fields
+    };
+  }
+
+  function readRecipeIndex() {
+    if (recipeIndexPromise) return recipeIndexPromise;
+
+    recipeIndexPromise = new Promise((resolve, reject) => {
       if (!('indexedDB' in window)) {
         reject(new Error('IndexedDB indisponible'));
         return;
       }
+
       const request = indexedDB.open(DB_NAME, DB_VERSION);
       request.onerror = () => reject(request.error || new Error('Stockage indisponible'));
       request.onsuccess = () => {
@@ -211,7 +206,11 @@
         try {
           const transaction = database.transaction('recipes', 'readonly');
           const all = transaction.objectStore('recipes').getAll();
-          all.onsuccess = () => resolve(all.result || []);
+
+          all.onsuccess = () => {
+            const lightweightIndex = (all.result || []).map(buildIndex);
+            resolve(lightweightIndex);
+          };
           all.onerror = () => reject(all.error || new Error('Lecture impossible'));
           transaction.oncomplete = () => database.close();
           transaction.onabort = () => database.close();
@@ -221,15 +220,51 @@
         }
       };
     });
+
+    return recipeIndexPromise;
   }
 
-  function syncStateFromUi() {
-    state.query = $('#recipeSearch')?.value?.trim() || '';
-    state.category = $('#categoryFilterRow .chip.active')?.dataset.categoryFilter || state.category;
-    state.device = $('#deviceFilterRow .chip.active')?.dataset.deviceFilter || state.device;
-    state.season = $('#seasonFilterRow .chip.active')?.dataset.seasonFilter || state.season;
-    state.moment = $('#momentFilterRow .chip.active')?.dataset.momentFilter || state.moment;
-    state.favoriteOnly = $('#favoriteFilterBtn')?.classList.contains('active') || false;
+  function fieldMatches(token, field) {
+    const compactToken = token.replace(/\s+/g, '');
+    if (compactToken.length >= 3 && field.compact.includes(compactToken)) return true;
+    return field.words.some(word => tokenMatches(token, word));
+  }
+
+  function recipeScore(entry, queryTokens, normalizedQuery) {
+    let score = 0;
+
+    for (const token of queryTokens) {
+      let best = 0;
+      for (const field of entry.fields) {
+        if (!fieldMatches(token, field)) continue;
+        let bonus = 0;
+        if (field.text === token) bonus += 18;
+        else if (field.text.startsWith(token)) bonus += 10;
+        if (field.name === 'title' && field.text.includes(token)) bonus += 10;
+        best = Math.max(best, field.weight + bonus);
+      }
+      if (!best) return { matched: false, score: 0 };
+      score += best;
+    }
+
+    const title = entry.fields[0].text;
+    const ingredients = entry.fields[1].text;
+    if (title === normalizedQuery) score += 180;
+    else if (title.startsWith(normalizedQuery)) score += 110;
+    else if (title.includes(normalizedQuery)) score += 75;
+    if (ingredients.includes(normalizedQuery)) score += 28;
+    if (entry.favorite) score += 2;
+    return { matched: true, score };
+  }
+
+  function currentFilters() {
+    return {
+      category: $('#categoryFilterRow .chip.active')?.dataset.categoryFilter || 'all',
+      device: $('#deviceFilterRow .chip.active')?.dataset.deviceFilter || 'all',
+      season: $('#seasonFilterRow .chip.active')?.dataset.seasonFilter || 'all',
+      moment: $('#momentFilterRow .chip.active')?.dataset.momentFilter || 'all',
+      favoriteOnly: $('#favoriteFilterBtn')?.classList.contains('active') || false
+    };
   }
 
   function ensureStatusElement() {
@@ -240,19 +275,29 @@
       status = document.createElement('div');
       status.id = 'enhancedSearchStatus';
       status.setAttribute('aria-live', 'polite');
-      status.style.cssText = 'grid-column:1/-1;margin:-2px 2px 0;color:var(--muted);font-size:12px;line-height:1.4;';
+      status.style.cssText =
+        'grid-column:1/-1;margin:-2px 2px 0;color:var(--muted);font-size:12px;line-height:1.4;';
       toolbar.appendChild(status);
     }
     return status;
   }
 
-  function cardHtml(recipe) {
-    const category = categoryFor(recipe);
-    const total = recipeDuration(recipe);
-    const meta = total ? formatDuration(total) : escapeHtml(recipe.type || '');
-    return `<article class="recipe-card" data-recipe-id="${escapeHtml(recipe.id)}">
-      <div class="recipe-image">${recipe.photo ? `<img src="${escapeHtml(recipe.photo)}" alt="${escapeHtml(recipe.title)}">` : `<div class="recipe-placeholder">${iconFor(recipe)}</div>`}${recipe.favorite ? '<div class="fav-badge">♥</div>' : ''}</div>
-      <div class="recipe-body"><h4>${escapeHtml(recipe.title)}</h4><div class="tags"><span class="tag">${escapeHtml(category)}</span><span class="tag">${escapeHtml(recipe.season || '')}</span><span class="tag">${escapeHtml(recipe.device || '')}</span></div><div class="recipe-meta"><span>${meta}</span><span>${Math.max(1, Number(recipe.persons) || 1)} pers.</span></div></div>
+  function cardHtml(entry) {
+    const meta = entry.duration ? formatDuration(entry.duration) : escapeHtml(entry.type);
+    return `<article class="recipe-card" data-recipe-id="${escapeHtml(entry.id)}">
+      <div class="recipe-image">
+        <div class="recipe-placeholder">${entry.icon}</div>
+        ${entry.favorite ? '<div class="fav-badge">♥</div>' : ''}
+      </div>
+      <div class="recipe-body">
+        <h4>${escapeHtml(entry.title)}</h4>
+        <div class="tags">
+          <span class="tag">${escapeHtml(entry.category)}</span>
+          <span class="tag">${escapeHtml(entry.season)}</span>
+          <span class="tag">${escapeHtml(entry.device)}</span>
+        </div>
+        <div class="recipe-meta"><span>${meta}</span><span>${entry.persons} pers.</span></div>
+      </div>
     </article>`;
   }
 
@@ -260,138 +305,146 @@
     const grid = $('#recipeGrid');
     const search = $('#recipeSearch');
     if (!grid || !search) return;
+
+    const rawQuery = search.value.trim();
+    const status = ensureStatusElement();
+
+    if (!rawQuery) {
+      if (status) status.textContent = '';
+      return;
+    }
+
+    const normalizedQuery = searchableText(rawQuery);
+    if (normalizedQuery.length < MIN_QUERY_LENGTH) {
+      if (status) status.textContent = 'Tapez au moins 2 lettres pour lancer la recherche.';
+      return;
+    }
+
     const ticket = ++renderTicket;
-    syncStateFromUi();
+    if (status) status.textContent = 'Recherche en cours…';
+
     try {
-      const recipes = await readRecipes();
+      const index = await readRecipeIndex();
       if (ticket !== renderTicket) return;
-      const ranked = recipes
-        .map(recipe => ({ recipe, ...recipeScore(recipe, state.query) }))
+
+      const queryTokens = tokenize(rawQuery);
+      const filters = currentFilters();
+
+      const ranked = index
+        .map(entry => ({ entry, ...recipeScore(entry, queryTokens, normalizedQuery) }))
         .filter(item => item.matched)
-        .filter(({ recipe }) => state.category === 'all' || categoryFor(recipe) === state.category)
-        .filter(({ recipe }) => state.device === 'all' || canonicalDevice(recipe.device) === state.device)
-        .filter(({ recipe }) => state.season === 'all' || recipe.season === state.season)
-        .filter(({ recipe }) => !state.favoriteOnly || !!recipe.favorite)
-        .filter(({ recipe }) => state.moment === 'all' || isDinnerRecipe(recipe))
+        .filter(({ entry }) => filters.category === 'all' || entry.category === filters.category)
+        .filter(({ entry }) => filters.device === 'all' || entry.canonicalDevice === filters.device)
+        .filter(({ entry }) => filters.season === 'all' || entry.season === filters.season)
+        .filter(({ entry }) => !filters.favoriteOnly || entry.favorite)
+        .filter(({ entry }) => filters.moment === 'all' || entry.dinner)
         .sort((a, b) => {
-          if (state.query && b.score !== a.score) return b.score - a.score;
-          return String(b.recipe.updatedAt || '').localeCompare(String(a.recipe.updatedAt || ''));
+          if (b.score !== a.score) return b.score - a.score;
+          return b.entry.updatedAt.localeCompare(a.entry.updatedAt);
         });
 
-      const status = ensureStatusElement();
+      const shown = ranked.slice(0, MAX_RESULTS);
       if (status) {
-        const count = ranked.length;
-        status.textContent = state.query
-          ? `${count} recette${count > 1 ? 's' : ''} trouvée${count > 1 ? 's' : ''} · tous les mots sont recherchés dans le titre, les ingrédients et les informations de la recette.`
-          : `${count} recette${count > 1 ? 's' : ''} · recherche par titre, ingrédient, appareil, saison ou origine.`;
+        const total = ranked.length;
+        status.textContent = total > MAX_RESULTS
+          ? `${MAX_RESULTS} premiers résultats sur ${total} · affinez la recherche.`
+          : `${total} recette${total > 1 ? 's' : ''} trouvée${total > 1 ? 's' : ''}.`;
       }
 
-      if (!ranked.length) {
-        grid.innerHTML = `<div class="empty-state" style="grid-column:1/-1"><strong>Aucune recette trouvée</strong>Essayez moins de mots ou vérifiez les filtres sélectionnés.</div>`;
+      if (!shown.length) {
+        grid.innerHTML =
+          '<div class="empty-state" style="grid-column:1/-1"><strong>Aucune recette trouvée</strong>Essayez moins de mots ou vérifiez les filtres.</div>';
         return;
       }
-      grid.innerHTML = ranked.map(item => cardHtml(item.recipe)).join('');
+
+      grid.innerHTML = shown.map(item => cardHtml(item.entry)).join('');
     } catch (error) {
-      console.warn('Recherche améliorée indisponible', error);
+      console.warn('Recherche allégée indisponible', error);
+      if (status) status.textContent = 'La recherche est momentanément indisponible.';
     }
   }
 
-  function activateChip(rowSelector, chip) {
-    $$(".chip", $(rowSelector)).forEach(item => item.classList.toggle('active', item === chip));
+  function scheduleSearch() {
+    window.clearTimeout(inputTimer);
+    inputTimer = window.setTimeout(renderEnhancedSearch, INPUT_DELAY_MS);
   }
 
-  function captureEvents() {
+  function captureSearchInput() {
     const search = $('#recipeSearch');
-    if (search) {
-      search.addEventListener('input', event => {
-        event.stopImmediatePropagation();
-        state.query = search.value.trim();
-        renderEnhancedSearch();
-      }, true);
-    }
+    if (!search) return;
 
-    const filters = [
-      ['#categoryFilterRow', 'categoryFilter', 'category'],
-      ['#deviceFilterRow', 'deviceFilter', 'device'],
-      ['#seasonFilterRow', 'seasonFilter', 'season'],
-      ['#momentFilterRow', 'momentFilter', 'moment']
+    search.addEventListener('input', event => {
+      const query = search.value.trim();
+
+      if (!query) {
+        window.clearTimeout(inputTimer);
+        const status = ensureStatusElement();
+        if (status) status.textContent = '';
+        return;
+      }
+
+      event.stopImmediatePropagation();
+      scheduleSearch();
+    }, true);
+  }
+
+  function followOriginalFilters() {
+    const selectors = [
+      '#categoryFilterRow',
+      '#deviceFilterRow',
+      '#seasonFilterRow',
+      '#momentFilterRow',
+      '#favoriteFilterBtn',
+      '#clearFiltersBtn'
     ];
-    for (const [rowSelector, dataKey, stateKey] of filters) {
-      const row = $(rowSelector);
-      if (!row) continue;
-      row.addEventListener('click', event => {
-        const chip = event.target.closest(`[data-${dataKey.replace(/[A-Z]/g, letter => `-${letter.toLowerCase()}`)}]`);
-        if (!chip) return;
-        event.preventDefault();
-        event.stopImmediatePropagation();
-        state[stateKey] = chip.dataset[dataKey];
-        activateChip(rowSelector, chip);
-        renderEnhancedSearch();
-      }, true);
-    }
 
-    const favorite = $('#favoriteFilterBtn');
-    if (favorite) {
-      favorite.addEventListener('click', event => {
-        event.preventDefault();
-        event.stopImmediatePropagation();
-        state.favoriteOnly = !state.favoriteOnly;
-        favorite.classList.toggle('active', state.favoriteOnly);
-        favorite.setAttribute('aria-pressed', String(state.favoriteOnly));
-        favorite.textContent = state.favoriteOnly ? '♥ Favorites seulement' : '♡ Favorites seulement';
-        renderEnhancedSearch();
-      }, true);
-    }
-
-    const clear = $('#clearFiltersBtn');
-    if (clear) {
-      clear.addEventListener('click', event => {
-        event.preventDefault();
-        event.stopImmediatePropagation();
-        state.category = 'all';
-        state.device = 'all';
-        state.season = 'all';
-        state.moment = 'all';
-        state.favoriteOnly = false;
-        state.query = '';
-        if (search) search.value = '';
-        $$('[data-category-filter]').forEach(item => item.classList.toggle('active', item.dataset.categoryFilter === 'all'));
-        $$('[data-device-filter]').forEach(item => item.classList.toggle('active', item.dataset.deviceFilter === 'all'));
-        $$('[data-season-filter]').forEach(item => item.classList.toggle('active', item.dataset.seasonFilter === 'all'));
-        $$('[data-moment-filter]').forEach(item => item.classList.toggle('active', item.dataset.momentFilter === 'all'));
-        if (favorite) {
-          favorite.classList.remove('active');
-          favorite.setAttribute('aria-pressed', 'false');
-          favorite.textContent = '♡ Favorites seulement';
-        }
-        renderEnhancedSearch();
-      }, true);
-    }
+    selectors.forEach(selector => {
+      const element = $(selector);
+      if (!element) return;
+      element.addEventListener('click', () => {
+        const query = $('#recipeSearch')?.value?.trim() || '';
+        if (query) scheduleSearch();
+      });
+    });
   }
 
   function watchRecipeView() {
     const view = $('#view-recipes');
     if (!view) return;
     const observer = new MutationObserver(() => {
-      if (view.classList.contains('active')) window.setTimeout(renderEnhancedSearch, 0);
+      const query = $('#recipeSearch')?.value?.trim() || '';
+      if (view.classList.contains('active') && query) scheduleSearch();
     });
     observer.observe(view, { attributes: true, attributeFilter: ['class'] });
   }
 
   function start() {
+    const versionLabel = document.querySelector('.brand small');
+    if (versionLabel) versionLabel.textContent = 'VERSION · TEST IPHONE 2';
+    document.title = 'Mon carnet de cuisine — Test recherche iPhone 2';
+
     const search = $('#recipeSearch');
     const grid = $('#recipeGrid');
     if (!search || !grid) {
       window.setTimeout(start, 100);
       return;
     }
-    search.placeholder = 'Ex. poulet air fryer, saumon citron, crème…';
-    captureEvents();
+
+    search.placeholder = 'Ex. poulet moutarde, air fryer, citron…';
+    captureSearchInput();
+    followOriginalFilters();
     watchRecipeView();
-    if ($('#view-recipes')?.classList.contains('active')) renderEnhancedSearch();
-    window.__monCarnetEnhancedSearch = { render: renderEnhancedSearch, version: '1.0.0' };
+
+    window.__monCarnetEnhancedSearch = {
+      render: renderEnhancedSearch,
+      resetIndex: () => { recipeIndexPromise = null; },
+      version: '1.0.2-iphone'
+    };
   }
 
-  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', start, { once: true });
-  else start();
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', start, { once: true });
+  } else {
+    start();
+  }
 })();

@@ -1,6 +1,6 @@
-const CACHE_NAME = 'mon-carnet-cuisine-search-test-v2';
+const CACHE_NAME = 'mon-carnet-cuisine-search-iphone-v2';
 const APP_SHELL = ['./', './index.html', './mon-carnet-v17.png', './search-enhancement.js'];
-const SEARCH_SCRIPT = '<script src="./search-enhancement.js?v=1.0.1"></script>';
+const SEARCH_SCRIPT = '<script src="./search-enhancement.js?v=1.0.2-iphone"></script>';
 
 function injectSearchScript(html) {
   if (html.includes('search-enhancement.js')) return html;
@@ -37,7 +37,9 @@ async function fetchEnhancedPage(request) {
     }
     return enhanced;
   } catch (_) {
-    return (await caches.match('./index.html')) || (await caches.match('./')) || Response.error();
+    return (await caches.match('./index.html')) ||
+      (await caches.match('./')) ||
+      Response.error();
   }
 }
 
@@ -62,9 +64,11 @@ self.addEventListener('install', event => {
 self.addEventListener('activate', event => {
   event.waitUntil((async () => {
     const names = await caches.keys();
-    await Promise.all(names
-      .filter(name => name.startsWith('mon-carnet-cuisine-') && name !== CACHE_NAME)
-      .map(name => caches.delete(name)));
+    await Promise.all(
+      names
+        .filter(name => name.startsWith('mon-carnet-cuisine-') && name !== CACHE_NAME)
+        .map(name => caches.delete(name))
+    );
     await self.clients.claim();
   })());
 });
