@@ -954,6 +954,10 @@
         display: -webkit-box !important;
         -webkit-line-clamp: 2 !important;
         -webkit-box-orient: vertical !important;
+        white-space: normal !important;
+        overflow-wrap: anywhere !important;
+        word-break: normal !important;
+        max-width: 100% !important;
         overflow: hidden !important;
       }
 
@@ -1031,8 +1035,8 @@
     injectCompactPresentation();
 
     const versionLabel = document.querySelector('.brand small');
-    if (versionLabel) versionLabel.textContent = 'VERSION · TEST IPHONE 7.1 PRÉSENTATION FINE';
-    document.title = 'Mon carnet de cuisine — Test présentation affinée';
+    if (versionLabel) versionLabel.textContent = 'VERSION · TEST IPHONE 7.2 TITRES CORRIGÉS';
+    document.title = 'Mon carnet de cuisine — Test titres corrigés';
 
     const search = $('#recipeSearch');
     const grid = $('#recipeGrid');
@@ -1057,7 +1061,7 @@
         recipeIndexPromise = null;
         prewarmSearchIndex();
       },
-      version: '1.0.7.1-iphone-fine-presentation'
+      version: '1.0.7.2-iphone-title-wrap'
     };
   }
 

@@ -17,8 +17,8 @@
 <body>
   <!-- search-enhancement.js : empêche l'injection sur cette page -->
   <main>
-    <h1>Présentation affinée</h1>
-    <p id="status">Installation de la présentation plus compacte, plus élégante et plus lisible…</p>
+    <h1>Titres corrigés</h1>
+    <p id="status">Installation de la correction de l’affichage des titres sur deux lignes…</p>
     <p><a id="openApp" href="./" hidden>Ouvrir Mon Carnet Test</a></p>
   </main>
 
@@ -51,7 +51,7 @@
         }
 
         const registration = await navigator.serviceWorker.register(
-          './sw.js?v=search-iphone-v9-fine-presentation',
+          './sw.js?v=search-iphone-v10-title-wrap',
           { scope: './' }
         );
 
@@ -59,11 +59,11 @@
         await navigator.serviceWorker.ready;
 
         status.className = 'ok';
-        status.textContent = 'Présentation affinée corrigée installée. Mon Carnet Test va se rouvrir.';
+        status.textContent = 'Correction des titres installée. Mon Carnet Test va se rouvrir.';
         openApp.hidden = false;
 
         window.setTimeout(() => {
-          window.location.replace('./?iphone-test=9-fine-presentation');
+          window.location.replace('./?iphone-test=10-title-wrap');
         }, 1200);
       } catch (error) {
         status.className = 'error';
