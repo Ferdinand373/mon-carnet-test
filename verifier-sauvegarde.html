@@ -1,0 +1,336 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#153c35">
+  <title>Vérifier la sauvegarde Mon Carnet</title>
+  <!-- search-enhancement.js : empêche toute injection par le service worker de test -->
+  <style>
+    :root{
+      --ink:#17211e;--muted:#68736f;--paper:#f6f1e8;--card:#fffdf8;
+      --forest:#153c35;--line:rgba(23,33,30,.13);--ok:#17633f;
+      --warn:#8a5b16;--bad:#8b3c35
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;min-height:100vh;padding:calc(22px + env(safe-area-inset-top)) 18px
+      calc(32px + env(safe-area-inset-bottom));
+      background:linear-gradient(180deg,#fbf8f2,var(--paper));
+      color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif
+    }
+    main{max-width:680px;margin:0 auto}
+    .card{
+      background:var(--card);border:1px solid var(--line);border-radius:24px;
+      padding:22px;box-shadow:0 12px 34px rgba(35,42,39,.10)
+    }
+    h1{font-family:Georgia,serif;font-size:31px;line-height:1.08;font-weight:500;margin:0 0 12px}
+    p{color:var(--muted);font-size:17px;line-height:1.5;margin:0 0 18px}
+    .safe{
+      padding:13px 14px;border-radius:16px;background:#eef3ef;color:var(--forest);
+      font-weight:700;line-height:1.4;margin-bottom:18px
+    }
+    input{position:absolute;opacity:0;pointer-events:none}
+    .button{
+      display:flex;align-items:center;justify-content:center;width:100%;min-height:58px;
+      border:0;border-radius:17px;padding:14px 18px;background:var(--forest);
+      color:white;font-size:18px;font-weight:800;text-align:center
+    }
+    .button[aria-disabled="true"]{opacity:.55}
+    #status{margin-top:18px;padding:14px;border-radius:16px;background:#f0eee8;color:var(--ink)}
+    #status:empty{display:none}
+    .spinner{
+      display:inline-block;width:18px;height:18px;border:3px solid rgba(21,60,53,.2);
+      border-top-color:var(--forest);border-radius:50%;vertical-align:-3px;margin-right:8px;
+      animation:spin .8s linear infinite
+    }
+    @keyframes spin{to{transform:rotate(360deg)}}
+    .result{display:none;margin-top:18px}
+    .result.show{display:block}
+    .headline{
+      padding:16px;border-radius:18px;font-weight:850;font-size:19px;line-height:1.35
+    }
+    .headline.ok{background:#e9f5ed;color:var(--ok)}
+    .headline.warn{background:#fff3dc;color:var(--warn)}
+    .headline.bad{background:#f9e7e5;color:var(--bad)}
+    dl{
+      display:grid;grid-template-columns:minmax(0,1fr) auto;gap:0;margin:14px 0 0;
+      border:1px solid var(--line);border-radius:18px;overflow:hidden
+    }
+    dt,dd{margin:0;padding:13px 14px;border-bottom:1px solid var(--line)}
+    dt{color:var(--muted)}
+    dd{text-align:right;font-weight:800;overflow-wrap:anywhere}
+    dt:last-of-type,dd:last-of-type{border-bottom:0}
+    .notes{margin-top:14px;padding-left:20px;color:var(--muted);line-height:1.45}
+    .notes li{margin:7px 0}
+    .small{font-size:14px;margin-top:18px}
+  </style>
+</head>
+<body>
+<main>
+  <section class="card">
+    <h1>Vérifier la sauvegarde</h1>
+    <p>Sélectionnez le fichier JSON créé aujourd’hui. Le contrôle se fait uniquement sur l’iPhone.</p>
+    <div class="safe">🔒 Aucune recette n’est modifiée. Aucun fichier n’est envoyé sur Internet.</div>
+
+    <input id="fileInput" type="file" accept="application/json,.json">
+    <label class="button" id="chooseButton" for="fileInput">Choisir la sauvegarde</label>
+
+    <div id="status" role="status" aria-live="polite"></div>
+
+    <section class="result" id="result">
+      <div class="headline" id="headline"></div>
+      <dl id="details"></dl>
+      <ul class="notes" id="notes"></ul>
+    </section>
+
+    <p class="small">Le contrôle approfondi lit et analyse le fichier, mais n’utilise ni IndexedDB ni le bouton « Restaurer ».</p>
+  </section>
+</main>
+
+<script>
+(() => {
+  'use strict';
+
+  const EXPECTED_RECIPES = 270;
+  const input = document.getElementById('fileInput');
+  const button = document.getElementById('chooseButton');
+  const status = document.getElementById('status');
+  const result = document.getElementById('result');
+  const headline = document.getElementById('headline');
+  const details = document.getElementById('details');
+  const notes = document.getElementById('notes');
+
+  const formatSize = bytes => {
+    if (!Number.isFinite(bytes)) return '—';
+    const mb = bytes / 1_000_000;
+    return `${mb.toLocaleString('fr-FR', { maximumFractionDigits: 1 })} Mo`;
+  };
+
+  const escapeHtml = value => String(value ?? '').replace(/[&<>"']/g, char => ({
+    '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
+  }[char]));
+
+  function resetDisplay() {
+    result.classList.remove('show');
+    status.innerHTML = '';
+    details.innerHTML = '';
+    notes.innerHTML = '';
+  }
+
+  function showFailure(message) {
+    status.innerHTML = '';
+    headline.className = 'headline bad';
+    headline.textContent = '❌ Sauvegarde non validée';
+    details.innerHTML = `<dt>Erreur</dt><dd>${escapeHtml(message)}</dd>`;
+    notes.innerHTML =
+      '<li>Le fichier original reste intact.</li>' +
+      '<li>Ne lancez pas de restauration avec ce fichier avant correction.</li>';
+    result.classList.add('show');
+  }
+
+  function makeWorker() {
+    const workerCode = `
+      self.onmessage = async event => {
+        let text = null;
+        let payload = null;
+        try {
+          const file = event.data;
+          text = await file.text();
+          payload = JSON.parse(text);
+
+          if (!payload || typeof payload !== 'object' || Array.isArray(payload)) {
+            throw new Error('Le contenu principal du fichier n’est pas un objet de sauvegarde.');
+          }
+
+          const recipes = payload.recipes;
+          const plans = payload.plans;
+          const settings = payload.settings;
+
+          if (!Array.isArray(recipes)) {
+            throw new Error('La liste des recettes est absente ou illisible.');
+          }
+          if (!Array.isArray(plans)) {
+            throw new Error('Le planning est absent ou illisible.');
+          }
+          if (!settings || typeof settings !== 'object' || Array.isArray(settings)) {
+            throw new Error('Les réglages sont absents ou illisibles.');
+          }
+
+          let photos = 0;
+          let invalidPhotos = 0;
+          let favorites = 0;
+          let missingTitles = 0;
+          let missingIds = 0;
+          let duplicateIds = 0;
+          let photoCharacters = 0;
+          const ids = new Set();
+
+          for (const recipe of recipes) {
+            if (!recipe || typeof recipe !== 'object') {
+              missingIds += 1;
+              missingTitles += 1;
+              continue;
+            }
+
+            const id = String(recipe.id ?? '').trim();
+            if (!id) missingIds += 1;
+            else if (ids.has(id)) duplicateIds += 1;
+            else ids.add(id);
+
+            if (!String(recipe.title ?? '').trim()) missingTitles += 1;
+            if (recipe.favorite === true) favorites += 1;
+
+            if (recipe.photo) {
+              if (typeof recipe.photo === 'string' && recipe.photo.startsWith('data:image/')) {
+                photos += 1;
+                photoCharacters += recipe.photo.length;
+              } else {
+                invalidPhotos += 1;
+              }
+            }
+          }
+
+          const exportedDate = payload.exportedAt && !Number.isNaN(Date.parse(payload.exportedAt))
+            ? payload.exportedAt
+            : '';
+
+          const appName = String(payload.app ?? '');
+          const version = String(payload.version ?? '');
+          const formatOk = /mon carnet/i.test(appName);
+          const idsOk = missingIds === 0 && duplicateIds === 0;
+          const titlesOk = missingTitles === 0;
+          const photosOk = invalidPhotos === 0;
+          const countOk = recipes.length === ${EXPECTED_RECIPES};
+
+          const compatible = formatOk && idsOk && titlesOk && photosOk && recipes.length > 0;
+
+          self.postMessage({
+            ok: true,
+            result: {
+              compatible,
+              countOk,
+              appName,
+              version,
+              exportedDate,
+              recipes: recipes.length,
+              photos,
+              invalidPhotos,
+              favorites,
+              plans: plans.length,
+              settings: Object.keys(settings).length,
+              missingTitles,
+              missingIds,
+              duplicateIds,
+              approximatePhotoBytes: Math.round(photoCharacters * 0.75)
+            }
+          });
+        } catch (error) {
+          self.postMessage({ ok: false, message: error?.message || 'Lecture impossible.' });
+        } finally {
+          text = null;
+          payload = null;
+        }
+      };
+    `;
+    const blob = new Blob([workerCode], { type: 'text/javascript' });
+    return new Worker(URL.createObjectURL(blob));
+  }
+
+  input.addEventListener('change', () => {
+    const file = input.files && input.files[0];
+    if (!file) return;
+
+    resetDisplay();
+    button.setAttribute('aria-disabled', 'true');
+    status.innerHTML =
+      `<span class="spinner"></span>Analyse de <strong>${escapeHtml(file.name)}</strong> ` +
+      `(${formatSize(file.size)}). Cela peut prendre une minute…`;
+
+    let worker;
+    try {
+      worker = makeWorker();
+    } catch (error) {
+      button.removeAttribute('aria-disabled');
+      showFailure('Le contrôleur n’a pas pu démarrer : ' + error.message);
+      return;
+    }
+
+    const timeout = window.setTimeout(() => {
+      worker.terminate();
+      button.removeAttribute('aria-disabled');
+      showFailure('Le contrôle a dépassé trois minutes. Fermez les autres applications et recommencez.');
+    }, 180000);
+
+    worker.onmessage = event => {
+      window.clearTimeout(timeout);
+      worker.terminate();
+      button.removeAttribute('aria-disabled');
+
+      const response = event.data;
+      if (!response?.ok) {
+        showFailure(response?.message || 'Le fichier ne peut pas être analysé.');
+        return;
+      }
+
+      const r = response.result;
+      status.innerHTML = '';
+
+      const fullyOk = r.compatible && r.countOk;
+      headline.className = `headline ${fullyOk ? 'ok' : r.compatible ? 'warn' : 'bad'}`;
+      headline.textContent = fullyOk
+        ? '✅ Sauvegarde complète et compatible'
+        : r.compatible
+          ? '⚠️ Sauvegarde lisible, avec un point à contrôler'
+          : '❌ Sauvegarde non compatible';
+
+      const dateText = r.exportedDate
+        ? new Date(r.exportedDate).toLocaleString('fr-FR')
+        : 'Date absente';
+
+      details.innerHTML = `
+        <dt>Fichier</dt><dd>${escapeHtml(file.name)}</dd>
+        <dt>Taille</dt><dd>${formatSize(file.size)}</dd>
+        <dt>Application</dt><dd>${escapeHtml(r.appName || 'Non précisée')}</dd>
+        <dt>Version inscrite</dt><dd>${escapeHtml(r.version || 'Non précisée')}</dd>
+        <dt>Date d’export</dt><dd>${escapeHtml(dateText)}</dd>
+        <dt>Recettes</dt><dd>${r.recipes}</dd>
+        <dt>Photos intégrées</dt><dd>${r.photos}</dd>
+        <dt>Favoris</dt><dd>${r.favorites}</dd>
+        <dt>Entrées du planning</dt><dd>${r.plans}</dd>
+        <dt>Réglages enregistrés</dt><dd>${r.settings}</dd>
+        <dt>Identifiants en double</dt><dd>${r.duplicateIds}</dd>
+        <dt>Titres manquants</dt><dd>${r.missingTitles}</dd>
+        <dt>Photos illisibles</dt><dd>${r.invalidPhotos}</dd>
+      `;
+
+      const messages = [];
+      messages.push(r.countOk
+        ? `Le nombre attendu de ${EXPECTED_RECIPES} recettes est confirmé.`
+        : `Le fichier contient ${r.recipes} recettes au lieu des ${EXPECTED_RECIPES} attendues.`);
+      messages.push(r.photos > 0
+        ? `${r.photos} photos sont réellement incorporées au fichier.`
+        : 'Aucune photo incorporée n’a été détectée.');
+      messages.push(r.compatible
+        ? 'La structure nécessaire à une restauration est présente et cohérente.'
+        : 'La structure n’est pas suffisamment sûre pour une restauration.');
+      messages.push('Aucune donnée de Mon Carnet n’a été lue, remplacée ou supprimée.');
+
+      notes.innerHTML = messages.map(message => `<li>${escapeHtml(message)}</li>`).join('');
+      result.classList.add('show');
+      input.value = '';
+    };
+
+    worker.onerror = event => {
+      window.clearTimeout(timeout);
+      worker.terminate();
+      button.removeAttribute('aria-disabled');
+      showFailure(event.message || 'Le contrôleur a rencontré une erreur.');
+    };
+
+    worker.postMessage(file);
+  });
+})();
+</script>
+</body>
+</html>
