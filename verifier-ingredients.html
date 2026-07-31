@@ -1,0 +1,323 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#153c35">
+  <title>Vérifier les ingrédients — Test strict</title>
+  <!-- search-enhancement.js : empêche toute injection -->
+  <style>
+    :root{
+      --ink:#17211e;--muted:#68736f;--paper:#f6f1e8;--card:#fffdf8;
+      --forest:#153c35;--line:rgba(23,33,30,.13);--ok:#17633f;
+      --copper:#b67745;--soft:#eef3ef
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;min-height:100vh;
+      padding:calc(20px + env(safe-area-inset-top)) 16px calc(30px + env(safe-area-inset-bottom));
+      color:var(--ink);background:linear-gradient(180deg,#fbf8f2,var(--paper));
+      font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif
+    }
+    main{max-width:720px;margin:0 auto}
+    .card{
+      background:var(--card);border:1px solid var(--line);border-radius:25px;
+      padding:21px;box-shadow:0 12px 34px rgba(35,42,39,.10)
+    }
+    h1{font-family:Georgia,serif;font-weight:500;font-size:31px;line-height:1.08;margin:0 0 10px}
+    p{color:var(--muted);font-size:16px;line-height:1.5;margin:0 0 16px}
+    .version{font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-bottom:15px}
+    .safe{
+      padding:14px;border-radius:17px;background:var(--soft);color:var(--forest);
+      font-weight:750;line-height:1.4;margin-bottom:17px
+    }
+    button{
+      width:100%;border:0;border-radius:17px;min-height:58px;padding:14px 18px;
+      background:var(--forest);color:white;font-size:18px;font-weight:800
+    }
+    button:disabled{opacity:.55}
+    #status{margin-top:17px;padding:14px;border-radius:16px;background:#f1eee8;line-height:1.45}
+    #status:empty{display:none}
+    .summary{display:none;margin-top:18px}
+    .summary.show{display:block}
+    .summary-box{
+      padding:16px;border-radius:18px;background:#e9f5ed;color:var(--ok);
+      font-weight:850;font-size:19px;line-height:1.35
+    }
+    .metrics{
+      display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;margin-top:12px
+    }
+    .metric{
+      border:1px solid var(--line);border-radius:16px;padding:13px;background:white
+    }
+    .metric strong{display:block;font-size:24px;color:var(--forest)}
+    .metric span{display:block;color:var(--muted);font-size:12px;margin-top:3px}
+    .legend{margin-top:16px;padding:14px;border-radius:16px;background:#f3eee5;color:var(--muted);line-height:1.45}
+    .findings{display:grid;gap:10px;margin-top:15px}
+    .finding{
+      border:1px solid var(--line);border-radius:18px;background:white;padding:14px
+    }
+    .finding h2{
+      margin:0 0 7px;font-size:16px;line-height:1.25;color:var(--forest)
+    }
+    .line{
+      margin:0 0 8px;font-family:Georgia,serif;font-size:18px;line-height:1.3
+    }
+    .reason{margin:0;color:var(--muted);font-size:14px;line-height:1.4}
+    .badge{
+      display:inline-block;margin-bottom:8px;padding:5px 8px;border-radius:999px;
+      background:#f0e7da;color:#76502e;font-size:11px;font-weight:800;text-transform:uppercase;
+      letter-spacing:.04em
+    }
+    .empty{
+      margin-top:15px;padding:18px;border-radius:18px;background:#e9f5ed;color:var(--ok);
+      font-weight:800;line-height:1.45
+    }
+    .spinner{
+      display:inline-block;width:18px;height:18px;border:3px solid rgba(21,60,53,.2);
+      border-top-color:var(--forest);border-radius:50%;vertical-align:-3px;margin-right:8px;
+      animation:spin .8s linear infinite
+    }
+    @keyframes spin{to{transform:rotate(360deg)}}
+    .foot{font-size:13px;margin-top:18px}
+  </style>
+</head>
+<body>
+<main>
+  <section class="card">
+    <div class="version">Test strict · lecture seule</div>
+    <h1>Vérifier les ingrédients</h1>
+    <p>Ce nouveau contrôle cherche uniquement les anomalies certaines. Un véritable ingrédient, comme « 2 avocats bien mûrs », ne doit plus être signalé.</p>
+
+    <div class="safe">🔒 Aucune correction n’est possible sur cette page. La base est ouverte uniquement en lecture.</div>
+
+    <button id="scanBtn" type="button">Analyser les recettes</button>
+    <div id="status" role="status" aria-live="polite"></div>
+
+    <section class="summary" id="summary">
+      <div class="summary-box" id="summaryBox"></div>
+      <div class="metrics">
+        <div class="metric"><strong id="recipeCount">0</strong><span>recettes analysées</span></div>
+        <div class="metric"><strong id="findingCount">0</strong><span>lignes très probablement mal placées</span></div>
+      </div>
+      <div class="legend">
+        Ce contrôle ne déplace rien. Il signale seulement :
+        <strong>les durées et titres techniques</strong>, ainsi que
+        <strong>les phrases clairement écrites comme des instructions</strong>.
+      </div>
+      <div class="findings" id="findings"></div>
+    </section>
+
+    <p class="foot">Les photos ne sont ni affichées ni modifiées. L’analyse reste sur l’iPhone.</p>
+  </section>
+</main>
+
+<script>
+(() => {
+  'use strict';
+
+  const DB_NAME = 'mon-carnet-cuisine-v1';
+  const STORE_NAME = 'recipes';
+  const MAX_DISPLAY = 120;
+
+  const scanBtn = document.getElementById('scanBtn');
+  const status = document.getElementById('status');
+  const summary = document.getElementById('summary');
+  const summaryBox = document.getElementById('summaryBox');
+  const recipeCount = document.getElementById('recipeCount');
+  const findingCount = document.getElementById('findingCount');
+  const findingsHost = document.getElementById('findings');
+
+  const escapeHtml = value => String(value ?? '').replace(/[&<>"']/g, char => ({
+    '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
+  }[char]));
+
+  function normalize(value = '') {
+    return String(value)
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .replace(/[’']/g, "'")
+      .toLowerCase()
+      .replace(/\s+/g, ' ')
+      .trim();
+  }
+
+  function cleanPrefix(value = '') {
+    return String(value)
+      .replace(/^\s*(?:[-–—•▪◦*]|\d{1,3}[.)-])\s*/, '')
+      .trim();
+  }
+
+  function classifyLine(rawLine = '') {
+    const cleaned = cleanPrefix(rawLine);
+    const line = normalize(cleaned);
+    if (!line) return null;
+
+    // Sous-titres d'ingrédients autorisés : "Pour la sauce", "Garniture", etc.
+    if (/^(?:pour\s+)?(?:la|le|les|l')?\s*(?:sauce|garniture|pate|farce|marinade|creme|vinaigrette|accompagnement)s?\s*:?\s*$/.test(line)) {
+      return null;
+    }
+
+    // Quantités et unités en début de ligne : très probablement un véritable ingrédient.
+    const ingredientStart = /^(?:\d+(?:[.,]\d+)?|\d+\s*\/\s*\d+|½|¼|¾|un|une|deux|trois|quelques|une?\s+peu|sel|poivre)\b/;
+    if (ingredientStart.test(line)) return null;
+
+    // Métadonnées techniques clairement mal placées.
+    const technicalHeading = /^(?:temps|duree|duree totale|total|preparation|prep|cuisson|repos|marinade)\s*:?\s*$/;
+    if (technicalHeading.test(line)) {
+      return { type: 'Métadonnée', reason: 'Titre technique placé dans les ingrédients' };
+    }
+
+    const durationValue = '(?:aucune|sans cuisson|\\d+(?:[.,]\\d+)?\\s*(?:h|heure|heures|min|minute|minutes)(?:\\s*\\d+\\s*(?:min|minute|minutes))?)';
+    const durationPattern = new RegExp(
+      '^(?:temps|duree|duree totale|total|preparation|prep|cuisson|repos|marinade)\\s*:\\s*' +
+      durationValue + '\\s*$'
+    );
+    if (durationPattern.test(line)) {
+      return { type: 'Durée', reason: 'Durée ou information de cuisson placée dans les ingrédients' };
+    }
+
+    // Phrases impératives très nettes.
+    const verbs = [
+      'prechauffez','melangez','ajoutez','versez','incorporez','fouettez','battez',
+      'faites','faites cuire','cuisez','enfournez','chauffez','laissez','reservez',
+      'servez','assaisonnez','deposez','disposez','placez','retournez','badigeonnez',
+      'egouttez','rincez','epluchez','pelez','hachez','emincez','coupez','decoupez',
+      'formez','etalez','roulez','mixez','broyez','portez','retirez','saisissez',
+      'faites revenir','faites fondre'
+    ];
+    const verbPattern = new RegExp('^(?:' + verbs.sort((a,b) => b.length - a.length).join('|') + ')\\b');
+    if (verbPattern.test(line)) {
+      return { type: 'Instruction', reason: 'Phrase impérative probablement destinée à la préparation' };
+    }
+
+    // Formes comme "Dans un saladier, mélangez..." ou "Au four, laissez..."
+    const contextualInstruction = /^(?:dans|sur|au|aux|a)\b.{0,55}\b(?:melangez|ajoutez|versez|incorporez|fouettez|faites|cuisez|enfournez|laissez|servez|deposez|disposez|placez)\b/;
+    if (contextualInstruction.test(line)) {
+      return { type: 'Instruction', reason: 'Phrase de préparation clairement formulée' };
+    }
+
+    return null;
+  }
+
+  function readRecipesStrictly() {
+    return new Promise((resolve, reject) => {
+      if (!('indexedDB' in window)) {
+        reject(new Error('Le stockage IndexedDB est indisponible.'));
+        return;
+      }
+
+      const request = indexedDB.open(DB_NAME);
+      request.onerror = () => reject(request.error || new Error('Ouverture du carnet impossible.'));
+
+      request.onsuccess = () => {
+        const db = request.result;
+        const results = [];
+        let count = 0;
+
+        try {
+          if (!db.objectStoreNames.contains(STORE_NAME)) {
+            db.close();
+            reject(new Error('La liste des recettes est introuvable.'));
+            return;
+          }
+
+          const tx = db.transaction(STORE_NAME, 'readonly');
+          const cursorRequest = tx.objectStore(STORE_NAME).openCursor();
+
+          cursorRequest.onerror = () => reject(cursorRequest.error || new Error('Lecture interrompue.'));
+          cursorRequest.onsuccess = event => {
+            const cursor = event.target.result;
+            if (!cursor) return;
+
+            const recipe = cursor.value || {};
+            count += 1;
+            const title = String(recipe.title || 'Recette sans titre');
+            const lines = String(recipe.ingredients || '').split(/\r?\n/);
+
+            lines.forEach((rawLine, index) => {
+              const classification = classifyLine(rawLine);
+              if (!classification) return;
+              results.push({
+                recipeId: recipe.id,
+                recipeTitle: title,
+                lineIndex: index,
+                line: String(rawLine).trim(),
+                ...classification
+              });
+            });
+
+            cursor.continue();
+          };
+
+          tx.oncomplete = () => {
+            db.close();
+            resolve({ count, results });
+          };
+          tx.onabort = () => {
+            db.close();
+            reject(tx.error || new Error('Lecture interrompue.'));
+          };
+        } catch (error) {
+          db.close();
+          reject(error);
+        }
+      };
+    });
+  }
+
+  function renderResults(data) {
+    recipeCount.textContent = String(data.count);
+    findingCount.textContent = String(data.results.length);
+
+    if (!data.results.length) {
+      summaryBox.textContent = '✅ Aucune anomalie certaine détectée';
+      findingsHost.innerHTML =
+        '<div class="empty">Les ingrédients analysés ne contiennent aucune durée, aucun titre technique ni aucune instruction clairement mal placée.</div>';
+      summary.classList.add('show');
+      return;
+    }
+
+    summaryBox.textContent =
+      `Contrôle strict terminé : ${data.results.length} ligne${data.results.length > 1 ? 's' : ''} à examiner.`;
+
+    const shown = data.results.slice(0, MAX_DISPLAY);
+    findingsHost.innerHTML = shown.map(item => `
+      <article class="finding">
+        <span class="badge">${escapeHtml(item.type)}</span>
+        <h2>${escapeHtml(item.recipeTitle)}</h2>
+        <p class="line">« ${escapeHtml(item.line)} »</p>
+        <p class="reason">${escapeHtml(item.reason)}</p>
+      </article>
+    `).join('');
+
+    if (data.results.length > MAX_DISPLAY) {
+      findingsHost.insertAdjacentHTML(
+        'beforeend',
+        `<div class="empty">${data.results.length - MAX_DISPLAY} autres lignes ne sont pas affichées sur cet aperçu.</div>`
+      );
+    }
+
+    summary.classList.add('show');
+  }
+
+  scanBtn.addEventListener('click', async () => {
+    scanBtn.disabled = true;
+    summary.classList.remove('show');
+    findingsHost.innerHTML = '';
+    status.innerHTML = '<span class="spinner"></span>Analyse stricte en cours…';
+
+    try {
+      const data = await readRecipesStrictly();
+      status.textContent = '';
+      renderResults(data);
+    } catch (error) {
+      status.textContent = `Le contrôle n’a pas abouti : ${error.message}`;
+    } finally {
+      scanBtn.disabled = false;
+    }
+  });
+})();
+</script>
+</body>
+</html>

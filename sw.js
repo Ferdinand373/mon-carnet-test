@@ -1,7 +1,7 @@
-const CACHE_NAME = 'mon-carnet-test-search-iphone-v10-title-wrap';
+const CACHE_NAME = 'mon-carnet-test-v11-audit-ingredients-strict';
 const TEST_CACHE_PREFIX = 'mon-carnet-test-';
 const APP_SHELL = ['./', './index.html', './mon-carnet-v17.png', './search-enhancement.js'];
-const SEARCH_SCRIPT = '<script src="./search-enhancement.js?v=1.0.7.2-iphone-title-wrap"></script>';
+const SEARCH_SCRIPT = '<script src="./search-enhancement.js?v=1.0.7.2-iphone-title-wrap-audit-v11"></script>';
 
 function optimizeStartup(html) {
   let optimized = html;
@@ -112,6 +112,17 @@ self.addEventListener('fetch', event => {
 
   const url = new URL(request.url);
   if (url.origin !== self.location.origin) return;
+
+  if (/\/verifier-(?:sauvegarde|ingredients)\.html$/.test(url.pathname)) {
+    event.respondWith((async () => {
+      try {
+        return await fetch(request, { cache: 'no-store' });
+      } catch (_) {
+        return (await caches.match(request)) || Response.error();
+      }
+    })());
+    return;
+  }
 
   if (request.mode === 'navigate' || /\/index\.html$/.test(url.pathname)) {
     event.respondWith(fetchEnhancedPage(request));

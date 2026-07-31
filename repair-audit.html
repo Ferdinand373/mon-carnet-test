@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Installation du contrôle strict</title>
+  <style>
+    body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:#f6f1e8;color:#17211e;margin:0;padding:30px}
+    main{max-width:620px;margin:40px auto;background:#fffdf8;border:1px solid rgba(23,33,30,.12);border-radius:22px;padding:26px}
+    h1{font-family:Georgia,serif;font-weight:500}.ok{color:#153c35;font-weight:750}.error{color:#8b3c35;font-weight:750}
+  </style>
+</head>
+<body>
+<main>
+  <h1>Contrôle strict des ingrédients</h1>
+  <p id="status">Installation du vérificateur de test, sans modification des recettes…</p>
+</main>
+<script>
+(async () => {
+  const status = document.getElementById('status');
+  try {
+    const registrations = await navigator.serviceWorker.getRegistrations();
+    for (const registration of registrations) {
+      if (registration.scope.includes('/mon-carnet-test/')) await registration.unregister();
+    }
+
+    if ('caches' in window) {
+      const names = await caches.keys();
+      await Promise.all(
+        names.filter(name => name.startsWith('mon-carnet-test-')).map(name => caches.delete(name))
+      );
+    }
+
+    const registration = await navigator.serviceWorker.register(
+      './sw.js?v=v11-audit-ingredients-strict',
+      { scope: './' }
+    );
+    await registration.update();
+    await navigator.serviceWorker.ready;
+
+    status.className = 'ok';
+    status.textContent = 'Vérificateur installé. Ouverture du contrôle strict…';
+    setTimeout(() => location.replace('./verifier-ingredients.html?v=1'), 1000);
+  } catch (error) {
+    status.className = 'error';
+    status.textContent = `Installation impossible : ${error.message}`;
+  }
+})();
+</script>
+</body>
+</html>
