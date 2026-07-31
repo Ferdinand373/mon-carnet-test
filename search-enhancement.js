@@ -922,7 +922,7 @@
         width: 100% !important;
         height: auto !important;
         min-height: 0 !important;
-        aspect-ratio: 16 / 9 !important;
+        aspect-ratio: 21 / 10 !important;
         overflow: hidden !important;
       }
 
@@ -948,7 +948,7 @@
 
       #view-recipes .recipe-body h4 {
         margin: 0 0 7px !important;
-        font-size: 22px !important;
+        font-size: 18.5px !important;
         line-height: 1.16 !important;
         letter-spacing: -.015em !important;
         display: -webkit-box !important;
@@ -965,7 +965,7 @@
         color: var(--muted) !important;
         font-size: 13px !important;
         line-height: 1.25 !important;
-        font-weight: 650 !important;
+        font-weight: 600 !important;
       }
 
       #view-recipes .tags {
@@ -976,12 +976,12 @@
       }
 
       #view-recipes .tag {
-        padding: 6px 10px !important;
+        padding: 4px 8px !important;
         border-radius: 999px !important;
-        font-size: 12px !important;
+        font-size: 11px !important;
         line-height: 1.05 !important;
         font-weight: 650 !important;
-        background: rgba(237,228,213,.76) !important;
+        background: rgba(241,235,224,.62) !important;
       }
 
       #view-recipes .recipe-meta {
@@ -1018,8 +1018,8 @@
         }
 
         #view-recipes .tag {
-          padding: 5px 9px !important;
-          font-size: 11.5px !important;
+          padding: 4px 8px !important;
+          font-size: 10.8px !important;
         }
       }
     `;
@@ -1031,8 +1031,8 @@
     injectCompactPresentation();
 
     const versionLabel = document.querySelector('.brand small');
-    if (versionLabel) versionLabel.textContent = 'VERSION · TEST IPHONE 6 PRÉSENTATION';
-    document.title = 'Mon carnet de cuisine — Test présentation compacte';
+    if (versionLabel) versionLabel.textContent = 'VERSION · TEST IPHONE 7 PRÉSENTATION FINE';
+    document.title = 'Mon carnet de cuisine — Test présentation affinée';
 
     const search = $('#recipeSearch');
     const grid = $('#recipeGrid');
@@ -1057,7 +1057,7 @@
         recipeIndexPromise = null;
         prewarmSearchIndex();
       },
-      version: '1.0.6-iphone-compact-presentation'
+      version: '1.0.7-iphone-fine-presentation'
     };
   }
 
