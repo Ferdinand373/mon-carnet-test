@@ -277,21 +277,33 @@
 
       request.onsuccess = () => {
         const database = request.result;
+        const index = [];
 
         try {
           const transaction = database.transaction('recipes', 'readonly');
-          const all = transaction.objectStore('recipes').getAll();
+          const cursorRequest = transaction.objectStore('recipes').openCursor();
 
-          all.onsuccess = () => {
-            const recipes = all.result || [];
-            buildIndexInSmallBatches(recipes)
-              .then(resolve)
-              .catch(reject);
+          cursorRequest.onsuccess = event => {
+            const cursor = event.target.result;
+
+            if (!cursor) {
+              resolve(index);
+              return;
+            }
+
+            index.push(buildIndexEntry(cursor.value));
+            cursor.continue();
           };
 
-          all.onerror = () => reject(all.error || new Error('Lecture impossible'));
+          cursorRequest.onerror = () => {
+            reject(cursorRequest.error || new Error('Lecture impossible'));
+          };
+
           transaction.oncomplete = () => database.close();
-          transaction.onabort = () => database.close();
+          transaction.onabort = () => {
+            database.close();
+            reject(transaction.error || new Error('Lecture interrompue'));
+          };
         } catch (error) {
           database.close();
           reject(error);
@@ -693,7 +705,10 @@
     });
 
     $$('.nav-btn').forEach(button => {
-      button.classList.toggle('active', button.hasAttribute('data-open-search'));
+      button.classList.toggle(
+        'active',
+        button.hasAttribute('data-open-search') || button.dataset.go === 'recipes'
+      );
     });
 
     window.scrollTo({ top: 0, behavior: 'auto' });
@@ -750,7 +765,12 @@
 
       const otherNavigation = event.target.closest('[data-go]');
 
-      if (otherNavigation && otherNavigation.dataset.go !== 'recipes') {
+      if (otherNavigation?.dataset.go === 'recipes') {
+        openSearchFast(event);
+        return;
+      }
+
+      if (otherNavigation) {
         searchSessionActive = false;
       }
     }, true);
@@ -868,13 +888,13 @@
           console.warn('Préparation de la recherche différée', error);
         });
       });
-    }, 250);
+    }, 900);
   }
 
   function start() {
     const versionLabel = document.querySelector('.brand small');
-    if (versionLabel) versionLabel.textContent = 'VERSION · TEST IPHONE 4 PHOTOS';
-    document.title = 'Mon carnet de cuisine — Test iPhone avec photos';
+    if (versionLabel) versionLabel.textContent = 'VERSION · TEST IPHONE 5 ALLÉGÉ';
+    document.title = 'Mon carnet de cuisine — Test démarrage allégé';
 
     const search = $('#recipeSearch');
     const grid = $('#recipeGrid');
@@ -899,7 +919,7 @@
         recipeIndexPromise = null;
         prewarmSearchIndex();
       },
-      version: '1.0.4-iphone-photos'
+      version: '1.0.5-iphone-startup-light'
     };
   }
 

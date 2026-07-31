@@ -1,17 +1,35 @@
-const CACHE_NAME = 'mon-carnet-test-search-iphone-v5-photos';
+const CACHE_NAME = 'mon-carnet-test-search-iphone-v6-startup-light';
 const TEST_CACHE_PREFIX = 'mon-carnet-test-';
 const APP_SHELL = ['./', './index.html', './mon-carnet-v17.png', './search-enhancement.js'];
-const SEARCH_SCRIPT = '<script src="./search-enhancement.js?v=1.0.4-iphone-photos"></script>';
+const SEARCH_SCRIPT = '<script src="./search-enhancement.js?v=1.0.5-iphone-startup-light"></script>';
+
+function optimizeStartup(html) {
+  let optimized = html;
+
+  optimized = optimized.replace(
+    /function\s+renderAll\s*\(\)\s*\{\s*renderHome\(\);\s*renderRecipes\(\);\s*renderMenus\(\);\s*renderPlanner\(\);\s*renderSettings\(\);\s*\}/,
+    'function renderAll() { renderHome(); renderMenus(); renderPlanner(); renderSettings(); }'
+  );
+
+  optimized = optimized.replace(
+    /if\s*\(\s*view\s*===\s*['"]recipes['"]\s*\)\s*renderRecipes\(\);/,
+    "if (view === 'recipes' && $('#recipeSearch').value.trim()) renderRecipes();"
+  );
+
+  return optimized;
+}
 
 function injectSearchScript(html) {
-  if (html.includes('search-enhancement.js')) return html;
+  let enhanced = optimizeStartup(html);
 
-  const lower = html.toLowerCase();
+  if (enhanced.includes('search-enhancement.js')) return enhanced;
+
+  const lower = enhanced.toLowerCase();
   const closingBody = lower.lastIndexOf('</body>');
 
-  if (closingBody < 0) return `${html}\n${SEARCH_SCRIPT}`;
+  if (closingBody < 0) return `${enhanced}\n${SEARCH_SCRIPT}`;
 
-  return `${html.slice(0, closingBody)}${SEARCH_SCRIPT}\n${html.slice(closingBody)}`;
+  return `${enhanced.slice(0, closingBody)}${SEARCH_SCRIPT}\n${enhanced.slice(closingBody)}`;
 }
 
 function withSearchEnhancement(response) {
