@@ -1,13 +1,51 @@
-const CACHE_NAME = 'mon-carnet-cuisine-v2-3-direct-test-r1';
-const CORE_FILES = ['./', './index.html', './mon-carnet-v17.png'];
+const CACHE_NAME = 'mon-carnet-cuisine-search-test-v1';
+const APP_SHELL = ['./', './index.html', './mon-carnet-v17.png', './search-enhancement.js'];
+const SEARCH_SCRIPT = '<script src="./search-enhancement.js?v=1.0.0"></script>';
+
+function withSearchEnhancement(response) {
+  if (!response || !response.ok) return response;
+  const type = response.headers.get('content-type') || '';
+  if (!type.includes('text/html')) return response;
+  return response.text().then(html => {
+    const enhanced = html.includes('search-enhancement.js')
+      ? html
+      : html.replace(/<\/body>/i, `${SEARCH_SCRIPT}\n</body>`);
+    const headers = new Headers(response.headers);
+    headers.delete('content-length');
+    return new Response(enhanced, {
+      status: response.status,
+      statusText: response.statusText,
+      headers
+    });
+  });
+}
+
+async function fetchEnhancedPage(request) {
+  try {
+    const fresh = await fetch(request, { cache: 'no-store' });
+    const enhanced = await withSearchEnhancement(fresh);
+    if (enhanced && enhanced.ok) {
+      const cache = await caches.open(CACHE_NAME);
+      await cache.put('./index.html', enhanced.clone());
+      await cache.put('./', enhanced.clone());
+    }
+    return enhanced;
+  } catch (_) {
+    return (await caches.match('./index.html')) || (await caches.match('./')) || Response.error();
+  }
+}
 
 self.addEventListener('install', event => {
   event.waitUntil((async () => {
     const cache = await caches.open(CACHE_NAME);
-    for (const path of CORE_FILES) {
+    for (const url of APP_SHELL) {
       try {
-        const response = await fetch(new Request(path, { cache: 'reload' }));
-        if (response.ok) await cache.put(path, response.clone());
+        const response = await fetch(new Request(url, { cache: 'reload' }));
+        if (!response.ok) continue;
+        const stored = /(?:^|\/)index\.html$/.test(new URL(response.url).pathname) || url === './'
+          ? await withSearchEnhancement(response)
+          : response;
+        await cache.put(url, stored);
       } catch (_) {}
     }
     await self.skipWaiting();
@@ -30,18 +68,22 @@ self.addEventListener('fetch', event => {
   const url = new URL(request.url);
   if (url.origin !== self.location.origin) return;
 
-  if (request.mode === 'navigate') {
+  if (request.mode === 'navigate' || /\/index\.html$/.test(url.pathname)) {
+    event.respondWith(fetchEnhancedPage(request));
+    return;
+  }
+
+  if (/\/search-enhancement\.js$/.test(url.pathname)) {
     event.respondWith((async () => {
       try {
-        const response = await fetch(request, { cache: 'no-store' });
-        if (response.ok) {
+        const fresh = await fetch(request, { cache: 'no-store' });
+        if (fresh.ok) {
           const cache = await caches.open(CACHE_NAME);
-          await cache.put('./index.html', response.clone());
-          await cache.put('./', response.clone());
+          await cache.put(request, fresh.clone());
         }
-        return response;
+        return fresh;
       } catch (_) {
-        return (await caches.match('./index.html')) || (await caches.match('./')) || Response.error();
+        return (await caches.match(request)) || Response.error();
       }
     })());
     return;
@@ -50,11 +92,11 @@ self.addEventListener('fetch', event => {
   event.respondWith((async () => {
     const cached = await caches.match(request);
     if (cached) return cached;
-    const response = await fetch(request);
-    if (response.ok) {
+    const fresh = await fetch(request);
+    if (fresh.ok) {
       const cache = await caches.open(CACHE_NAME);
-      await cache.put(request, response.clone());
+      await cache.put(request, fresh.clone());
     }
-    return response;
+    return fresh;
   })());
 });
