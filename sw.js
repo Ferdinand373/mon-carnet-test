@@ -1,15 +1,21 @@
-const CACHE_NAME = 'mon-carnet-cuisine-search-test-v1';
+const CACHE_NAME = 'mon-carnet-cuisine-search-test-v2';
 const APP_SHELL = ['./', './index.html', './mon-carnet-v17.png', './search-enhancement.js'];
-const SEARCH_SCRIPT = '<script src="./search-enhancement.js?v=1.0.0"></script>';
+const SEARCH_SCRIPT = '<script src="./search-enhancement.js?v=1.0.1"></script>';
+
+function injectSearchScript(html) {
+  if (html.includes('search-enhancement.js')) return html;
+  const lower = html.toLowerCase();
+  const closingBody = lower.lastIndexOf('</body>');
+  if (closingBody < 0) return `${html}\n${SEARCH_SCRIPT}`;
+  return `${html.slice(0, closingBody)}${SEARCH_SCRIPT}\n${html.slice(closingBody)}`;
+}
 
 function withSearchEnhancement(response) {
   if (!response || !response.ok) return response;
   const type = response.headers.get('content-type') || '';
   if (!type.includes('text/html')) return response;
   return response.text().then(html => {
-    const enhanced = html.includes('search-enhancement.js')
-      ? html
-      : html.replace(/<\/body>/i, `${SEARCH_SCRIPT}\n</body>`);
+    const enhanced = injectSearchScript(html);
     const headers = new Headers(response.headers);
     headers.delete('content-length');
     return new Response(enhanced, {
@@ -42,7 +48,8 @@ self.addEventListener('install', event => {
       try {
         const response = await fetch(new Request(url, { cache: 'reload' }));
         if (!response.ok) continue;
-        const stored = /(?:^|\/)index\.html$/.test(new URL(response.url).pathname) || url === './'
+        const pathname = new URL(response.url).pathname;
+        const stored = /(?:^|\/)index\.html$/.test(pathname) || url === './'
           ? await withSearchEnhancement(response)
           : response;
         await cache.put(url, stored);
