@@ -1,0 +1,629 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#153c35">
+  <title>Appliquer la correction limitée — Mon Carnet</title>
+  <!-- search-enhancement.js : empêche toute injection -->
+  <style>
+    :root{
+      --ink:#17211e;--muted:#68736f;--paper:#f6f1e8;--card:#fffdf8;
+      --forest:#153c35;--line:rgba(23,33,30,.13);--ok:#17633f;
+      --warn:#8a5b16;--bad:#8b3c35;--soft:#eef3ef
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;min-height:100vh;
+      padding:calc(18px + env(safe-area-inset-top)) 15px calc(30px + env(safe-area-inset-bottom));
+      background:linear-gradient(180deg,#fbf8f2,var(--paper));
+      color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif
+    }
+    main{max-width:760px;margin:0 auto}
+    .card{
+      background:var(--card);border:1px solid var(--line);border-radius:25px;
+      padding:20px;box-shadow:0 12px 34px rgba(35,42,39,.10)
+    }
+    .version{
+      color:var(--muted);font-size:12px;font-weight:780;letter-spacing:.06em;
+      text-transform:uppercase;margin-bottom:14px
+    }
+    h1{
+      margin:0 0 11px;font-family:Georgia,serif;font-weight:500;
+      font-size:31px;line-height:1.08
+    }
+    p{color:var(--muted);font-size:16px;line-height:1.5}
+    .danger{
+      padding:15px;border-radius:17px;background:#f9e7e5;color:var(--bad);
+      font-weight:800;line-height:1.45;margin:16px 0
+    }
+    .safe{
+      padding:14px;border-radius:17px;background:var(--soft);color:var(--forest);
+      font-weight:760;line-height:1.42;margin-bottom:16px
+    }
+    button{
+      width:100%;min-height:58px;border:0;border-radius:17px;padding:14px 18px;
+      background:var(--forest);color:#fff;font-size:18px;font-weight:820
+    }
+    button.secondary{
+      background:#fff;color:var(--forest);border:1px solid var(--line)
+    }
+    button.apply{
+      margin-top:12px;background:#8b3c35
+    }
+    button:disabled{opacity:.42}
+    #status{
+      margin-top:16px;padding:14px;border-radius:16px;background:#f1eee8;line-height:1.45
+    }
+    #status:empty{display:none}
+    .result{display:none;margin-top:18px}
+    .result.show{display:block}
+    .headline{
+      padding:16px;border-radius:18px;background:#e9f5ed;color:var(--ok);
+      font-weight:850;font-size:19px;line-height:1.35
+    }
+    .headline.bad{background:#f9e7e5;color:var(--bad)}
+    .metrics{
+      display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;margin-top:12px
+    }
+    .metric{
+      min-width:0;padding:13px;border:1px solid var(--line);border-radius:16px;background:#fff
+    }
+    .metric strong{display:block;color:var(--forest);font-size:25px;line-height:1}
+    .metric span{display:block;margin-top:5px;color:var(--muted);font-size:12px;line-height:1.25}
+    .rule{
+      margin-top:15px;padding:14px;border-radius:16px;background:#f3eee5;
+      color:var(--muted);font-size:14px;line-height:1.48
+    }
+    .confirm{
+      display:none;margin-top:16px;padding:14px;border:1px solid var(--line);
+      border-radius:17px;background:#fff
+    }
+    .confirm.show{display:block}
+    .confirm label{
+      display:flex;align-items:flex-start;gap:11px;color:var(--ink);
+      font-weight:750;line-height:1.4
+    }
+    .confirm input{width:24px;height:24px;flex:0 0 auto;margin-top:1px}
+    .final{
+      display:none;margin-top:16px;padding:16px;border-radius:18px;
+      background:#e9f5ed;color:var(--ok);font-weight:800;line-height:1.45
+    }
+    .final.show{display:block}
+    .spinner{
+      display:inline-block;width:18px;height:18px;border:3px solid rgba(21,60,53,.2);
+      border-top-color:var(--forest);border-radius:50%;vertical-align:-3px;margin-right:8px;
+      animation:spin .8s linear infinite
+    }
+    @keyframes spin{to{transform:rotate(360deg)}}
+    .foot{margin:17px 0 0;color:var(--muted);font-size:13px;line-height:1.45}
+  </style>
+</head>
+<body>
+<main>
+  <section class="card">
+    <div class="version">Outil contrôlé · correction réelle</div>
+    <h1>Appliquer la correction limitée</h1>
+    <p>
+      Cet outil retire uniquement les titres de durée isolés et les lignes de durée validées
+      lors de l’aperçu. Les cinq conflits et tous les ingrédients ordinaires restent intacts.
+    </p>
+
+    <div class="danger">
+      ⚠️ Important : le dépôt de test et Mon Carnet V2.4 partagent le même stockage sur l’iPhone.
+      Une correction appliquée ici modifie donc les vraies recettes.
+    </div>
+
+    <div class="safe">
+      La sauvegarde complète du 31 juillet 2026, enregistrée dans iCloud Drive,
+      permettra de restaurer le carnet en cas de besoin.
+    </div>
+
+    <button id="scanBtn" type="button">Vérifier avant correction</button>
+    <div id="status" role="status" aria-live="polite"></div>
+
+    <section class="result" id="result">
+      <div class="headline" id="headline"></div>
+
+      <div class="metrics">
+        <div class="metric"><strong id="recipeCount">0</strong><span>recettes analysées</span></div>
+        <div class="metric"><strong id="affectedCount">0</strong><span>recettes concernées</span></div>
+        <div class="metric"><strong id="safeCount">0</strong><span>corrections sûres</span></div>
+        <div class="metric"><strong id="conflictCount">0</strong><span>conflits conservés</span></div>
+      </div>
+
+      <div class="rule">
+        Le bouton ne sera activé que si le contrôle retrouve exactement :
+        <strong>270 recettes, 57 corrections sûres et 5 conflits</strong>.
+      </div>
+
+      <div class="confirm" id="confirmBlock">
+        <label>
+          <input id="backupCheck" type="checkbox">
+          <span>Je confirme que la sauvegarde complète vérifiée est bien enregistrée dans iCloud Drive.</span>
+        </label>
+        <button class="apply" id="applyBtn" type="button" disabled>
+          Appliquer les 57 corrections sûres
+        </button>
+      </div>
+    </section>
+
+    <div class="final" id="final"></div>
+
+    <p class="foot">
+      La correction est réalisée dans une transaction unique. En cas d’erreur,
+      toute la transaction est annulée.
+    </p>
+  </section>
+</main>
+
+<script>
+(() => {
+  'use strict';
+
+  const DB_NAME = 'mon-carnet-cuisine-v1';
+  const STORE_NAME = 'recipes';
+  const EXPECTED_RECIPES = 270;
+  const EXPECTED_SAFE = 57;
+  const EXPECTED_CONFLICTS = 5;
+
+  const scanBtn = document.getElementById('scanBtn');
+  const status = document.getElementById('status');
+  const result = document.getElementById('result');
+  const headline = document.getElementById('headline');
+  const recipeCount = document.getElementById('recipeCount');
+  const affectedCount = document.getElementById('affectedCount');
+  const safeCount = document.getElementById('safeCount');
+  const conflictCount = document.getElementById('conflictCount');
+  const confirmBlock = document.getElementById('confirmBlock');
+  const backupCheck = document.getElementById('backupCheck');
+  const applyBtn = document.getElementById('applyBtn');
+  const final = document.getElementById('final');
+
+  let latestPlan = null;
+  let fingerprintOk = false;
+
+  function normalize(value = '') {
+    return String(value)
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .replace(/[’']/g, "'")
+      .toLowerCase()
+      .replace(/\s+/g, ' ')
+      .trim();
+  }
+
+  function cleanPrefix(value = '') {
+    return String(value)
+      .replace(/^\s*(?:[-–—•▪◦*]|\d{1,3}[.)-])\s*/, '')
+      .trim();
+  }
+
+  function parseMinutes(value = '') {
+    const text = normalize(value)
+      .replace(/(\d)\s*h\s*(\d)/g, '$1 h $2')
+      .replace(/(\d)\s*min\b/g, '$1 min');
+
+    if (/^(?:aucune|sans cuisson|zero|0\s*(?:min|minute|minutes)?)$/.test(text)) {
+      return { minutes: 0, none: true };
+    }
+
+    let hours = 0;
+    let minutes = 0;
+    let found = false;
+
+    const hourMatch = text.match(/(\d+(?:[.,]\d+)?)\s*(?:h|heure|heures)\b/);
+    if (hourMatch) {
+      hours = Number(hourMatch[1].replace(',', '.'));
+      found = Number.isFinite(hours);
+    }
+
+    const minuteMatch = text.match(/(\d+)\s*(?:min|minute|minutes)\b/);
+    if (minuteMatch) {
+      minutes = Number(minuteMatch[1]);
+      found = true;
+    } else if (hourMatch) {
+      const afterHour = text.slice((hourMatch.index || 0) + hourMatch[0].length);
+      const bareMinutes = afterHour.match(/^\s*(\d{1,2})\b/);
+      if (bareMinutes) minutes = Number(bareMinutes[1]);
+    }
+
+    if (!found) return null;
+    return { minutes: Math.round(hours * 60 + minutes), none: false };
+  }
+
+  function durationLabel(label = '') {
+    const normalized = normalize(label).replace(/\s*:\s*$/, '');
+    if (/^(?:preparation|prep)$/.test(normalized)) {
+      return { field: 'prepDuration', name: 'Préparation' };
+    }
+    if (/^cuisson$/.test(normalized)) {
+      return { field: 'cookDuration', name: 'Cuisson' };
+    }
+    if (/^marinade$/.test(normalized)) {
+      return { field: 'marinadeDuration', name: 'Marinade' };
+    }
+    if (/^(?:total|duree totale|duree|temps)$/.test(normalized)) {
+      return { field: 'duration', name: 'Durée totale' };
+    }
+    return null;
+  }
+
+  function classifyCandidate(recipe, rawLine, lineIndex) {
+    const cleaned = cleanPrefix(rawLine);
+    const normalized = normalize(cleaned);
+    if (!normalized) return null;
+
+    if (/^(?:temps|duree|duree totale|total)\s*:?\s*$/.test(normalized)) {
+      return {
+        lineIndex,
+        line: String(rawLine),
+        state: 'safe',
+        kind: 'heading'
+      };
+    }
+
+    const match = cleaned.match(
+      /^(Temps|Durée(?:\s+totale)?|Total|Préparation|Prep|Cuisson|Marinade)\s*:\s*(.+)$/i
+    );
+    if (!match) return null;
+
+    const destination = durationLabel(match[1]);
+    const parsed = parseMinutes(match[2]);
+    if (!destination || !parsed) return null;
+
+    const existing = Math.max(0, Number(recipe[destination.field]) || 0);
+
+    if (parsed.none) {
+      return {
+        lineIndex,
+        line: String(rawLine),
+        state: 'safe',
+        kind: 'duration-none'
+      };
+    }
+
+    if (parsed.minutes <= 0) return null;
+
+    if (!existing) {
+      return {
+        lineIndex,
+        line: String(rawLine),
+        state: 'safe',
+        kind: 'duration',
+        field: destination.field,
+        minutes: parsed.minutes,
+        writeDuration: true
+      };
+    }
+
+    if (existing === parsed.minutes) {
+      return {
+        lineIndex,
+        line: String(rawLine),
+        state: 'same',
+        kind: 'duration',
+        field: destination.field,
+        minutes: parsed.minutes,
+        writeDuration: false
+      };
+    }
+
+    return {
+      lineIndex,
+      line: String(rawLine),
+      state: 'conflict',
+      kind: 'duration',
+      field: destination.field,
+      minutes: parsed.minutes,
+      existing
+    };
+  }
+
+  function openDatabase() {
+    return new Promise((resolve, reject) => {
+      const request = indexedDB.open(DB_NAME);
+      request.onerror = () => reject(request.error || new Error('Ouverture du carnet impossible.'));
+      request.onsuccess = () => resolve(request.result);
+    });
+  }
+
+  async function buildPlan() {
+    const db = await openDatabase();
+
+    return new Promise((resolve, reject) => {
+      const findings = [];
+      const recipePlans = [];
+      let count = 0;
+
+      try {
+        if (!db.objectStoreNames.contains(STORE_NAME)) {
+          db.close();
+          reject(new Error('La liste des recettes est introuvable.'));
+          return;
+        }
+
+        const tx = db.transaction(STORE_NAME, 'readonly');
+        const cursorRequest = tx.objectStore(STORE_NAME).openCursor();
+
+        cursorRequest.onerror = () => reject(
+          cursorRequest.error || new Error('Lecture interrompue.')
+        );
+
+        cursorRequest.onsuccess = event => {
+          const cursor = event.target.result;
+          if (!cursor) return;
+
+          const recipe = cursor.value || {};
+          count += 1;
+          const candidates = [];
+
+          String(recipe.ingredients || '').split(/\r?\n/).forEach((rawLine, lineIndex) => {
+            const candidate = classifyCandidate(recipe, rawLine, lineIndex);
+            if (candidate) {
+              candidates.push(candidate);
+              findings.push({
+                recipeId: recipe.id,
+                recipeTitle: recipe.title,
+                ...candidate
+              });
+            }
+          });
+
+          if (candidates.some(candidate => candidate.state !== 'conflict')) {
+            recipePlans.push({
+              key: cursor.primaryKey,
+              id: recipe.id,
+              candidates
+            });
+          }
+
+          cursor.continue();
+        };
+
+        tx.oncomplete = () => {
+          db.close();
+          resolve({ count, findings, recipePlans });
+        };
+
+        tx.onabort = () => {
+          db.close();
+          reject(tx.error || new Error('Lecture interrompue.'));
+        };
+      } catch (error) {
+        db.close();
+        reject(error);
+      }
+    });
+  }
+
+  async function applyPlan(plan) {
+    const db = await openDatabase();
+
+    return new Promise((resolve, reject) => {
+      let updatedRecipes = 0;
+      let removedLines = 0;
+      const changedIds = [];
+
+      try {
+        const tx = db.transaction(STORE_NAME, 'readwrite');
+        const store = tx.objectStore(STORE_NAME);
+
+        for (const recipePlan of plan.recipePlans) {
+          const request = store.get(recipePlan.key);
+
+          request.onerror = () => tx.abort();
+
+          request.onsuccess = () => {
+            const recipe = request.result;
+            if (!recipe) {
+              tx.abort();
+              return;
+            }
+
+            const currentLines = String(recipe.ingredients || '').split(/\r?\n/);
+            const freshCandidates = [];
+
+            currentLines.forEach((rawLine, lineIndex) => {
+              const candidate = classifyCandidate(recipe, rawLine, lineIndex);
+              if (candidate) freshCandidates.push(candidate);
+            });
+
+            const safeNow = freshCandidates.filter(
+              candidate => candidate.state === 'safe' || candidate.state === 'same'
+            );
+            const conflictsNow = freshCandidates.filter(
+              candidate => candidate.state === 'conflict'
+            );
+
+            const expectedForRecipe = recipePlan.candidates.filter(
+              candidate => candidate.state === 'safe' || candidate.state === 'same'
+            );
+
+            if (
+              safeNow.length !== expectedForRecipe.length ||
+              conflictsNow.length !== recipePlan.candidates.filter(
+                candidate => candidate.state === 'conflict'
+              ).length
+            ) {
+              tx.abort();
+              return;
+            }
+
+            const indexesToRemove = new Set(safeNow.map(candidate => candidate.lineIndex));
+            const newIngredients = currentLines
+              .filter((_, index) => !indexesToRemove.has(index))
+              .join('\n')
+              .replace(/\n{3,}/g, '\n\n')
+              .trim();
+
+            for (const candidate of safeNow) {
+              if (
+                candidate.kind === 'duration' &&
+                candidate.writeDuration === true &&
+                candidate.field
+              ) {
+                const existing = Math.max(0, Number(recipe[candidate.field]) || 0);
+                if (existing !== 0) {
+                  tx.abort();
+                  return;
+                }
+                recipe[candidate.field] = candidate.minutes;
+              }
+            }
+
+            recipe.ingredients = newIngredients;
+            recipe.updatedAt = new Date().toISOString();
+
+            const updateRequest = store.put(recipe);
+            updateRequest.onerror = () => tx.abort();
+
+            updatedRecipes += 1;
+            removedLines += safeNow.length;
+            changedIds.push(recipe.id);
+          };
+        }
+
+        tx.oncomplete = () => {
+          db.close();
+          resolve({ updatedRecipes, removedLines, changedIds });
+        };
+
+        tx.onabort = () => {
+          const error = tx.error || new Error(
+            'La correction a été annulée car les données ne correspondaient plus à l’aperçu.'
+          );
+          db.close();
+          reject(error);
+        };
+      } catch (error) {
+        db.close();
+        reject(error);
+      }
+    });
+  }
+
+  function updateApplyState() {
+    applyBtn.disabled = !(fingerprintOk && backupCheck.checked && latestPlan);
+  }
+
+  backupCheck.addEventListener('change', updateApplyState);
+
+  scanBtn.addEventListener('click', async () => {
+    scanBtn.disabled = true;
+    applyBtn.disabled = true;
+    backupCheck.checked = false;
+    result.classList.remove('show');
+    confirmBlock.classList.remove('show');
+    final.classList.remove('show');
+    final.textContent = '';
+    status.innerHTML = '<span class="spinner"></span>Vérification complète en cours…';
+
+    try {
+      const plan = await buildPlan();
+      const safe = plan.findings.filter(
+        item => item.state === 'safe' || item.state === 'same'
+      ).length;
+      const conflicts = plan.findings.filter(
+        item => item.state === 'conflict'
+      ).length;
+      const affected = new Set(
+        plan.findings
+          .filter(item => item.state === 'safe' || item.state === 'same')
+          .map(item => String(item.recipeId))
+      ).size;
+
+      recipeCount.textContent = String(plan.count);
+      affectedCount.textContent = String(affected);
+      safeCount.textContent = String(safe);
+      conflictCount.textContent = String(conflicts);
+
+      fingerprintOk =
+        plan.count === EXPECTED_RECIPES &&
+        safe === EXPECTED_SAFE &&
+        conflicts === EXPECTED_CONFLICTS;
+
+      latestPlan = fingerprintOk ? plan : null;
+      headline.className = fingerprintOk ? 'headline' : 'headline bad';
+      headline.textContent = fingerprintOk
+        ? '✅ Contrôle conforme à l’aperçu validé'
+        : '❌ Les nombres ne correspondent plus : aucune correction n’est autorisée.';
+
+      status.textContent = '';
+      result.classList.add('show');
+
+      if (fingerprintOk) confirmBlock.classList.add('show');
+      updateApplyState();
+    } catch (error) {
+      fingerprintOk = false;
+      latestPlan = null;
+      status.textContent = `La vérification n’a pas abouti : ${error.message}`;
+    } finally {
+      scanBtn.disabled = false;
+    }
+  });
+
+  applyBtn.addEventListener('click', async () => {
+    if (!fingerprintOk || !backupCheck.checked || !latestPlan) return;
+
+    const phrase = prompt(
+      'Cette action modifiera réellement les recettes. Tapez exactement : CORRIGER 57'
+    );
+
+    if (phrase !== 'CORRIGER 57') {
+      alert('Correction annulée.');
+      return;
+    }
+
+    scanBtn.disabled = true;
+    applyBtn.disabled = true;
+    backupCheck.disabled = true;
+    status.innerHTML = '<span class="spinner"></span>Application des corrections sûres…';
+
+    try {
+      const outcome = await applyPlan(latestPlan);
+      const verification = await buildPlan();
+
+      const remainingSafe = verification.findings.filter(
+        item => item.state === 'safe' || item.state === 'same'
+      ).length;
+      const remainingConflicts = verification.findings.filter(
+        item => item.state === 'conflict'
+      ).length;
+
+      if (
+        verification.count !== EXPECTED_RECIPES ||
+        remainingSafe !== 0 ||
+        remainingConflicts !== EXPECTED_CONFLICTS
+      ) {
+        throw new Error(
+          `Vérification inattendue : ${verification.count} recettes, ` +
+          `${remainingSafe} corrections restantes, ${remainingConflicts} conflits.`
+        );
+      }
+
+      status.textContent = '';
+      final.classList.add('show');
+      final.textContent =
+        `✅ Correction terminée : ${outcome.removedLines} lignes retirées dans ` +
+        `${outcome.updatedRecipes} recettes. Les ${remainingConflicts} conflits sont restés intacts.`;
+
+      latestPlan = null;
+      fingerprintOk = false;
+      confirmBlock.classList.remove('show');
+      result.classList.remove('show');
+    } catch (error) {
+      status.textContent = `La correction n’a pas abouti : ${error.message}`;
+      backupCheck.disabled = false;
+      scanBtn.disabled = false;
+      updateApplyState();
+      return;
+    }
+
+    scanBtn.disabled = false;
+    backupCheck.disabled = false;
+  });
+})();
+</script>
+</body>
+</html>
