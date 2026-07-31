@@ -4,43 +4,49 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <meta name="theme-color" content="#153c35">
-  <title>Vérifier les ingrédients — Test strict</title>
+  <title>Aperçu de correction limitée — Mon Carnet Test</title>
   <!-- search-enhancement.js : empêche toute injection -->
   <style>
     :root{
       --ink:#17211e;--muted:#68736f;--paper:#f6f1e8;--card:#fffdf8;
       --forest:#153c35;--line:rgba(23,33,30,.13);--ok:#17633f;
-      --copper:#b67745;--soft:#eef3ef
+      --warn:#8a5b16;--bad:#8b3c35;--soft:#eef3ef;--copper:#8a5a35
     }
     *{box-sizing:border-box}
     body{
       margin:0;min-height:100vh;
-      padding:calc(20px + env(safe-area-inset-top)) 16px calc(30px + env(safe-area-inset-bottom));
-      color:var(--ink);background:linear-gradient(180deg,#fbf8f2,var(--paper));
-      font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif
+      padding:calc(18px + env(safe-area-inset-top)) 15px calc(30px + env(safe-area-inset-bottom));
+      background:linear-gradient(180deg,#fbf8f2,var(--paper));
+      color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif
     }
-    main{max-width:720px;margin:0 auto}
+    main{max-width:760px;margin:0 auto}
     .card{
       background:var(--card);border:1px solid var(--line);border-radius:25px;
-      padding:21px;box-shadow:0 12px 34px rgba(35,42,39,.10)
+      padding:20px;box-shadow:0 12px 34px rgba(35,42,39,.10)
     }
-    h1{font-family:Georgia,serif;font-weight:500;font-size:31px;line-height:1.08;margin:0 0 10px}
-    p{color:var(--muted);font-size:16px;line-height:1.5;margin:0 0 16px}
-    .version{font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-bottom:15px}
+    .version{
+      color:var(--muted);font-size:12px;font-weight:750;letter-spacing:.06em;
+      text-transform:uppercase;margin-bottom:14px
+    }
+    h1{
+      margin:0 0 11px;font-family:Georgia,serif;font-weight:500;
+      font-size:31px;line-height:1.08
+    }
+    .intro{margin:0 0 16px;color:var(--muted);font-size:16px;line-height:1.5}
     .safe{
       padding:14px;border-radius:17px;background:var(--soft);color:var(--forest);
-      font-weight:750;line-height:1.4;margin-bottom:17px
+      font-weight:760;line-height:1.42;margin-bottom:16px
     }
     button{
-      width:100%;border:0;border-radius:17px;min-height:58px;padding:14px 18px;
-      background:var(--forest);color:white;font-size:18px;font-weight:800
+      width:100%;min-height:58px;border:0;border-radius:17px;padding:14px 18px;
+      background:var(--forest);color:#fff;font-size:18px;font-weight:820
     }
     button:disabled{opacity:.55}
-    #status{margin-top:17px;padding:14px;border-radius:16px;background:#f1eee8;line-height:1.45}
+    #status{margin-top:16px;padding:14px;border-radius:16px;background:#f1eee8;line-height:1.45}
     #status:empty{display:none}
-    .summary{display:none;margin-top:18px}
-    .summary.show{display:block}
-    .summary-box{
+    .result{display:none;margin-top:18px}
+    .result.show{display:block}
+    .headline{
       padding:16px;border-radius:18px;background:#e9f5ed;color:var(--ok);
       font-weight:850;font-size:19px;line-height:1.35
     }
@@ -48,29 +54,48 @@
       display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;margin-top:12px
     }
     .metric{
-      border:1px solid var(--line);border-radius:16px;padding:13px;background:white
+      min-width:0;padding:13px;border:1px solid var(--line);border-radius:16px;background:#fff
     }
-    .metric strong{display:block;font-size:24px;color:var(--forest)}
-    .metric span{display:block;color:var(--muted);font-size:12px;margin-top:3px}
-    .legend{margin-top:16px;padding:14px;border-radius:16px;background:#f3eee5;color:var(--muted);line-height:1.45}
-    .findings{display:grid;gap:10px;margin-top:15px}
-    .finding{
-      border:1px solid var(--line);border-radius:18px;background:white;padding:14px
+    .metric strong{display:block;color:var(--forest);font-size:25px;line-height:1}
+    .metric span{display:block;margin-top:5px;color:var(--muted);font-size:12px;line-height:1.25}
+    .rules{
+      margin-top:15px;padding:14px;border-radius:16px;background:#f3eee5;
+      color:var(--muted);font-size:14px;line-height:1.48
     }
-    .finding h2{
-      margin:0 0 7px;font-size:16px;line-height:1.25;color:var(--forest)
+    .rules strong{color:var(--ink)}
+    .filters{
+      display:flex;gap:8px;overflow-x:auto;margin:15px -2px 0;padding:2px 2px 5px
     }
-    .line{
-      margin:0 0 8px;font-family:Georgia,serif;font-size:18px;line-height:1.3
+    .filter{
+      width:auto;min-height:42px;white-space:nowrap;padding:9px 12px;border:1px solid var(--line);
+      border-radius:999px;background:#fff;color:var(--forest);font-size:13px;font-weight:780
     }
-    .reason{margin:0;color:var(--muted);font-size:14px;line-height:1.4}
+    .filter.active{background:var(--forest);color:#fff}
+    .items{display:grid;gap:11px;margin-top:13px}
+    .item{
+      border:1px solid var(--line);border-radius:19px;background:#fff;padding:15px
+    }
+    .item.safe-item{border-left:5px solid var(--ok)}
+    .item.same-item{border-left:5px solid var(--forest)}
+    .item.conflict-item{border-left:5px solid var(--warn)}
     .badge{
-      display:inline-block;margin-bottom:8px;padding:5px 8px;border-radius:999px;
-      background:#f0e7da;color:#76502e;font-size:11px;font-weight:800;text-transform:uppercase;
-      letter-spacing:.04em
+      display:inline-block;padding:5px 8px;border-radius:999px;background:#f0e7da;
+      color:var(--copper);font-size:11px;font-weight:850;letter-spacing:.04em;text-transform:uppercase
     }
+    .item h2{
+      margin:9px 0 8px;color:var(--forest);font-size:17px;line-height:1.25
+    }
+    .source{
+      margin:0 0 10px;font-family:Georgia,serif;font-size:19px;line-height:1.3
+    }
+    .proposal{
+      margin:0;padding:11px 12px;border-radius:14px;background:#f3f5f2;
+      color:var(--ink);font-size:14px;line-height:1.42
+    }
+    .proposal strong{color:var(--forest)}
+    .detail{margin:8px 0 0;color:var(--muted);font-size:13px;line-height:1.4}
     .empty{
-      margin-top:15px;padding:18px;border-radius:18px;background:#e9f5ed;color:var(--ok);
+      padding:17px;border-radius:17px;background:#e9f5ed;color:var(--ok);
       font-weight:800;line-height:1.45
     }
     .spinner{
@@ -79,36 +104,59 @@
       animation:spin .8s linear infinite
     }
     @keyframes spin{to{transform:rotate(360deg)}}
-    .foot{font-size:13px;margin-top:18px}
+    .foot{margin:17px 0 0;color:var(--muted);font-size:13px;line-height:1.45}
   </style>
 </head>
 <body>
 <main>
   <section class="card">
-    <div class="version">Test strict · lecture seule</div>
-    <h1>Vérifier les ingrédients</h1>
-    <p>Ce nouveau contrôle cherche uniquement les anomalies certaines. Un véritable ingrédient, comme « 2 avocats bien mûrs », ne doit plus être signalé.</p>
+    <div class="version">Test · aperçu uniquement · aucune écriture</div>
+    <h1>Correction limitée des ingrédients</h1>
+    <p class="intro">
+      Cet aperçu ne retient que les titres de durée isolés et les lignes de durée clairement identifiées.
+      Les instructions et les véritables ingrédients ne sont pas concernés.
+    </p>
 
-    <div class="safe">🔒 Aucune correction n’est possible sur cette page. La base est ouverte uniquement en lecture.</div>
+    <div class="safe">
+      🔒 Aucun bouton d’application. La base est ouverte uniquement en lecture.
+      La V2.4 et les 270 recettes restent intactes.
+    </div>
 
-    <button id="scanBtn" type="button">Analyser les recettes</button>
+    <button id="scanBtn" type="button">Créer l’aperçu</button>
     <div id="status" role="status" aria-live="polite"></div>
 
-    <section class="summary" id="summary">
-      <div class="summary-box" id="summaryBox"></div>
+    <section class="result" id="result">
+      <div class="headline" id="headline"></div>
+
       <div class="metrics">
         <div class="metric"><strong id="recipeCount">0</strong><span>recettes analysées</span></div>
-        <div class="metric"><strong id="findingCount">0</strong><span>lignes très probablement mal placées</span></div>
+        <div class="metric"><strong id="affectedCount">0</strong><span>recettes concernées</span></div>
+        <div class="metric"><strong id="safeCount">0</strong><span>corrections sûres proposées</span></div>
+        <div class="metric"><strong id="conflictCount">0</strong><span>conflits laissés de côté</span></div>
       </div>
-      <div class="legend">
-        Ce contrôle ne déplace rien. Il signale seulement :
-        <strong>les durées et titres techniques</strong>, ainsi que
-        <strong>les phrases clairement écrites comme des instructions</strong>.
+
+      <div class="rules">
+        <strong>Correction sûre :</strong> retirer « Temps », « Durée » ou une ligne comme
+        « Total : 35 min ». Une durée chiffrée n’est proposée dans son champ que lorsque
+        ce champ est vide ou contient déjà la même valeur.<br><br>
+        <strong>Conflit :</strong> si une autre durée est déjà enregistrée, aucune modification
+        automatique ne sera autorisée.
       </div>
-      <div class="findings" id="findings"></div>
+
+      <div class="filters" id="filters">
+        <button class="filter active" data-filter="all" type="button">Toutes</button>
+        <button class="filter" data-filter="safe" type="button">Sûres</button>
+        <button class="filter" data-filter="same" type="button">Déjà enregistrées</button>
+        <button class="filter" data-filter="conflict" type="button">Conflits</button>
+      </div>
+
+      <div class="items" id="items"></div>
     </section>
 
-    <p class="foot">Les photos ne sont ni affichées ni modifiées. L’analyse reste sur l’iPhone.</p>
+    <p class="foot">
+      Cet outil ne contient aucune transaction « readwrite », aucun appel de suppression
+      et aucun bouton de correction.
+    </p>
   </section>
 </main>
 
@@ -118,15 +166,20 @@
 
   const DB_NAME = 'mon-carnet-cuisine-v1';
   const STORE_NAME = 'recipes';
-  const MAX_DISPLAY = 120;
 
   const scanBtn = document.getElementById('scanBtn');
   const status = document.getElementById('status');
-  const summary = document.getElementById('summary');
-  const summaryBox = document.getElementById('summaryBox');
+  const result = document.getElementById('result');
+  const headline = document.getElementById('headline');
   const recipeCount = document.getElementById('recipeCount');
-  const findingCount = document.getElementById('findingCount');
-  const findingsHost = document.getElementById('findings');
+  const affectedCount = document.getElementById('affectedCount');
+  const safeCount = document.getElementById('safeCount');
+  const conflictCount = document.getElementById('conflictCount');
+  const itemsHost = document.getElementById('items');
+  const filters = document.getElementById('filters');
+
+  let currentItems = [];
+  let currentFilter = 'all';
 
   const escapeHtml = value => String(value ?? '').replace(/[&<>"']/g, char => ({
     '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
@@ -148,59 +201,166 @@
       .trim();
   }
 
-  function classifyLine(rawLine = '') {
-    const cleaned = cleanPrefix(rawLine);
-    const line = normalize(cleaned);
-    if (!line) return null;
+  function parseMinutes(value = '') {
+    const text = normalize(value)
+      .replace(/(\d)\s*h\s*(\d)/g, '$1 h $2')
+      .replace(/(\d)\s*min\b/g, '$1 min');
 
-    // Sous-titres d'ingrédients autorisés : "Pour la sauce", "Garniture", etc.
-    if (/^(?:pour\s+)?(?:la|le|les|l')?\s*(?:sauce|garniture|pate|farce|marinade|creme|vinaigrette|accompagnement)s?\s*:?\s*$/.test(line)) {
-      return null;
+    if (/^(?:aucune|sans cuisson|zero|0\s*(?:min|minute|minutes)?)$/.test(text)) {
+      return { minutes: 0, none: true };
     }
 
-    // Quantités et unités en début de ligne : très probablement un véritable ingrédient.
-    const ingredientStart = /^(?:\d+(?:[.,]\d+)?|\d+\s*\/\s*\d+|½|¼|¾|un|une|deux|trois|quelques|une?\s+peu|sel|poivre)\b/;
-    if (ingredientStart.test(line)) return null;
+    let hours = 0;
+    let minutes = 0;
+    let found = false;
 
-    // Métadonnées techniques clairement mal placées.
-    const technicalHeading = /^(?:temps|duree|duree totale|total|preparation|prep|cuisson|repos|marinade)\s*:?\s*$/;
-    if (technicalHeading.test(line)) {
-      return { type: 'Métadonnée', reason: 'Titre technique placé dans les ingrédients' };
+    const hourMatch = text.match(/(\d+(?:[.,]\d+)?)\s*(?:h|heure|heures)\b/);
+    if (hourMatch) {
+      hours = Number(hourMatch[1].replace(',', '.'));
+      found = Number.isFinite(hours);
     }
 
-    const durationValue = '(?:aucune|sans cuisson|\\d+(?:[.,]\\d+)?\\s*(?:h|heure|heures|min|minute|minutes)(?:\\s*\\d+\\s*(?:min|minute|minutes))?)';
-    const durationPattern = new RegExp(
-      '^(?:temps|duree|duree totale|total|preparation|prep|cuisson|repos|marinade)\\s*:\\s*' +
-      durationValue + '\\s*$'
-    );
-    if (durationPattern.test(line)) {
-      return { type: 'Durée', reason: 'Durée ou information de cuisson placée dans les ingrédients' };
+    const minuteMatch = text.match(/(\d+)\s*(?:min|minute|minutes)\b/);
+    if (minuteMatch) {
+      minutes = Number(minuteMatch[1]);
+      found = true;
+    } else if (hourMatch) {
+      const afterHour = text.slice((hourMatch.index || 0) + hourMatch[0].length);
+      const bareMinutes = afterHour.match(/^\s*(\d{1,2})\b/);
+      if (bareMinutes) minutes = Number(bareMinutes[1]);
     }
 
-    // Phrases impératives très nettes.
-    const verbs = [
-      'prechauffez','melangez','ajoutez','versez','incorporez','fouettez','battez',
-      'faites','faites cuire','cuisez','enfournez','chauffez','laissez','reservez',
-      'servez','assaisonnez','deposez','disposez','placez','retournez','badigeonnez',
-      'egouttez','rincez','epluchez','pelez','hachez','emincez','coupez','decoupez',
-      'formez','etalez','roulez','mixez','broyez','portez','retirez','saisissez',
-      'faites revenir','faites fondre'
-    ];
-    const verbPattern = new RegExp('^(?:' + verbs.sort((a,b) => b.length - a.length).join('|') + ')\\b');
-    if (verbPattern.test(line)) {
-      return { type: 'Instruction', reason: 'Phrase impérative probablement destinée à la préparation' };
-    }
+    if (!found) return null;
+    return { minutes: Math.round(hours * 60 + minutes), none: false };
+  }
 
-    // Formes comme "Dans un saladier, mélangez..." ou "Au four, laissez..."
-    const contextualInstruction = /^(?:dans|sur|au|aux|a)\b.{0,55}\b(?:melangez|ajoutez|versez|incorporez|fouettez|faites|cuisez|enfournez|laissez|servez|deposez|disposez|placez)\b/;
-    if (contextualInstruction.test(line)) {
-      return { type: 'Instruction', reason: 'Phrase de préparation clairement formulée' };
+  function durationLabel(label = '') {
+    const normalized = normalize(label).replace(/\s*:\s*$/, '');
+    if (/^(?:preparation|prep)$/.test(normalized)) {
+      return { field: 'prepDuration', name: 'Préparation' };
     }
-
+    if (/^cuisson$/.test(normalized)) {
+      return { field: 'cookDuration', name: 'Cuisson' };
+    }
+    if (/^marinade$/.test(normalized)) {
+      return { field: 'marinadeDuration', name: 'Marinade' };
+    }
+    if (/^(?:total|duree totale|duree|temps)$/.test(normalized)) {
+      return { field: 'duration', name: 'Durée totale' };
+    }
     return null;
   }
 
-  function readRecipesStrictly() {
+  function formatDuration(minutes = 0) {
+    const total = Math.max(0, Math.round(Number(minutes) || 0));
+    if (!total) return '0 min';
+    const hours = Math.floor(total / 60);
+    const mins = total % 60;
+    if (!hours) return `${mins} min`;
+    return mins ? `${hours} h ${String(mins).padStart(2, '0')}` : `${hours} h`;
+  }
+
+  function classifyCandidate(recipe, rawLine, lineIndex) {
+    const cleaned = cleanPrefix(rawLine);
+    const normalized = normalize(cleaned);
+    if (!normalized) return null;
+
+    // Correction volontairement limitée aux titres généraux de durée.
+    if (/^(?:temps|duree|duree totale|total)\s*:?\s*$/.test(normalized)) {
+      return {
+        recipeId: recipe.id,
+        recipeTitle: String(recipe.title || 'Recette sans titre'),
+        lineIndex,
+        line: String(rawLine).trim(),
+        kind: 'heading',
+        state: 'safe',
+        badge: 'Titre technique',
+        proposal: 'Retirer uniquement cette ligne du champ Ingrédients.',
+        detail: 'Aucune autre donnée de la recette ne serait changée.'
+      };
+    }
+
+    const match = cleaned.match(
+      /^(Temps|Durée(?:\s+totale)?|Total|Préparation|Prep|Cuisson|Marinade)\s*:\s*(.+)$/i
+    );
+    if (!match) return null;
+
+    const destination = durationLabel(match[1]);
+    const parsed = parseMinutes(match[2]);
+    if (!destination || !parsed) return null;
+
+    const existing = Math.max(0, Number(recipe[destination.field]) || 0);
+
+    // « Cuisson : Aucune » : retrait sûr, aucune durée chiffrée à écrire.
+    if (parsed.none) {
+      return {
+        recipeId: recipe.id,
+        recipeTitle: String(recipe.title || 'Recette sans titre'),
+        lineIndex,
+        line: String(rawLine).trim(),
+        kind: 'duration-none',
+        state: 'safe',
+        badge: 'Durée sans valeur',
+        proposal: 'Retirer cette ligne des ingrédients.',
+        detail: 'Aucune durée chiffrée ne serait ajoutée.'
+      };
+    }
+
+    if (parsed.minutes <= 0) return null;
+
+    if (!existing) {
+      return {
+        recipeId: recipe.id,
+        recipeTitle: String(recipe.title || 'Recette sans titre'),
+        lineIndex,
+        line: String(rawLine).trim(),
+        kind: 'duration',
+        state: 'safe',
+        badge: 'Durée',
+        field: destination.field,
+        minutes: parsed.minutes,
+        proposal:
+          `Retirer cette ligne des ingrédients et enregistrer ${formatDuration(parsed.minutes)} ` +
+          `dans « ${destination.name} ».`,
+        detail: `Le champ « ${destination.name} » est actuellement vide.`
+      };
+    }
+
+    if (existing === parsed.minutes) {
+      return {
+        recipeId: recipe.id,
+        recipeTitle: String(recipe.title || 'Recette sans titre'),
+        lineIndex,
+        line: String(rawLine).trim(),
+        kind: 'duration',
+        state: 'same',
+        badge: 'Déjà enregistrée',
+        field: destination.field,
+        minutes: parsed.minutes,
+        proposal: 'Retirer uniquement cette ligne des ingrédients.',
+        detail:
+          `${formatDuration(existing)} est déjà enregistré dans « ${destination.name} ».`
+      };
+    }
+
+    return {
+      recipeId: recipe.id,
+      recipeTitle: String(recipe.title || 'Recette sans titre'),
+      lineIndex,
+      line: String(rawLine).trim(),
+      kind: 'duration',
+      state: 'conflict',
+      badge: 'Conflit',
+      field: destination.field,
+      minutes: parsed.minutes,
+      proposal: 'Ne rien modifier automatiquement.',
+      detail:
+        `La ligne indique ${formatDuration(parsed.minutes)}, mais « ${destination.name} » ` +
+        `contient déjà ${formatDuration(existing)}.`
+    };
+  }
+
+  function readPreview() {
     return new Promise((resolve, reject) => {
       if (!('indexedDB' in window)) {
         reject(new Error('Le stockage IndexedDB est indisponible.'));
@@ -212,8 +372,8 @@
 
       request.onsuccess = () => {
         const db = request.result;
-        const results = [];
         let count = 0;
+        const findings = [];
 
         try {
           if (!db.objectStoreNames.contains(STORE_NAME)) {
@@ -225,35 +385,28 @@
           const tx = db.transaction(STORE_NAME, 'readonly');
           const cursorRequest = tx.objectStore(STORE_NAME).openCursor();
 
-          cursorRequest.onerror = () => reject(cursorRequest.error || new Error('Lecture interrompue.'));
+          cursorRequest.onerror = () => reject(
+            cursorRequest.error || new Error('Lecture interrompue.')
+          );
+
           cursorRequest.onsuccess = event => {
             const cursor = event.target.result;
             if (!cursor) return;
 
             const recipe = cursor.value || {};
             count += 1;
-            const title = String(recipe.title || 'Recette sans titre');
-            const lines = String(recipe.ingredients || '').split(/\r?\n/);
-
-            lines.forEach((rawLine, index) => {
-              const classification = classifyLine(rawLine);
-              if (!classification) return;
-              results.push({
-                recipeId: recipe.id,
-                recipeTitle: title,
-                lineIndex: index,
-                line: String(rawLine).trim(),
-                ...classification
-              });
+            String(recipe.ingredients || '').split(/\r?\n/).forEach((rawLine, lineIndex) => {
+              const finding = classifyCandidate(recipe, rawLine, lineIndex);
+              if (finding) findings.push(finding);
             });
-
             cursor.continue();
           };
 
           tx.oncomplete = () => {
             db.close();
-            resolve({ count, results });
+            resolve({ count, findings });
           };
+
           tx.onabort = () => {
             db.close();
             reject(tx.error || new Error('Lecture interrompue.'));
@@ -266,53 +419,83 @@
     });
   }
 
-  function renderResults(data) {
-    recipeCount.textContent = String(data.count);
-    findingCount.textContent = String(data.results.length);
+  function renderItems() {
+    const visible = currentFilter === 'all'
+      ? currentItems
+      : currentItems.filter(item => item.state === currentFilter);
 
-    if (!data.results.length) {
-      summaryBox.textContent = '✅ Aucune anomalie certaine détectée';
-      findingsHost.innerHTML =
-        '<div class="empty">Les ingrédients analysés ne contiennent aucune durée, aucun titre technique ni aucune instruction clairement mal placée.</div>';
-      summary.classList.add('show');
+    if (!visible.length) {
+      itemsHost.innerHTML =
+        '<div class="empty">Aucune ligne dans cette catégorie.</div>';
       return;
     }
 
-    summaryBox.textContent =
-      `Contrôle strict terminé : ${data.results.length} ligne${data.results.length > 1 ? 's' : ''} à examiner.`;
+    itemsHost.innerHTML = visible.map(item => {
+      const className =
+        item.state === 'safe' ? 'safe-item' :
+        item.state === 'same' ? 'same-item' :
+        'conflict-item';
 
-    const shown = data.results.slice(0, MAX_DISPLAY);
-    findingsHost.innerHTML = shown.map(item => `
-      <article class="finding">
-        <span class="badge">${escapeHtml(item.type)}</span>
-        <h2>${escapeHtml(item.recipeTitle)}</h2>
-        <p class="line">« ${escapeHtml(item.line)} »</p>
-        <p class="reason">${escapeHtml(item.reason)}</p>
-      </article>
-    `).join('');
-
-    if (data.results.length > MAX_DISPLAY) {
-      findingsHost.insertAdjacentHTML(
-        'beforeend',
-        `<div class="empty">${data.results.length - MAX_DISPLAY} autres lignes ne sont pas affichées sur cet aperçu.</div>`
-      );
-    }
-
-    summary.classList.add('show');
+      return `
+        <article class="item ${className}">
+          <span class="badge">${escapeHtml(item.badge)}</span>
+          <h2>${escapeHtml(item.recipeTitle)}</h2>
+          <p class="source">« ${escapeHtml(item.line)} »</p>
+          <p class="proposal"><strong>Aperçu :</strong> ${escapeHtml(item.proposal)}</p>
+          <p class="detail">${escapeHtml(item.detail)}</p>
+        </article>
+      `;
+    }).join('');
   }
+
+  function renderResult(data) {
+    currentItems = data.findings;
+    currentFilter = 'all';
+
+    [...filters.querySelectorAll('.filter')].forEach(button => {
+      button.classList.toggle('active', button.dataset.filter === 'all');
+    });
+
+    const safe = data.findings.filter(item => item.state === 'safe').length;
+    const same = data.findings.filter(item => item.state === 'same').length;
+    const conflicts = data.findings.filter(item => item.state === 'conflict').length;
+    const affected = new Set(data.findings.map(item => String(item.recipeId))).size;
+
+    recipeCount.textContent = String(data.count);
+    affectedCount.textContent = String(affected);
+    safeCount.textContent = String(safe + same);
+    conflictCount.textContent = String(conflicts);
+
+    headline.textContent = data.findings.length
+      ? `Aperçu terminé : ${safe + same} correction${safe + same > 1 ? 's' : ''} sûre${safe + same > 1 ? 's' : ''}, sans aucune modification.`
+      : '✅ Aucune correction limitée à proposer.';
+
+    renderItems();
+    result.classList.add('show');
+  }
+
+  filters.addEventListener('click', event => {
+    const button = event.target.closest('.filter');
+    if (!button) return;
+
+    currentFilter = button.dataset.filter || 'all';
+    [...filters.querySelectorAll('.filter')].forEach(candidate => {
+      candidate.classList.toggle('active', candidate === button);
+    });
+    renderItems();
+  });
 
   scanBtn.addEventListener('click', async () => {
     scanBtn.disabled = true;
-    summary.classList.remove('show');
-    findingsHost.innerHTML = '';
-    status.innerHTML = '<span class="spinner"></span>Analyse stricte en cours…';
+    result.classList.remove('show');
+    status.innerHTML = '<span class="spinner"></span>Création de l’aperçu en lecture seule…';
 
     try {
-      const data = await readRecipesStrictly();
+      const data = await readPreview();
       status.textContent = '';
-      renderResults(data);
+      renderResult(data);
     } catch (error) {
-      status.textContent = `Le contrôle n’a pas abouti : ${error.message}`;
+      status.textContent = `L’aperçu n’a pas abouti : ${error.message}`;
     } finally {
       scanBtn.disabled = false;
     }
