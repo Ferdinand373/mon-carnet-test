@@ -576,12 +576,17 @@
       </div>
       <div class="recipe-body">
         <h4>${escapeHtml(entry.title)}</h4>
+        <div class="compact-recipe-summary">
+          <span>${meta || 'Durée non renseignée'}</span>
+          <span aria-hidden="true">·</span>
+          <span>${entry.persons} pers.</span>
+        </div>
         <div class="tags">
           <span class="tag">${escapeHtml(entry.category)}</span>
           <span class="tag">${escapeHtml(entry.season)}</span>
           <span class="tag">${escapeHtml(entry.device)}</span>
         </div>
-        <div class="recipe-meta">
+        <div class="recipe-meta" aria-hidden="true">
           <span>${meta}</span>
           <span>${entry.persons} pers.</span>
         </div>
@@ -891,10 +896,143 @@
     }, 900);
   }
 
+  function injectCompactPresentation() {
+    if (document.getElementById('compactPresentationStyles')) return;
+
+    const style = document.createElement('style');
+    style.id = 'compactPresentationStyles';
+    style.textContent = `
+      #view-recipes .recipe-grid {
+        gap: 12px !important;
+      }
+
+      #view-recipes .recipe-card {
+        border-radius: 20px !important;
+        overflow: hidden !important;
+        box-shadow: 0 8px 24px rgba(35,42,39,.09) !important;
+        border-color: rgba(23,33,30,.10) !important;
+        background: rgba(255,253,248,.97) !important;
+      }
+
+      #view-recipes .recipe-card:active {
+        transform: scale(.992);
+      }
+
+      #view-recipes .recipe-image {
+        width: 100% !important;
+        height: auto !important;
+        min-height: 0 !important;
+        aspect-ratio: 16 / 9 !important;
+        overflow: hidden !important;
+      }
+
+      #view-recipes .recipe-image img {
+        width: 100% !important;
+        height: 100% !important;
+        object-fit: cover !important;
+        display: block !important;
+      }
+
+      #view-recipes .recipe-placeholder {
+        width: 100% !important;
+        height: 100% !important;
+        min-height: 0 !important;
+        display: grid !important;
+        place-items: center !important;
+        font-size: 40px !important;
+      }
+
+      #view-recipes .recipe-body {
+        padding: 14px 15px 15px !important;
+      }
+
+      #view-recipes .recipe-body h4 {
+        margin: 0 0 7px !important;
+        font-size: 22px !important;
+        line-height: 1.16 !important;
+        letter-spacing: -.015em !important;
+        display: -webkit-box !important;
+        -webkit-line-clamp: 2 !important;
+        -webkit-box-orient: vertical !important;
+        overflow: hidden !important;
+      }
+
+      #view-recipes .compact-recipe-summary {
+        display: flex !important;
+        align-items: center !important;
+        gap: 6px !important;
+        margin: 0 0 10px !important;
+        color: var(--muted) !important;
+        font-size: 13px !important;
+        line-height: 1.25 !important;
+        font-weight: 650 !important;
+      }
+
+      #view-recipes .tags {
+        display: flex !important;
+        flex-wrap: wrap !important;
+        gap: 6px !important;
+        margin: 0 !important;
+      }
+
+      #view-recipes .tag {
+        padding: 6px 10px !important;
+        border-radius: 999px !important;
+        font-size: 12px !important;
+        line-height: 1.05 !important;
+        font-weight: 650 !important;
+        background: rgba(237,228,213,.76) !important;
+      }
+
+      #view-recipes .recipe-meta {
+        display: none !important;
+      }
+
+      #view-recipes #enhancedSearchStatus {
+        margin-top: 2px !important;
+        font-size: 12px !important;
+      }
+
+      @media (max-width: 520px) {
+        #view-recipes .recipe-grid {
+          gap: 11px !important;
+        }
+
+        #view-recipes .recipe-card {
+          border-radius: 18px !important;
+        }
+
+        #view-recipes .recipe-body {
+          padding: 12px 13px 14px !important;
+        }
+
+        #view-recipes .recipe-body h4 {
+          font-size: 20px !important;
+          line-height: 1.18 !important;
+          margin-bottom: 6px !important;
+        }
+
+        #view-recipes .compact-recipe-summary {
+          font-size: 12px !important;
+          margin-bottom: 9px !important;
+        }
+
+        #view-recipes .tag {
+          padding: 5px 9px !important;
+          font-size: 11.5px !important;
+        }
+      }
+    `;
+
+    document.head.appendChild(style);
+  }
+
   function start() {
+    injectCompactPresentation();
+
     const versionLabel = document.querySelector('.brand small');
-    if (versionLabel) versionLabel.textContent = 'VERSION · TEST IPHONE 5 ALLÉGÉ';
-    document.title = 'Mon carnet de cuisine — Test démarrage allégé';
+    if (versionLabel) versionLabel.textContent = 'VERSION · TEST IPHONE 6 PRÉSENTATION';
+    document.title = 'Mon carnet de cuisine — Test présentation compacte';
 
     const search = $('#recipeSearch');
     const grid = $('#recipeGrid');
@@ -919,7 +1057,7 @@
         recipeIndexPromise = null;
         prewarmSearchIndex();
       },
-      version: '1.0.5-iphone-startup-light'
+      version: '1.0.6-iphone-compact-presentation'
     };
   }
 

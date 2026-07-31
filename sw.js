@@ -1,7 +1,7 @@
-const CACHE_NAME = 'mon-carnet-test-search-iphone-v6-startup-light';
+const CACHE_NAME = 'mon-carnet-test-search-iphone-v7-compact-presentation';
 const TEST_CACHE_PREFIX = 'mon-carnet-test-';
 const APP_SHELL = ['./', './index.html', './mon-carnet-v17.png', './search-enhancement.js'];
-const SEARCH_SCRIPT = '<script src="./search-enhancement.js?v=1.0.5-iphone-startup-light"></script>';
+const SEARCH_SCRIPT = '<script src="./search-enhancement.js?v=1.0.6-iphone-compact-presentation"></script>';
 
 function optimizeStartup(html) {
   let optimized = html;
