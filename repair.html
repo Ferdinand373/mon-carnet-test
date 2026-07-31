@@ -3,28 +3,37 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>Test recherche iPhone 3</title>
+  <title>Recherche iPhone rapide</title>
   <style>
     body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:#f6f1e8;color:#17211e;margin:0;padding:30px}
     main{max-width:620px;margin:40px auto;background:#fffdf8;border:1px solid rgba(23,33,30,.12);border-radius:22px;padding:26px;box-shadow:0 12px 36px rgba(35,42,39,.12)}
-    h1{font-family:Georgia,serif;font-weight:500;margin-top:0}p{line-height:1.55}.ok{color:#153c35;font-weight:750}.error{color:#8b3c35;font-weight:750}a{color:#153c35;font-weight:750}
+    h1{font-family:Georgia,serif;font-weight:500;margin-top:0}
+    p{line-height:1.55}
+    .ok{color:#153c35;font-weight:750}
+    .error{color:#8b3c35;font-weight:750}
+    a{color:#153c35;font-weight:750}
   </style>
 </head>
 <body>
-  <!-- search-enhancement.js : évite l'injection sur cette page -->
+  <!-- search-enhancement.js : empêche l'injection sur cette page -->
   <main>
-    <h1>Recherche iPhone — test isolé</h1>
-    <p id="status">Installation de la version de test isolée…</p>
+    <h1>Recherche iPhone rapide</h1>
+    <p id="status">Installation de la correction de fluidité…</p>
     <p><a id="openApp" href="./" hidden>Ouvrir Mon Carnet Test</a></p>
   </main>
+
   <script>
     (async () => {
       const status = document.getElementById('status');
       const openApp = document.getElementById('openApp');
+
       try {
-        if (!('serviceWorker' in navigator)) throw new Error('Service worker indisponible');
+        if (!('serviceWorker' in navigator)) {
+          throw new Error('Service worker indisponible');
+        }
 
         const registrations = await navigator.serviceWorker.getRegistrations();
+
         for (const registration of registrations) {
           if (registration.scope.includes('/mon-carnet-test/')) {
             await registration.unregister();
@@ -33,6 +42,7 @@
 
         if ('caches' in window) {
           const names = await caches.keys();
+
           await Promise.all(
             names
               .filter(name => name.startsWith('mon-carnet-test-'))
@@ -41,16 +51,20 @@
         }
 
         const registration = await navigator.serviceWorker.register(
-          './sw.js?v=search-iphone-v3',
+          './sw.js?v=search-iphone-v4-fast',
           { scope: './' }
         );
+
         await registration.update();
         await navigator.serviceWorker.ready;
 
         status.className = 'ok';
-        status.textContent = 'Installation terminée. Mon Carnet Test va se rouvrir.';
+        status.textContent = 'Correction installée. Mon Carnet Test va se rouvrir.';
         openApp.hidden = false;
-        window.setTimeout(() => window.location.replace('./?iphone-test=3'), 1200);
+
+        window.setTimeout(() => {
+          window.location.replace('./?iphone-test=4-fast');
+        }, 1200);
       } catch (error) {
         status.className = 'error';
         status.textContent = `L’installation n’a pas abouti : ${error.message}`;

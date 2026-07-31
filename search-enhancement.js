@@ -5,16 +5,22 @@
   const DB_VERSION = 1;
   const MAX_RESULTS = 50;
   const MIN_QUERY_LENGTH = 2;
-  const INPUT_DELAY_MS = 320;
+  const INPUT_DELAY_MS = 120;
 
   let recipeIndexPromise = null;
   let renderTicket = 0;
   let inputTimer = 0;
+  let searchSessionActive = false;
+  let gridWriteInProgress = false;
 
   const $ = (selector, root = document) => root.querySelector(selector);
   const $$ = (selector, root = document) => [...root.querySelectorAll(selector)];
   const escapeHtml = (value = '') => String(value).replace(/[&<>\'"]/g, char => ({
-    '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;'
+    '&': '&amp;',
+    '<': '&lt;',
+    '>': '&gt;',
+    "'": '&#39;',
+    '"': '&quot;'
   }[char]));
 
   function foldText(value = '') {
@@ -52,17 +58,21 @@
   function editDistanceAtMostOne(a, b) {
     if (a === b) return true;
     if (Math.abs(a.length - b.length) > 1) return false;
+
     let i = 0;
     let j = 0;
     let edits = 0;
+
     while (i < a.length && j < b.length) {
       if (a[i] === b[j]) {
         i += 1;
         j += 1;
         continue;
       }
+
       edits += 1;
       if (edits > 1) return false;
+
       if (a.length > b.length) i += 1;
       else if (b.length > a.length) j += 1;
       else {
@@ -70,6 +80,7 @@
         j += 1;
       }
     }
+
     if (i < a.length || j < b.length) edits += 1;
     return edits <= 1;
   }
@@ -79,22 +90,28 @@
     if (queryToken === candidateToken) return true;
     if (singularToken(queryToken) === singularToken(candidateToken)) return true;
     if (queryToken.length >= 3 && candidateToken.startsWith(queryToken)) return true;
+
     if (
       candidateToken.length >= 3 &&
       queryToken.startsWith(candidateToken) &&
       candidateToken.length >= queryToken.length - 1
     ) return true;
+
     if (
       queryToken.length >= 5 &&
       candidateToken.length >= 5 &&
       editDistanceAtMostOne(queryToken, candidateToken)
     ) return true;
+
     return false;
   }
 
   function categoryFor(recipe = {}) {
     const current = String(recipe.category || '').trim();
-    if (['Entrée', 'Plat', 'Accompagnement', 'Dessert', 'Apéritif'].includes(current)) return current;
+    if (['Entrée', 'Plat', 'Accompagnement', 'Dessert', 'Apéritif'].includes(current)) {
+      return current;
+    }
+
     const text = searchableText(`${recipe.type || ''} ${recipe.title || ''}`);
     if (/dessert|gateau|tarte|clafoutis|crepe|cake sucre|mousse|flan|glace/.test(text)) return 'Dessert';
     if (/aperitif|apero|amuse bouche|tapas|toast|tartinade/.test(text)) return 'Apéritif';
@@ -120,7 +137,9 @@
     const text = searchableText(
       `${recipe.title || ''} ${recipe.type || ''} ${recipe.category || ''} ${recipe.device || ''}`
     );
+
     if (/repas du soir/.test(text)) return true;
+
     const light = /salade|soupe|veloute|potage|tartine|bruschetta|croque|omelette|oeuf|quiche|flan sale|galette|wrap|poisson|cabillaud|saumon|bar|thon|sardine|maquereau|moule|crevette|legume|vegetar|halloumi/.test(text);
     const heavy = /bourguignon|cassoulet|choucroute|jarret|epaule|souris d agneau|ragout|cote de boeuf/.test(text);
     return light && !heavy;
@@ -129,8 +148,10 @@
   function formatDuration(minutes = 0) {
     const total = Math.max(0, Math.round(Number(minutes) || 0));
     if (!total) return '';
+
     const hours = Math.floor(total / 60);
     const mins = total % 60;
+
     if (!hours) return `${mins} min`;
     return mins ? `${hours} h ${String(mins).padStart(2, '0')}` : `${hours} h`;
   }
@@ -139,7 +160,11 @@
     const prep = Math.max(0, Number(recipe.prepDuration) || 0);
     const marinade = Math.max(0, Number(recipe.marinadeDuration) || 0);
     const cook = Math.max(0, Number(recipe.cookDuration) || 0);
-    if (prep || marinade || cook) return prep + cook + (marinade > 0 && marinade < 60 ? marinade : 0);
+
+    if (prep || marinade || cook) {
+      return prep + cook + (marinade > 0 && marinade < 60 ? marinade : 0);
+    }
+
     return Math.max(0, Number(recipe.duration) || 0);
   }
 
@@ -154,8 +179,9 @@
     return '🍽️';
   }
 
-  function buildIndex(recipe = {}) {
+  function buildIndexEntry(recipe = {}) {
     const category = categoryFor(recipe);
+
     const fields = [
       { name: 'title', text: searchableText(recipe.title), weight: 52 },
       { name: 'ingredients', text: searchableText(recipe.ingredients), weight: 26 },
@@ -164,8 +190,7 @@
       { name: 'category', text: searchableText(category), weight: 20 },
       { name: 'source', text: searchableText(recipe.source), weight: 12 },
       { name: 'season', text: searchableText(recipe.season), weight: 12 },
-      { name: 'notes', text: searchableText(recipe.notes), weight: 8 },
-      { name: 'steps', text: searchableText(recipe.steps), weight: 4 }
+      { name: 'notes', text: searchableText(recipe.notes), weight: 8 }
     ].map(field => ({
       ...field,
       words: field.text.split(' ').filter(Boolean),
@@ -190,6 +215,46 @@
     };
   }
 
+  function scheduleIdle(callback) {
+    if ('requestIdleCallback' in window) {
+      window.requestIdleCallback(callback, { timeout: 120 });
+      return;
+    }
+
+    window.setTimeout(() => callback({
+      didTimeout: true,
+      timeRemaining: () => 0
+    }), 0);
+  }
+
+  function buildIndexInSmallBatches(recipes) {
+    return new Promise(resolve => {
+      const result = [];
+      let position = 0;
+
+      const work = deadline => {
+        let processed = 0;
+
+        while (
+          position < recipes.length &&
+          (processed < 10 || deadline.timeRemaining() > 4)
+        ) {
+          result.push(buildIndexEntry(recipes[position]));
+          position += 1;
+          processed += 1;
+        }
+
+        if (position < recipes.length) {
+          scheduleIdle(work);
+        } else {
+          resolve(result);
+        }
+      };
+
+      scheduleIdle(work);
+    });
+  }
+
   function readRecipeIndex() {
     if (recipeIndexPromise) return recipeIndexPromise;
 
@@ -201,16 +266,21 @@
 
       const request = indexedDB.open(DB_NAME, DB_VERSION);
       request.onerror = () => reject(request.error || new Error('Stockage indisponible'));
+
       request.onsuccess = () => {
         const database = request.result;
+
         try {
           const transaction = database.transaction('recipes', 'readonly');
           const all = transaction.objectStore('recipes').getAll();
 
           all.onsuccess = () => {
-            const lightweightIndex = (all.result || []).map(buildIndex);
-            resolve(lightweightIndex);
+            const recipes = all.result || [];
+            buildIndexInSmallBatches(recipes)
+              .then(resolve)
+              .catch(reject);
           };
+
           all.onerror = () => reject(all.error || new Error('Lecture impossible'));
           transaction.oncomplete = () => database.close();
           transaction.onabort = () => database.close();
@@ -219,6 +289,9 @@
           reject(error);
         }
       };
+    }).catch(error => {
+      recipeIndexPromise = null;
+      throw error;
     });
 
     return recipeIndexPromise;
@@ -226,7 +299,11 @@
 
   function fieldMatches(token, field) {
     const compactToken = token.replace(/\s+/g, '');
-    if (compactToken.length >= 3 && field.compact.includes(compactToken)) return true;
+
+    if (compactToken.length >= 3 && field.compact.includes(compactToken)) {
+      return true;
+    }
+
     return field.words.some(word => tokenMatches(token, word));
   }
 
@@ -235,25 +312,32 @@
 
     for (const token of queryTokens) {
       let best = 0;
+
       for (const field of entry.fields) {
         if (!fieldMatches(token, field)) continue;
+
         let bonus = 0;
         if (field.text === token) bonus += 18;
         else if (field.text.startsWith(token)) bonus += 10;
         if (field.name === 'title' && field.text.includes(token)) bonus += 10;
+
         best = Math.max(best, field.weight + bonus);
       }
+
       if (!best) return { matched: false, score: 0 };
       score += best;
     }
 
     const title = entry.fields[0].text;
     const ingredients = entry.fields[1].text;
+
     if (title === normalizedQuery) score += 180;
     else if (title.startsWith(normalizedQuery)) score += 110;
     else if (title.includes(normalizedQuery)) score += 75;
+
     if (ingredients.includes(normalizedQuery)) score += 28;
     if (entry.favorite) score += 2;
+
     return { matched: true, score };
   }
 
@@ -270,7 +354,9 @@
   function ensureStatusElement() {
     const toolbar = $('.toolbar');
     if (!toolbar) return null;
+
     let status = $('#enhancedSearchStatus');
+
     if (!status) {
       status = document.createElement('div');
       status.id = 'enhancedSearchStatus';
@@ -279,11 +365,36 @@
         'grid-column:1/-1;margin:-2px 2px 0;color:var(--muted);font-size:12px;line-height:1.4;';
       toolbar.appendChild(status);
     }
+
     return status;
+  }
+
+  function writeGrid(html) {
+    const grid = $('#recipeGrid');
+    if (!grid) return;
+
+    gridWriteInProgress = true;
+    grid.innerHTML = html;
+    window.queueMicrotask(() => {
+      gridWriteInProgress = false;
+    });
+  }
+
+  function showSearchPrompt(message = 'Tapez au moins 2 lettres pour rechercher dans les 270 recettes.') {
+    const status = ensureStatusElement();
+    if (status) status.textContent = message;
+
+    writeGrid(
+      '<div class="empty-state" style="grid-column:1/-1">' +
+      '<strong>Recherche prête</strong>' +
+      'Écrivez un plat, un ingrédient ou un appareil.' +
+      '</div>'
+    );
   }
 
   function cardHtml(entry) {
     const meta = entry.duration ? formatDuration(entry.duration) : escapeHtml(entry.type);
+
     return `<article class="recipe-card" data-recipe-id="${escapeHtml(entry.id)}">
       <div class="recipe-image">
         <div class="recipe-placeholder">${entry.icon}</div>
@@ -296,27 +407,30 @@
           <span class="tag">${escapeHtml(entry.season)}</span>
           <span class="tag">${escapeHtml(entry.device)}</span>
         </div>
-        <div class="recipe-meta"><span>${meta}</span><span>${entry.persons} pers.</span></div>
+        <div class="recipe-meta">
+          <span>${meta}</span>
+          <span>${entry.persons} pers.</span>
+        </div>
       </div>
     </article>`;
   }
 
   async function renderEnhancedSearch() {
-    const grid = $('#recipeGrid');
     const search = $('#recipeSearch');
-    if (!grid || !search) return;
+    if (!search) return;
 
     const rawQuery = search.value.trim();
     const status = ensureStatusElement();
 
     if (!rawQuery) {
-      if (status) status.textContent = '';
+      showSearchPrompt();
       return;
     }
 
     const normalizedQuery = searchableText(rawQuery);
+
     if (normalizedQuery.length < MIN_QUERY_LENGTH) {
-      if (status) status.textContent = 'Tapez au moins 2 lettres pour lancer la recherche.';
+      showSearchPrompt('Tapez encore une lettre pour lancer la recherche.');
       return;
     }
 
@@ -331,7 +445,10 @@
       const filters = currentFilters();
 
       const ranked = index
-        .map(entry => ({ entry, ...recipeScore(entry, queryTokens, normalizedQuery) }))
+        .map(entry => ({
+          entry,
+          ...recipeScore(entry, queryTokens, normalizedQuery)
+        }))
         .filter(item => item.matched)
         .filter(({ entry }) => filters.category === 'all' || entry.category === filters.category)
         .filter(({ entry }) => filters.device === 'all' || entry.canonicalDevice === filters.device)
@@ -344,6 +461,7 @@
         });
 
       const shown = ranked.slice(0, MAX_RESULTS);
+
       if (status) {
         const total = ranked.length;
         status.textContent = total > MAX_RESULTS
@@ -352,14 +470,18 @@
       }
 
       if (!shown.length) {
-        grid.innerHTML =
-          '<div class="empty-state" style="grid-column:1/-1"><strong>Aucune recette trouvée</strong>Essayez moins de mots ou vérifiez les filtres.</div>';
+        writeGrid(
+          '<div class="empty-state" style="grid-column:1/-1">' +
+          '<strong>Aucune recette trouvée</strong>' +
+          'Essayez moins de mots ou vérifiez les filtres.' +
+          '</div>'
+        );
         return;
       }
 
-      grid.innerHTML = shown.map(item => cardHtml(item.entry)).join('');
+      writeGrid(shown.map(item => cardHtml(item.entry)).join(''));
     } catch (error) {
-      console.warn('Recherche allégée indisponible', error);
+      console.warn('Recherche rapide indisponible', error);
       if (status) status.textContent = 'La recherche est momentanément indisponible.';
     }
   }
@@ -369,76 +491,252 @@
     inputTimer = window.setTimeout(renderEnhancedSearch, INPUT_DELAY_MS);
   }
 
+  function activateChip(rowSelector, chip) {
+    $$('.chip', $(rowSelector)).forEach(item => {
+      item.classList.toggle('active', item === chip);
+    });
+  }
+
+  function resetFiltersUi() {
+    $$('[data-category-filter]').forEach(item => {
+      item.classList.toggle('active', item.dataset.categoryFilter === 'all');
+    });
+
+    $$('[data-device-filter]').forEach(item => {
+      item.classList.toggle('active', item.dataset.deviceFilter === 'all');
+    });
+
+    $$('[data-season-filter]').forEach(item => {
+      item.classList.toggle('active', item.dataset.seasonFilter === 'all');
+    });
+
+    $$('[data-moment-filter]').forEach(item => {
+      item.classList.toggle('active', item.dataset.momentFilter === 'all');
+    });
+
+    const favorite = $('#favoriteFilterBtn');
+    if (favorite) {
+      favorite.classList.remove('active');
+      favorite.setAttribute('aria-pressed', 'false');
+      favorite.textContent = '♡ Favorites seulement';
+    }
+  }
+
+  function showRecipesViewFast() {
+    document.body.classList.remove('recipe-open');
+
+    $$('.view').forEach(view => {
+      view.classList.toggle('active', view.dataset.view === 'recipes');
+    });
+
+    $$('.nav-btn').forEach(button => {
+      button.classList.toggle('active', button.hasAttribute('data-open-search'));
+    });
+
+    window.scrollTo({ top: 0, behavior: 'auto' });
+  }
+
+  function openSearchFast(event) {
+    event.preventDefault();
+    event.stopImmediatePropagation();
+
+    searchSessionActive = true;
+    showRecipesViewFast();
+
+    const search = $('#recipeSearch');
+
+    if (!search?.value.trim()) {
+      showSearchPrompt();
+    } else {
+      scheduleSearch();
+    }
+
+    window.setTimeout(() => {
+      if (!search) return;
+      search.focus({ preventScroll: true });
+      search.scrollIntoView({ behavior: 'auto', block: 'center' });
+    }, 25);
+  }
+
+  function returnToSearchFast(event) {
+    event.preventDefault();
+    event.stopImmediatePropagation();
+
+    showRecipesViewFast();
+
+    const query = $('#recipeSearch')?.value?.trim() || '';
+    if (query) scheduleSearch();
+    else showSearchPrompt();
+  }
+
+  function captureNavigation() {
+    document.addEventListener('click', event => {
+      const searchTrigger = event.target.closest('[data-open-search]');
+
+      if (searchTrigger) {
+        openSearchFast(event);
+        return;
+      }
+
+      const detailBack = event.target.closest('#detailBackBtn');
+
+      if (detailBack && searchSessionActive) {
+        returnToSearchFast(event);
+        return;
+      }
+
+      const otherNavigation = event.target.closest('[data-go]');
+
+      if (otherNavigation && otherNavigation.dataset.go !== 'recipes') {
+        searchSessionActive = false;
+      }
+    }, true);
+  }
+
   function captureSearchInput() {
     const search = $('#recipeSearch');
     if (!search) return;
 
     search.addEventListener('input', event => {
+      event.stopImmediatePropagation();
+      window.clearTimeout(inputTimer);
+
       const query = search.value.trim();
 
       if (!query) {
-        window.clearTimeout(inputTimer);
-        const status = ensureStatusElement();
-        if (status) status.textContent = '';
+        showSearchPrompt();
         return;
       }
 
-      event.stopImmediatePropagation();
       scheduleSearch();
     }, true);
   }
 
-  function followOriginalFilters() {
-    const selectors = [
-      '#categoryFilterRow',
-      '#deviceFilterRow',
-      '#seasonFilterRow',
-      '#momentFilterRow',
-      '#favoriteFilterBtn',
-      '#clearFiltersBtn'
+  function captureFilters() {
+    const definitions = [
+      ['#categoryFilterRow', 'categoryFilter'],
+      ['#deviceFilterRow', 'deviceFilter'],
+      ['#seasonFilterRow', 'seasonFilter'],
+      ['#momentFilterRow', 'momentFilter']
     ];
 
-    selectors.forEach(selector => {
-      const element = $(selector);
-      if (!element) return;
-      element.addEventListener('click', () => {
+    definitions.forEach(([rowSelector, dataKey]) => {
+      const row = $(rowSelector);
+      if (!row) return;
+
+      row.addEventListener('click', event => {
+        const attribute = dataKey.replace(/[A-Z]/g, letter => `-${letter.toLowerCase()}`);
+        const chip = event.target.closest(`[data-${attribute}]`);
+        if (!chip) return;
+
+        event.preventDefault();
+        event.stopImmediatePropagation();
+        activateChip(rowSelector, chip);
+
         const query = $('#recipeSearch')?.value?.trim() || '';
         if (query) scheduleSearch();
-      });
+        else showSearchPrompt();
+      }, true);
     });
+
+    const favorite = $('#favoriteFilterBtn');
+
+    if (favorite) {
+      favorite.addEventListener('click', event => {
+        event.preventDefault();
+        event.stopImmediatePropagation();
+
+        const active = !favorite.classList.contains('active');
+        favorite.classList.toggle('active', active);
+        favorite.setAttribute('aria-pressed', String(active));
+        favorite.textContent = active ? '♥ Favorites seulement' : '♡ Favorites seulement';
+
+        const query = $('#recipeSearch')?.value?.trim() || '';
+        if (query) scheduleSearch();
+        else showSearchPrompt();
+      }, true);
+    }
+
+    const clear = $('#clearFiltersBtn');
+
+    if (clear) {
+      clear.addEventListener('click', event => {
+        event.preventDefault();
+        event.stopImmediatePropagation();
+
+        const search = $('#recipeSearch');
+        if (search) search.value = '';
+
+        resetFiltersUi();
+        showSearchPrompt();
+
+        $('#categoryFilterRow')?.scrollTo({ left: 0, behavior: 'auto' });
+        $('#deviceFilterRow')?.scrollTo({ left: 0, behavior: 'auto' });
+        $('#seasonFilterRow')?.scrollTo({ left: 0, behavior: 'auto' });
+        $('#momentFilterRow')?.scrollTo({ left: 0, behavior: 'auto' });
+      }, true);
+    }
   }
 
-  function watchRecipeView() {
+  function keepHiddenGridLight() {
+    const grid = $('#recipeGrid');
     const view = $('#view-recipes');
-    if (!view) return;
+    if (!grid || !view) return;
+
     const observer = new MutationObserver(() => {
+      if (gridWriteInProgress) return;
+
       const query = $('#recipeSearch')?.value?.trim() || '';
-      if (view.classList.contains('active') && query) scheduleSearch();
+
+      if (!view.classList.contains('active') && !query && grid.children.length > 12) {
+        window.requestAnimationFrame(() => {
+          if (!gridWriteInProgress) showSearchPrompt();
+        });
+      }
     });
-    observer.observe(view, { attributes: true, attributeFilter: ['class'] });
+
+    observer.observe(grid, { childList: true });
+  }
+
+  function prewarmSearchIndex() {
+    window.setTimeout(() => {
+      scheduleIdle(() => {
+        readRecipeIndex().catch(error => {
+          console.warn('Préparation de la recherche différée', error);
+        });
+      });
+    }, 250);
   }
 
   function start() {
     const versionLabel = document.querySelector('.brand small');
-    if (versionLabel) versionLabel.textContent = 'VERSION · TEST IPHONE 2';
-    document.title = 'Mon carnet de cuisine — Test recherche iPhone 2';
+    if (versionLabel) versionLabel.textContent = 'VERSION · TEST IPHONE 3 RAPIDE';
+    document.title = 'Mon carnet de cuisine — Test iPhone rapide';
 
     const search = $('#recipeSearch');
     const grid = $('#recipeGrid');
+
     if (!search || !grid) {
       window.setTimeout(start, 100);
       return;
     }
 
     search.placeholder = 'Ex. poulet moutarde, air fryer, citron…';
+
+    captureNavigation();
     captureSearchInput();
-    followOriginalFilters();
-    watchRecipeView();
+    captureFilters();
+    keepHiddenGridLight();
+    showSearchPrompt();
+    prewarmSearchIndex();
 
     window.__monCarnetEnhancedSearch = {
       render: renderEnhancedSearch,
-      resetIndex: () => { recipeIndexPromise = null; },
-      version: '1.0.2-iphone'
+      resetIndex: () => {
+        recipeIndexPromise = null;
+        prewarmSearchIndex();
+      },
+      version: '1.0.3-iphone-fast'
     };
   }
 
