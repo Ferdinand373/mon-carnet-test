@@ -4,6 +4,8 @@
   const DB_NAME = 'mon-carnet-cuisine-v1';
   const DB_VERSION = 1;
   const MAX_RESULTS = 50;
+  const PHOTO_RESULT_LIMIT = 20;
+  const PHOTO_CONCURRENCY = 2;
   const MIN_QUERY_LENGTH = 2;
   const INPUT_DELAY_MS = 120;
 
@@ -12,6 +14,11 @@
   let inputTimer = 0;
   let searchSessionActive = false;
   let gridWriteInProgress = false;
+  let photoDbPromise = null;
+  let photoObserver = null;
+  let photoQueue = [];
+  let activePhotoLoads = 0;
+  let photoGeneration = 0;
 
   const $ = (selector, root = document) => root.querySelector(selector);
   const $$ = (selector, root = document) => [...root.querySelectorAll(selector)];
@@ -211,6 +218,7 @@
       updatedAt: String(recipe.updatedAt || ''),
       dinner: isDinnerRecipe(recipe),
       icon: iconFor(recipe),
+      hasPhoto: !!recipe.photo,
       fields
     };
   }
@@ -369,12 +377,161 @@
     return status;
   }
 
+  function cancelPhotoLoading() {
+    photoGeneration += 1;
+    photoQueue = [];
+
+    if (photoObserver) {
+      photoObserver.disconnect();
+      photoObserver = null;
+    }
+  }
+
+  function openPhotoDb() {
+    if (photoDbPromise) return photoDbPromise;
+
+    photoDbPromise = new Promise((resolve, reject) => {
+      const request = indexedDB.open(DB_NAME, DB_VERSION);
+
+      request.onerror = () => reject(request.error || new Error('Photos indisponibles'));
+      request.onsuccess = () => {
+        const database = request.result;
+
+        database.onversionchange = () => {
+          database.close();
+          photoDbPromise = null;
+        };
+
+        resolve(database);
+      };
+    }).catch(error => {
+      photoDbPromise = null;
+      throw error;
+    });
+
+    return photoDbPromise;
+  }
+
+  async function readRecipePhoto(recipeId) {
+    const database = await openPhotoDb();
+
+    return new Promise((resolve, reject) => {
+      try {
+        const transaction = database.transaction('recipes', 'readonly');
+        const request = transaction.objectStore('recipes').get(recipeId);
+
+        request.onsuccess = () => resolve(request.result?.photo || '');
+        request.onerror = () => reject(request.error || new Error('Photo illisible'));
+      } catch (error) {
+        reject(error);
+      }
+    });
+  }
+
+  function finishPhotoLoad(task, photo) {
+    const { image, generation } = task;
+
+    if (
+      !photo ||
+      generation !== photoGeneration ||
+      !image.isConnected
+    ) return;
+
+    const placeholder = image.parentElement?.querySelector('[data-photo-placeholder]');
+
+    image.onload = () => {
+      if (
+        generation !== photoGeneration ||
+        !image.isConnected
+      ) return;
+
+      image.hidden = false;
+      if (placeholder) placeholder.hidden = true;
+    };
+
+    image.onerror = () => {
+      image.removeAttribute('src');
+      image.hidden = true;
+      if (placeholder) placeholder.hidden = false;
+    };
+
+    image.src = photo;
+  }
+
+  function pumpPhotoQueue() {
+    while (activePhotoLoads < PHOTO_CONCURRENCY && photoQueue.length) {
+      const task = photoQueue.shift();
+
+      if (
+        !task ||
+        task.generation !== photoGeneration ||
+        !task.image.isConnected
+      ) continue;
+
+      activePhotoLoads += 1;
+
+      readRecipePhoto(task.recipeId)
+        .then(photo => finishPhotoLoad(task, photo))
+        .catch(error => console.warn('Photo de recherche non chargée', error))
+        .finally(() => {
+          activePhotoLoads -= 1;
+          pumpPhotoQueue();
+        });
+    }
+  }
+
+  function enqueuePhoto(image, generation) {
+    if (
+      !image ||
+      image.dataset.photoQueued === '1' ||
+      generation !== photoGeneration
+    ) return;
+
+    image.dataset.photoQueued = '1';
+
+    photoQueue.push({
+      image,
+      recipeId: image.dataset.photoId,
+      generation
+    });
+
+    pumpPhotoQueue();
+  }
+
+  function hydrateVisiblePhotos() {
+    const images = $$('#recipeGrid img[data-photo-id]');
+    if (!images.length) return;
+
+    const generation = photoGeneration;
+
+    if (!('IntersectionObserver' in window)) {
+      images.slice(0, 6).forEach(image => enqueuePhoto(image, generation));
+      return;
+    }
+
+    photoObserver = new IntersectionObserver(entries => {
+      entries.forEach(entry => {
+        if (!entry.isIntersecting) return;
+
+        photoObserver?.unobserve(entry.target);
+        enqueuePhoto(entry.target, generation);
+      });
+    }, {
+      rootMargin: '260px 0px',
+      threshold: 0.01
+    });
+
+    images.forEach(image => photoObserver.observe(image));
+  }
+
   function writeGrid(html) {
     const grid = $('#recipeGrid');
     if (!grid) return;
 
+    cancelPhotoLoading();
     gridWriteInProgress = true;
     grid.innerHTML = html;
+
     window.queueMicrotask(() => {
       gridWriteInProgress = false;
     });
@@ -392,12 +549,17 @@
     );
   }
 
-  function cardHtml(entry) {
+  function cardHtml(entry, resultIndex) {
     const meta = entry.duration ? formatDuration(entry.duration) : escapeHtml(entry.type);
+    const mayLoadPhoto = entry.hasPhoto && resultIndex < PHOTO_RESULT_LIMIT;
+    const visual = mayLoadPhoto
+      ? `<img data-photo-id="${escapeHtml(entry.id)}" alt="${escapeHtml(entry.title)}" loading="lazy" decoding="async" hidden>
+         <div class="recipe-placeholder" data-photo-placeholder>${entry.icon}</div>`
+      : `<div class="recipe-placeholder">${entry.icon}</div>`;
 
     return `<article class="recipe-card" data-recipe-id="${escapeHtml(entry.id)}">
       <div class="recipe-image">
-        <div class="recipe-placeholder">${entry.icon}</div>
+        ${visual}
         ${entry.favorite ? '<div class="fav-badge">♥</div>' : ''}
       </div>
       <div class="recipe-body">
@@ -479,7 +641,8 @@
         return;
       }
 
-      writeGrid(shown.map(item => cardHtml(item.entry)).join(''));
+      writeGrid(shown.map((item, index) => cardHtml(item.entry, index)).join(''));
+      hydrateVisiblePhotos();
     } catch (error) {
       console.warn('Recherche rapide indisponible', error);
       if (status) status.textContent = 'La recherche est momentanément indisponible.';
@@ -710,8 +873,8 @@
 
   function start() {
     const versionLabel = document.querySelector('.brand small');
-    if (versionLabel) versionLabel.textContent = 'VERSION · TEST IPHONE 3 RAPIDE';
-    document.title = 'Mon carnet de cuisine — Test iPhone rapide';
+    if (versionLabel) versionLabel.textContent = 'VERSION · TEST IPHONE 4 PHOTOS';
+    document.title = 'Mon carnet de cuisine — Test iPhone avec photos';
 
     const search = $('#recipeSearch');
     const grid = $('#recipeGrid');
@@ -736,7 +899,7 @@
         recipeIndexPromise = null;
         prewarmSearchIndex();
       },
-      version: '1.0.3-iphone-fast'
+      version: '1.0.4-iphone-photos'
     };
   }
 

@@ -1,7 +1,7 @@
-const CACHE_NAME = 'mon-carnet-test-search-iphone-v4-fast';
+const CACHE_NAME = 'mon-carnet-test-search-iphone-v5-photos';
 const TEST_CACHE_PREFIX = 'mon-carnet-test-';
 const APP_SHELL = ['./', './index.html', './mon-carnet-v17.png', './search-enhancement.js'];
-const SEARCH_SCRIPT = '<script src="./search-enhancement.js?v=1.0.3-iphone-fast"></script>';
+const SEARCH_SCRIPT = '<script src="./search-enhancement.js?v=1.0.4-iphone-photos"></script>';
 
 function injectSearchScript(html) {
   if (html.includes('search-enhancement.js')) return html;
