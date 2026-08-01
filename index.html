@@ -71,6 +71,46 @@ source=source.replace(
   "$('#customSchedulePanel').classList.remove('open');\n        const todayLunchButton = document.querySelector('[data-schedule-slot=\"today-lunch\"]');\n        if (todayLunchButton) todayLunchButton.hidden = new Date().getHours() >= 14;\n        $('#customScheduleDate').min = todayISO();"
 );
 
+/* 3. Afficher le repas de ce midi sur l'accueil jusqu'à 14 h */
+source=source.replace(
+  '<div><h3>Ce soir et demain</h3><p>Touchez un repas pour choisir ou modifier sa recette</p></div>',
+  '<div><h3 id="homeUpcomingTitle">Ce soir et demain</h3><p>Touchez un repas pour choisir ou modifier sa recette</p></div>'
+);
+
+source=source.replace(
+  `const upcoming = [
+          { date: today, meal: 'soir' },
+          { date: addDays(today, 1), meal: 'midi' },
+          { date: addDays(today, 1), meal: 'soir' },
+          { date: addDays(today, 2), meal: 'midi' },
+          { date: addDays(today, 2), meal: 'soir' }
+        ];`,
+  `const showTodayLunch = new Date().getHours() < 14;
+        const upcoming = [
+          ...(showTodayLunch ? [{ date: today, meal: 'midi' }] : []),
+          { date: today, meal: 'soir' },
+          { date: addDays(today, 1), meal: 'midi' },
+          { date: addDays(today, 1), meal: 'soir' },
+          { date: addDays(today, 2), meal: 'midi' },
+          { date: addDays(today, 2), meal: 'soir' }
+        ];
+        const homeUpcomingTitle = $('#homeUpcomingTitle');
+        if (homeUpcomingTitle) {
+          homeUpcomingTitle.textContent = showTodayLunch
+            ? 'Ce midi, ce soir et demain'
+            : 'Ce soir et demain';
+        }
+        if (showTodayLunch && !window.__monCarnetLunchCutoffTimer) {
+          const now = new Date();
+          const cutoff = new Date(now);
+          cutoff.setHours(14, 0, 0, 0);
+          window.__monCarnetLunchCutoffTimer = window.setTimeout(() => {
+            window.__monCarnetLunchCutoffTimer = null;
+            renderHome();
+          }, Math.max(1000, cutoff.getTime() - now.getTime()));
+        }`
+);
+
 /* Le libellé V2.3.5 TEST est déjà injecté par les remplacements ci-dessus. */
 
 document.open();
