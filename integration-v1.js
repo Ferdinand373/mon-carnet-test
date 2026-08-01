@@ -268,13 +268,62 @@
     saveState();
   }
 
+  function isNonIngredientLine(rawText) {
+    const text = fold(rawText).replace(/\s+/g, ' ').trim();
+    if (!text) return true;
+
+    if (/^(ingredients?|preparation|temps|duree|ustensiles?|materiel|difficulte|niveau|cout|budget)\s*:?$/.test(text)) {
+      return true;
+    }
+
+    if (/^(temps(?: total| de preparation| de cuisson| de repos)?|duree(?: totale?)?|total|preparation|cuisson|repos|marinade)\s*:?\s*(?:environ\s*)?\d+(?:[.,]\d+)?\s*(?:h|heure|heures|min|minute|minutes)(?:\s*\d+\s*(?:min|minute|minutes))?$/.test(text)) {
+      return true;
+    }
+
+    if (/^\d+(?:[.,]\d+)?\s*(?:h|heure|heures|min|minute|minutes)$/.test(text)) {
+      return true;
+    }
+
+    if (/^(?:pour\s+)?\d+\s+personnes?$/.test(text)) return true;
+    return false;
+  }
+
+  function reviewTextForInput(input) {
+    const index = input?.dataset?.clairReviewIndex;
+    if (index == null) return '';
+    const choice = $(`[data-clair-choice-index="${index}"]`);
+    const text = $(`#clairItemText${index}`);
+    return (choice?.value || text?.textContent || '').trim();
+  }
+
+  function cleanClairReview() {
+    const inputs = $$('[data-clair-review-index]');
+    if (!inputs.length) return;
+
+    let firstCheckedInvalid = null;
+    inputs.forEach(input => {
+      const invalid = isNonIngredientLine(reviewTextForInput(input));
+      const row = input.closest('.clair-review-item');
+      if (row) {
+        row.style.display = invalid ? 'none' : '';
+        row.setAttribute('aria-hidden', invalid ? 'true' : 'false');
+      }
+      if (invalid && input.checked && !firstCheckedInvalid) firstCheckedInvalid = input;
+    });
+
+    if (firstCheckedInvalid && !firstCheckedInvalid.dataset.mcFilterPending) {
+      firstCheckedInvalid.dataset.mcFilterPending = '1';
+      window.setTimeout(() => {
+        if (document.contains(firstCheckedInvalid) && firstCheckedInvalid.checked) {
+          firstCheckedInvalid.click();
+        }
+      }, 0);
+    }
+  }
+
   function selectedReviewTexts() {
-    return $$('[data-clair-review-index]:checked').map(input => {
-      const index = input.dataset.clairReviewIndex;
-      const choice = $(`[data-clair-choice-index="${index}"]`);
-      const text = $(`#clairItemText${index}`);
-      return (choice?.value || text?.textContent || '').trim();
-    }).filter(Boolean);
+    return $$('[data-clair-review-index]:checked').map(input => reviewTextForInput(input))
+      .filter(text => text && !isNonIngredientLine(text));
   }
 
   function toast(message) {
@@ -579,7 +628,12 @@
     setTextIfChanged($('#openClairBtn'), 'Ajouter aux courses');
 
     const copy = $('#copyClairBtn');
-    if (copy && !copy.hidden) copy.hidden = true;
+    if (copy) {
+      copy.hidden = true;
+      copy.style.display = 'none';
+    }
+
+    cleanClairReview();
 
     setTextIfChanged(
       $('#scalingNote'),
