@@ -71,17 +71,7 @@ source=source.replace(
   "$('#customSchedulePanel').classList.remove('open');\n        const todayLunchButton = document.querySelector('[data-schedule-slot=\"today-lunch\"]');\n        if (todayLunchButton) todayLunchButton.hidden = new Date().getHours() >= 14;\n        $('#customScheduleDate').min = todayISO();"
 );
 
-/* 3. Badge visible de test */
-source=source.replace(
-  '</body>',
-  `<script>
-  (()=>{try{
-    document.title='Mon Carnet V2.3.5 TEST';
-    const brandSmall=document.querySelector('.brand small');
-    if(brandSmall) brandSmall.textContent='V2.3.5 TEST';
-  }catch{}})();
-  <\/script></body>`
-);
+/* Le libellé V2.3.5 TEST est déjà injecté par les remplacements ci-dessus. */
 
 document.open();
 document.write(source);
