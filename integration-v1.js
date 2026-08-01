@@ -268,14 +268,27 @@
     badge.hidden = count === 0;
   }
 
-  function openCourses() {
-    document.body.classList.remove('recipe-open');
-    $$('.view').forEach(view => view.classList.remove('active'));
-    $$('.nav-btn').forEach(button => button.classList.remove('active'));
+  function openCourses(event) {
+    if (event) {
+      event.preventDefault();
+      event.stopPropagation();
+      if (typeof event.stopImmediatePropagation === 'function') event.stopImmediatePropagation();
+    }
+
+    injectView();
     const view = $('#view-courses');
-    if (view) view.classList.add('active');
+    if (!view) {
+      toast('La page Courses n’est pas encore prête. Rechargez la page.');
+      return;
+    }
+
+    document.body.classList.remove('recipe-open');
+    $$('.view').forEach(item => item.classList.remove('active'));
+    $$('.nav-btn').forEach(button => button.classList.remove('active'));
+    view.hidden = false;
+    view.classList.add('active');
     renderCourses();
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    window.requestAnimationFrame(() => window.scrollTo({ top: 0, behavior: 'auto' }));
   }
 
   function addSelectedRecipeItems(event) {
@@ -429,7 +442,9 @@
     button.className = 'icon-btn mc-courses-button';
     button.setAttribute('aria-label', 'Ouvrir mes courses');
     button.innerHTML = '<span aria-hidden="true">🛒</span><span class="mc-courses-badge" id="mcCoursesBadge" hidden>0</span>';
-    button.addEventListener('click', openCourses);
+    button.style.pointerEvents = 'auto';
+    button.style.cursor = 'pointer';
+    button.addEventListener('click', event => openCourses(event));
     host.appendChild(button);
     updateBadge();
   }
@@ -458,6 +473,9 @@
     adaptExistingInterface();
     renderCourses();
 
+    document.addEventListener('click', event => {
+      if (event.target.closest('#mcOpenCourses')) openCourses(event);
+    }, true);
     document.addEventListener('click', addSelectedRecipeItems, true);
     const observer = new MutationObserver(() => {
       injectView();
