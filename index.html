@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#153c35">
-<title>Mon Carnet V2.4.5 TEST</title>
+<title>Mon Carnet V2.4.6 TEST</title>
 <style>
 :root{--paper:#f6f1e8;--ink:#17211e;--muted:#68736f;--card:#fffdf8;--line:rgba(23,33,30,.13);--bad:#8b3c35}
 *{box-sizing:border-box}
@@ -16,7 +16,7 @@ strong{display:block;font-size:1.35rem} p{color:var(--muted);line-height:1.5}
 </style>
 </head>
 <body>
-<div class="boot" id="boot"><div class="card"><strong>Mon Carnet V2.4.5 TEST</strong><p>Contrôle et ouverture de la version de test…</p></div></div>
+<div class="boot" id="boot"><div class="card"><strong>Mon Carnet V2.4.6 TEST</strong><p>Contrôle et ouverture de la version de test…</p></div></div>
 <script>
 (async () => {
 'use strict';
@@ -25,8 +25,8 @@ const BASE_COMMIT = '37d94ca01fb1694a131c1e452b2da56ba739c8e9';
 const OFFICIAL_CLAIR_URL = 'https://ferdinand373.github.io/clair-courses/';
 const OFFICIAL_ASSET_BASE = 'https://ferdinand373.github.io/Mon-carnet-de-cuisine/';
 const SOURCES = [
-  `https://cdn.jsdelivr.net/gh/Ferdinand373/Mon-carnet-de-cuisine@${BASE_COMMIT}/index.html?v=245-test`,
-  `https://raw.githubusercontent.com/Ferdinand373/Mon-carnet-de-cuisine/${BASE_COMMIT}/index.html?v=245-test`
+  `https://cdn.jsdelivr.net/gh/Ferdinand373/Mon-carnet-de-cuisine@${BASE_COMMIT}/index.html?v=246-test`,
+  `https://raw.githubusercontent.com/Ferdinand373/Mon-carnet-de-cuisine/${BASE_COMMIT}/index.html?v=246-test`
 ];
 
 
@@ -65,10 +65,10 @@ function patchSource(input) {
 
   /* Identification nette de la version de test. */
   source = source
-    .replaceAll('Mon carnet de cuisine — V2.3.4', 'Mon carnet de cuisine — V2.4.5 TEST')
-    .replaceAll('Collection personnelle · V2.3.4', 'VERSION · V2.4.5 TEST')
-    .replaceAll('VERSION STABILISÉE · V2.3.5', 'VERSION · V2.4.5 TEST')
-    .replaceAll('VERSION · TEST IPHONE 7.2 TITRES CORRIGÉS', 'VERSION · V2.4.5 TEST');
+    .replaceAll('Mon carnet de cuisine — V2.3.4', 'Mon carnet de cuisine — V2.4.6 TEST')
+    .replaceAll('Collection personnelle · V2.3.4', 'VERSION · V2.4.6 TEST')
+    .replaceAll('VERSION STABILISÉE · V2.3.5', 'VERSION · V2.4.6 TEST')
+    .replaceAll('VERSION · TEST IPHONE 7.2 TITRES CORRIGÉS', 'VERSION · V2.4.6 TEST');
 
   /* Clair Courses officiel uniquement. */
   source = source.replaceAll(
@@ -238,14 +238,42 @@ function patchSource(input) {
     checks.push({ label: 'masquage à 14 h', ok: true });
   }
 
+
+  /* Utiliser le format texte #mc= réellement accepté par Clair Courses officiel. */
+  const clairBridgeStart = source.indexOf('function clairBridgeUrl(');
+  const clairBridgeEnd = clairBridgeStart < 0
+    ? -1
+    : source.indexOf('async function copyAndOpenClair(', clairBridgeStart);
+
+  if (clairBridgeStart < 0 || clairBridgeEnd < 0) {
+    checks.push({ label: 'pont vers Clair Courses', ok: false });
+  } else {
+    const correctedClairBridge = `function clairBridgeUrl(text) {
+        const configured = DEFAULT_CLAIR_URL;
+        const cleanBase = configured
+          .replace(/[?#].*$/, '')
+          .replace(/(?:index\\.html|import\\.html)$/i, '')
+          .replace(/\\/?$/, '/');
+        const target = new URL(\`\${cleanBase}import.html\`, window.location.href);
+        target.hash = \`mc=\${encodeURIComponent(text)}\`;
+        return target.toString();
+      }
+
+      `;
+    source = source.slice(0, clairBridgeStart)
+      + correctedClairBridge
+      + source.slice(clairBridgeEnd);
+    checks.push({ label: 'pont vers Clair Courses', ok: true });
+  }
+
   /* Marqueur final, exécuté après les éventuels compléments. */
   const marker = `
 <script>
 (() => {
   const applyTestIdentity = () => {
-    document.title = 'Mon Carnet V2.4.5 TEST';
+    document.title = 'Mon Carnet V2.4.6 TEST';
     const version = document.querySelector('.brand small');
-    if (version) version.textContent = 'VERSION · V2.4.5 TEST';
+    if (version) version.textContent = 'VERSION · V2.4.6 TEST';
   };
   applyTestIdentity();
   window.setTimeout(applyTestIdentity, 300);
@@ -268,8 +296,9 @@ function patchSource(input) {
     'todayLunchButton.hidden',
     'function homeMealPlans()',
     "showTodayLunch ? [{ date: today, meal: 'midi' }]",
+    "target.hash = `mc=${encodeURIComponent(text)}`",
     OFFICIAL_CLAIR_URL,
-    'VERSION · V2.4.5 TEST'
+    'VERSION · V2.4.6 TEST'
   ];
 
   for (const marker of requiredMarkers) {
