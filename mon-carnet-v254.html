@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#153c35">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Mon Carnet">
+  <title>Mon Carnet V2.5.4 TEST</title>
+  <style>
+    :root{--paper:#f6f1e8;--ink:#17211e;--muted:#68736f;--card:#fffdf8;--line:rgba(23,33,30,.13);--bad:#8b3c35}
+    *{box-sizing:border-box}
+    html,body{min-height:100%;margin:0;background:var(--paper);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+    .boot{display:grid;min-height:100vh;place-items:center;padding:24px}
+    .card{width:min(590px,100%);padding:24px;border:1px solid var(--line);border-radius:24px;background:var(--card);box-shadow:0 16px 46px rgba(35,42,39,.12);text-align:center}
+    strong{display:block;font-size:1.35rem} p{color:var(--muted);line-height:1.5}
+    .error strong{color:var(--bad)} pre{white-space:pre-wrap;text-align:left;padding:12px;border-radius:14px;background:#f1ebe2;font-size:12px}
+  </style>
+</head>
+<body>
+  <div class="boot" id="boot"><div class="card"><strong>Mon Carnet V2.5.4 TEST</strong><p>Ouverture directe du carnet…</p></div></div>
+  <script>
+  (async () => {
+    'use strict';
+
+    const boot = document.getElementById('boot');
+    const directInsertion = [
+      "  const directIntegration = '<script src=\"./mon-carnet-v254.js?v=254\"></' + 'script>';",
+      "  const directBodyEnd = source.lastIndexOf('</body>');",
+      "  if (directBodyEnd < 0) {",
+      "    checks.push({ label: 'caddie direct V2.5.4', ok: false });",
+      "  } else {",
+      "    source = source.slice(0, directBodyEnd) + directIntegration + '\\n' + source.slice(directBodyEnd);",
+      "    checks.push({ label: 'caddie direct V2.5.4', ok: true });",
+      "  }",
+      ""
+    ].join("\n");
+
+    const stop = (message, details = '') => {
+      boot.classList.add('error');
+      boot.innerHTML = `<div class="card"><strong>Ouverture interrompue sans risque</strong><p>${message}</p>${details ? `<pre>${details}</pre>` : ''}</div>`;
+    };
+
+    try {
+      const response = await fetch('./index.html?v=254-direct', { cache: 'no-store' });
+      if (!response.ok) throw new Error(`Chargement impossible (${response.status})`);
+
+      let loader = await response.text();
+      const anchor = "  const bodyEnd = source.lastIndexOf('</body>');";
+      if (!loader.includes(anchor)) {
+        throw new Error('Le point d’insertion direct est introuvable.');
+      }
+
+      loader = loader
+        .replaceAll('V2.4.8 TEST', 'V2.5.4 TEST')
+        .replace(anchor, directInsertion + anchor);
+
+      document.open();
+      document.write(loader);
+      document.close();
+    } catch (error) {
+      console.error(error);
+      stop('Mon Carnet n’a pas pu être ouvert.', error?.message || String(error));
+    }
+  })();
+  </script>
+</body>
+</html>
