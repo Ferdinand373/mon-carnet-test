@@ -490,21 +490,24 @@
     updateBadge();
   }
 
+  function setTextIfChanged(element, text) {
+    if (!element || element.textContent.trim() === text) return;
+    element.textContent = text;
+  }
+
   function adaptExistingInterface() {
-    const detail = $('#detailClairBtn');
-    if (detail && detail.textContent.trim() !== 'Ajouter aux courses') {
-      detail.textContent = 'Ajouter aux courses';
-    }
-    const modalTitle = $('#clairTitle');
-    if (modalTitle) modalTitle.textContent = 'Ajouter aux courses';
-    const modalIntro = $('#clairModal .modal-head p');
-    if (modalIntro) modalIntro.textContent = 'Décochez ce que vous avez déjà à la maison.';
-    const open = $('#openClairBtn');
-    if (open) open.textContent = 'Ajouter aux courses';
+    setTextIfChanged($('#detailClairBtn'), 'Ajouter aux courses');
+    setTextIfChanged($('#clairTitle'), 'Ajouter aux courses');
+    setTextIfChanged($('#clairModal .modal-head p'), 'Décochez ce que vous avez déjà à la maison.');
+    setTextIfChanged($('#openClairBtn'), 'Ajouter aux courses');
+
     const copy = $('#copyClairBtn');
-    if (copy) copy.hidden = true;
-    const note = $('#scalingNote');
-    if (note) note.textContent = 'Seuls les produits cochés seront ajoutés. Les recettes restent inchangées.';
+    if (copy && !copy.hidden) copy.hidden = true;
+
+    setTextIfChanged(
+      $('#scalingNote'),
+      'Seuls les produits cochés seront ajoutés. Les recettes restent inchangées.'
+    );
   }
 
   function initialise() {
@@ -523,10 +526,18 @@
     document.addEventListener('keydown', event => {
       if (event.key === 'Escape' && $('#mc-courses-panel')?.classList.contains('open')) closeCourses(event);
     });
+    let refreshPending = false;
     const observer = new MutationObserver(() => {
-      injectView();
-      injectHeaderButton();
-      adaptExistingInterface();
+      if (refreshPending) return;
+      refreshPending = true;
+      window.requestAnimationFrame(() => {
+        refreshPending = false;
+        observer.disconnect();
+        injectView();
+        injectHeaderButton();
+        adaptExistingInterface();
+        observer.observe(document.body, { childList: true, subtree: true });
+      });
     });
     observer.observe(document.body, { childList: true, subtree: true });
   }
