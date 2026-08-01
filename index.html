@@ -78,7 +78,7 @@
   source = source.replace(
     /<script([^>]*?)src=["']\.\/([^"']+)["']([^>]*)><\/script>/gi,
     (_match, before, file, after) =>
-      `<script${before}src="${OFFICIAL_ASSET_BASE}${file}"${after}></script>`
+      `<script${before}src="${OFFICIAL_ASSET_BASE}${file}"${after}><\/script>`
   );
 
   /* Identification nette. */
