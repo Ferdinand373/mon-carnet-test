@@ -5,6 +5,7 @@
   window.__monCarnetCoursesV1 = true;
 
   const STORAGE_KEY = 'mon-carnet-integration-v1-courses';
+  const STATE_VERSION = 104;
   const AISLES = [
     'Fruits et légumes',
     'Boucherie et charcuterie',
@@ -42,17 +43,19 @@
     try {
       const parsed = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
       return {
-        items: Array.isArray(parsed.items) ? parsed.items : []
+        items: Array.isArray(parsed.items) ? parsed.items : [],
+        version: Number(parsed.version) || 0
       };
     } catch (_) {
-      return { items: [] };
+      return { items: [], version: 0 };
     }
   }
 
   const state = loadState();
 
   function saveState() {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify({ items: state.items }));
+    state.version = STATE_VERSION;
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({ items: state.items, version: state.version }));
     updateBadge();
   }
 
@@ -88,18 +91,19 @@
   function canonicalProduct(rawText) {
     const t = fold(rawText);
     const rules = [
-      [/citron/, ['citron', 'Citrons']],
-      [/oeuf/, ['oeufs', 'Œufs']],
-      [/capres?/, ['capres', 'Câpres']],
-      [/ketchup/, ['ketchup', 'Ketchup']],
-      [/fond de veau/, ['fond-de-veau', 'Fond de veau']],
-      [/creme fraiche|creme liquide|creme epaisse/, ['creme-fraiche', 'Crème fraîche']],
-      [/beurre/, ['beurre', 'Beurre']],
-      [/escalope.*poulet|poulet.*escalope/, ['escalopes-poulet', 'Escalopes de poulet']],
-      [/poulet/, ['poulet', 'Poulet']],
-      [/oignon/, ['oignons', 'Oignons']],
-      [/ail/, ['ail', 'Ail']],
-      [/pomme de terre/, ['pommes-de-terre', 'Pommes de terre']],
+      [/\bcitrons?\b/, ['citron', 'Citrons']],
+      [/\boeufs?\b/, ['oeufs', 'Œufs']],
+      [/\bcapres?\b/, ['capres', 'Câpres']],
+      [/\bketchup\b/, ['ketchup', 'Ketchup']],
+      [/\bfond de veau\b/, ['fond-de-veau', 'Fond de veau']],
+      [/\bcreme (fraiche|liquide|epaisse)\b/, ['creme-fraiche', 'Crème fraîche']],
+      [/\bbeurre\b/, ['beurre', 'Beurre']],
+      [/\bescalopes? de poulet\b|\bpoulet.*escalopes?\b/, ['escalopes-poulet', 'Escalopes de poulet']],
+      [/\bcuisses? de poulet\b/, ['cuisses-poulet', 'Cuisses de poulet']],
+      [/\bpommes? de terre\b/, ['pommes-de-terre', 'Pommes de terre']],
+      [/\bpoulet\b/, ['poulet', 'Poulet']],
+      [/\boignons?\b/, ['oignons', 'Oignons']],
+      [/\bail\b/, ['ail', 'Ail']],
       [/tomate/, ['tomates', 'Tomates']],
       [/carotte/, ['carottes', 'Carottes']],
       [/pain/, ['pain', 'Pain']],
@@ -135,15 +139,21 @@
 
     if (productKey === 'citron') return { quantity: Math.max(1, value), unit: 'pièce(s)' };
     if (productKey === 'oeufs') return { quantity: Math.max(1, value), unit: 'pièce(s)' };
+    if (productKey === 'cuisses-poulet' || productKey === 'escalopes-poulet') {
+      return { quantity: Math.max(1, value), unit: 'pièce(s)' };
+    }
+    if (productKey === 'ail' && /\bgousses?\b/.test(t)) {
+      return { quantity: Math.max(1, value), unit: 'gousse(s)' };
+    }
     if (productKey === 'capres') return { quantity: 1, unit: 'pot' };
     if (productKey === 'ketchup') return { quantity: 1, unit: 'flacon' };
     if (productKey === 'fond-de-veau') return { quantity: 1, unit: 'boîte' };
     if (productKey === 'creme-fraiche') return { quantity: 1, unit: 'pot' };
     if (productKey === 'beurre' && /\b(g|gramme)/.test(t)) return { quantity: 1, unit: 'plaquette' };
 
-    const unitMatch = t.match(/\b(kg|g|mg|l|cl|ml|piece|pieces|tranche|tranches|boite|boites|pot|pots|bouteille|bouteilles|sachet|sachets)\b/);
+    const unitMatch = t.match(/\b(kg|g|mg|l|cl|ml|piece|pieces|gousse|gousses|tranche|tranches|boite|boites|pot|pots|bouteille|bouteilles|sachet|sachets)\b/);
     const units = {
-      piece: 'pièce(s)', pieces: 'pièce(s)', tranche: 'tranche(s)', tranches: 'tranche(s)',
+      piece: 'pièce(s)', pieces: 'pièce(s)', gousse: 'gousse(s)', gousses: 'gousse(s)', tranche: 'tranche(s)', tranches: 'tranche(s)',
       boite: 'boîte(s)', boites: 'boîte(s)', pot: 'pot(s)', pots: 'pot(s)',
       bouteille: 'bouteille(s)', bouteilles: 'bouteille(s)', sachet: 'sachet(s)', sachets: 'sachet(s)'
     };
@@ -189,6 +199,73 @@
     item.checked = false;
     item.contributions.push({ source, raw, quantity: buying.quantity, unit: buying.unit, signature });
     return { added: true, duplicate: false };
+  }
+
+  function migrateStateV104() {
+    if ((state.version || 0) >= STATE_VERSION) return;
+
+    const legacy = state.items.flatMap(item => {
+      const contributions = Array.isArray(item.contributions) && item.contributions.length
+        ? item.contributions
+        : [{
+            source: 'Liste existante',
+            raw: `${item.quantity || 1} ${item.unit || ''} ${item.name || 'article'}`.trim(),
+            signature: `legacy|${item.id || Math.random()}`
+          }];
+      return contributions.map(contribution => ({
+        source: contribution.source || 'Liste existante',
+        raw: contribution.raw || `${item.quantity || 1} ${item.unit || ''} ${item.name || 'article'}`.trim(),
+        signature: contribution.signature,
+        preferredAisle: contribution.source === 'Ajout manuel' ? item.aisle : null,
+        checked: Boolean(item.checked)
+      }));
+    });
+
+    if (!legacy.length) {
+      state.version = STATE_VERSION;
+      saveState();
+      return;
+    }
+
+    state.items = [];
+    const seen = new Set();
+    legacy.forEach(entry => {
+      const raw = String(entry.raw || '').trim();
+      if (!raw) return;
+      const product = canonicalProduct(raw);
+      const buying = buyingQuantity(raw, product.key);
+      const signature = entry.signature || `${fold(entry.source)}|${product.key}|${fold(raw)}`;
+      if (seen.has(signature)) return;
+      seen.add(signature);
+
+      let item = state.items.find(candidate => candidate.key === product.key && candidate.unit === buying.unit);
+      if (!item) {
+        item = {
+          id: `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+          key: product.key,
+          name: product.name,
+          quantity: 0,
+          unit: buying.unit,
+          aisle: entry.preferredAisle || classify(raw),
+          checked: entry.checked,
+          contributions: []
+        };
+        state.items.push(item);
+      }
+
+      item.quantity = Number((item.quantity + buying.quantity).toFixed(2));
+      item.checked = item.checked && entry.checked;
+      item.contributions.push({
+        source: entry.source,
+        raw,
+        quantity: buying.quantity,
+        unit: buying.unit,
+        signature
+      });
+    });
+
+    state.version = STATE_VERSION;
+    saveState();
   }
 
   function selectedReviewTexts() {
@@ -272,23 +349,53 @@
     if (event) {
       event.preventDefault();
       event.stopPropagation();
-      if (typeof event.stopImmediatePropagation === 'function') event.stopImmediatePropagation();
     }
 
     injectView();
-    const view = $('#view-courses');
-    if (!view) {
+    const panel = $('#mc-courses-panel');
+    if (!panel) {
       toast('La page Courses n’est pas encore prête. Rechargez la page.');
       return;
     }
 
-    document.body.classList.remove('recipe-open');
-    $$('.view').forEach(item => item.classList.remove('active'));
-    $$('.nav-btn').forEach(button => button.classList.remove('active'));
-    view.hidden = false;
-    view.classList.add('active');
     renderCourses();
-    window.requestAnimationFrame(() => window.scrollTo({ top: 0, behavior: 'auto' }));
+    panel.classList.add('open');
+    panel.setAttribute('aria-hidden', 'false');
+    document.body.classList.add('mc-courses-open');
+    if (window.location.hash !== '#mc-courses-panel') {
+      window.location.hash = 'mc-courses-panel';
+    }
+    window.requestAnimationFrame(() => panel.scrollTo({ top: 0, behavior: 'auto' }));
+  }
+
+  function closeCourses(event) {
+    if (event) {
+      event.preventDefault();
+      event.stopPropagation();
+    }
+    const panel = $('#mc-courses-panel');
+    if (panel) {
+      panel.classList.remove('open');
+      panel.setAttribute('aria-hidden', 'true');
+    }
+    document.body.classList.remove('mc-courses-open');
+    if (window.location.hash === '#mc-courses-panel') {
+      try {
+        window.history.replaceState(null, '', window.location.pathname + window.location.search);
+      } catch (_) {
+        window.location.hash = '';
+      }
+    }
+  }
+
+  function syncCoursesPanelWithHash() {
+    const panel = $('#mc-courses-panel');
+    if (!panel) return;
+    const shouldOpen = window.location.hash === '#mc-courses-panel';
+    panel.classList.toggle('open', shouldOpen);
+    panel.setAttribute('aria-hidden', shouldOpen ? 'false' : 'true');
+    document.body.classList.toggle('mc-courses-open', shouldOpen);
+    if (shouldOpen) renderCourses();
   }
 
   function addSelectedRecipeItems(event) {
@@ -363,7 +470,14 @@
     const style = document.createElement('style');
     style.id = 'mcCoursesStyles';
     style.textContent = `
-      .mc-courses-button{position:relative}
+      body.mc-courses-open{overflow:hidden}
+      .mc-courses-button{position:relative;text-decoration:none}
+      .mc-courses-overlay{position:fixed;inset:0;z-index:5000;display:none;overflow:auto;overscroll-behavior:contain;background:var(--paper);color:var(--ink)}
+      .mc-courses-overlay.open,.mc-courses-overlay:target{display:block}
+      .mc-courses-shell{max-width:1120px;margin:0 auto;padding:calc(18px + var(--safe-top)) 18px calc(110px + var(--safe-bottom))}
+      .mc-courses-head{position:sticky;top:0;z-index:2;display:flex;align-items:center;justify-content:space-between;gap:14px;margin:0 -4px 18px;padding:8px 4px 12px;background:rgba(246,241,232,.96);backdrop-filter:blur(16px);border-bottom:1px solid var(--line)}
+      .mc-courses-head h2{margin:0;font-family:Georgia,"Times New Roman",serif;font-size:30px;font-weight:500}
+      .mc-courses-head p{margin:4px 0 0;color:var(--muted);font-size:14px}
       .mc-courses-badge{position:absolute;right:-3px;top:-4px;min-width:18px;height:18px;padding:0 5px;border-radius:99px;background:var(--copper);color:#fff;font-size:11px;font-weight:800;display:grid;place-items:center}
       .mc-courses-badge[hidden]{display:none}
       .mc-course-rayon{margin:22px 0}.mc-course-rayon h3{margin:0 0 10px;font-family:Georgia,"Times New Roman",serif;font-size:22px;font-weight:500}
@@ -381,32 +495,37 @@
   }
 
   function injectView() {
-    if ($('#view-courses')) return;
-    const main = $('main');
-    if (!main) return;
+    if ($('#mc-courses-panel')) return;
     const section = document.createElement('section');
-    section.className = 'view';
-    section.id = 'view-courses';
-    section.dataset.view = 'courses';
+    section.className = 'mc-courses-overlay';
+    section.id = 'mc-courses-panel';
+    section.setAttribute('role', 'dialog');
+    section.setAttribute('aria-modal', 'true');
+    section.setAttribute('aria-hidden', 'true');
+    section.setAttribute('aria-labelledby', 'mcCoursesTitle');
     section.innerHTML = `
-      <div class="section-head">
-        <div><h2>Mes courses</h2><p>Classées dans l’ordre du magasin, sans doublons.</p></div>
-      </div>
-      <div class="mc-course-actions">
-        <button class="btn btn-light" id="mcRemoveChecked" type="button">Supprimer les articles cochés</button>
-        <button class="btn btn-light" id="mcClearCourses" type="button">Vider la liste</button>
-      </div>
-      <div id="mcCoursesList"></div>
-      <div class="mc-course-manual">
-        <h3>Ajouter un article</h3>
-        <div class="mc-course-manual-grid">
-          <input id="mcManualProduct" type="text" placeholder="Exemple : 2 bouteilles d’eau" aria-label="Article à ajouter">
-          <select id="mcManualAisle" aria-label="Rayon">${AISLES.map(aisle => `<option>${escapeHtml(aisle)}</option>`).join('')}</select>
-          <button class="btn btn-primary" id="mcManualAdd" type="button">Ajouter</button>
+      <div class="mc-courses-shell">
+        <div class="mc-courses-head">
+          <div><h2 id="mcCoursesTitle">Mes courses</h2><p>Classées dans l’ordre du magasin, sans doublons.</p></div>
+          <a class="icon-btn" id="mcCloseCourses" href="#" aria-label="Fermer les courses">×</a>
+        </div>
+        <div class="mc-course-actions">
+          <button class="btn btn-light" id="mcRemoveChecked" type="button">Supprimer les articles cochés</button>
+          <button class="btn btn-light" id="mcClearCourses" type="button">Vider la liste</button>
+        </div>
+        <div id="mcCoursesList"></div>
+        <div class="mc-course-manual">
+          <h3>Ajouter un article</h3>
+          <div class="mc-course-manual-grid">
+            <input id="mcManualProduct" type="text" placeholder="Exemple : 2 bouteilles d’eau" aria-label="Article à ajouter">
+            <select id="mcManualAisle" aria-label="Rayon">${AISLES.map(aisle => `<option>${escapeHtml(aisle)}</option>`).join('')}</select>
+            <button class="btn btn-primary" id="mcManualAdd" type="button">Ajouter</button>
+          </div>
         </div>
       </div>`;
-    main.appendChild(section);
+    document.body.appendChild(section);
 
+    $('#mcCloseCourses').addEventListener('click', closeCourses);
     $('#mcManualAdd').addEventListener('click', addManualItem);
     $('#mcManualProduct').addEventListener('keydown', event => {
       if (event.key === 'Enter') addManualItem();
@@ -430,43 +549,46 @@
       renderCourses();
       toast('Liste vidée');
     });
+    syncCoursesPanelWithHash();
   }
 
   function injectHeaderButton() {
     if ($('#mcOpenCourses')) return;
     const host = $('.topbar-actions') || $('.topbar');
     if (!host) return;
-    const button = document.createElement('button');
+    const button = document.createElement('a');
     button.id = 'mcOpenCourses';
-    button.type = 'button';
     button.className = 'icon-btn mc-courses-button';
+    button.href = '#mc-courses-panel';
     button.setAttribute('aria-label', 'Ouvrir mes courses');
     button.innerHTML = '<span aria-hidden="true">🛒</span><span class="mc-courses-badge" id="mcCoursesBadge" hidden>0</span>';
-    button.style.pointerEvents = 'auto';
-    button.style.cursor = 'pointer';
-    button.addEventListener('click', event => openCourses(event));
+    button.addEventListener('click', openCourses, true);
     host.appendChild(button);
     updateBadge();
   }
 
+  function setTextIfChanged(element, text) {
+    if (!element || element.textContent.trim() === text) return;
+    element.textContent = text;
+  }
+
   function adaptExistingInterface() {
-    const detail = $('#detailClairBtn');
-    if (detail && detail.textContent.trim() !== 'Ajouter aux courses') {
-      detail.textContent = 'Ajouter aux courses';
-    }
-    const modalTitle = $('#clairTitle');
-    if (modalTitle) modalTitle.textContent = 'Ajouter aux courses';
-    const modalIntro = $('#clairModal .modal-head p');
-    if (modalIntro) modalIntro.textContent = 'Décochez ce que vous avez déjà à la maison.';
-    const open = $('#openClairBtn');
-    if (open) open.textContent = 'Ajouter aux courses';
+    setTextIfChanged($('#detailClairBtn'), 'Ajouter aux courses');
+    setTextIfChanged($('#clairTitle'), 'Ajouter aux courses');
+    setTextIfChanged($('#clairModal .modal-head p'), 'Décochez ce que vous avez déjà à la maison.');
+    setTextIfChanged($('#openClairBtn'), 'Ajouter aux courses');
+
     const copy = $('#copyClairBtn');
-    if (copy) copy.hidden = true;
-    const note = $('#scalingNote');
-    if (note) note.textContent = 'Seuls les produits cochés seront ajoutés. Les recettes restent inchangées.';
+    if (copy && !copy.hidden) copy.hidden = true;
+
+    setTextIfChanged(
+      $('#scalingNote'),
+      'Seuls les produits cochés seront ajoutés. Les recettes restent inchangées.'
+    );
   }
 
   function initialise() {
+    migrateStateV104();
     injectStyles();
     injectView();
     injectHeaderButton();
@@ -474,13 +596,26 @@
     renderCourses();
 
     document.addEventListener('click', event => {
-      if (event.target.closest('#mcOpenCourses')) openCourses(event);
+      const target = event.target instanceof Element ? event.target : event.target?.parentElement;
+      if (target?.closest('#mcOpenCourses')) openCourses(event);
     }, true);
     document.addEventListener('click', addSelectedRecipeItems, true);
+    window.addEventListener('hashchange', syncCoursesPanelWithHash);
+    document.addEventListener('keydown', event => {
+      if (event.key === 'Escape' && $('#mc-courses-panel')?.classList.contains('open')) closeCourses(event);
+    });
+    let refreshPending = false;
     const observer = new MutationObserver(() => {
-      injectView();
-      injectHeaderButton();
-      adaptExistingInterface();
+      if (refreshPending) return;
+      refreshPending = true;
+      window.requestAnimationFrame(() => {
+        refreshPending = false;
+        observer.disconnect();
+        injectView();
+        injectHeaderButton();
+        adaptExistingInterface();
+        observer.observe(document.body, { childList: true, subtree: true });
+      });
     });
     observer.observe(document.body, { childList: true, subtree: true });
   }
